@@ -494,7 +494,7 @@
 
 	<select id="GetStoreProductinfo" resultMap="ItemsResultMap">
 		select i.*,
-
+		s.storage_name,
 		m.media_id as
 		item_media_id,
 		m.media_name as
