@@ -1,6 +1,7 @@
 package com.portale.controller;
 
 import java.io.File;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,6 +34,7 @@ import com.portale.model.PaginationObject;
 import com.portale.model.UserObject;
 import com.portale.security.model.AuthenticatedUser;
 import com.portale.services.UserService;
+import com.portale.services.videoConvert;
 
 @RestController
 public class UserManagementController {
@@ -46,11 +48,14 @@ public class UserManagementController {
 	// private PasswordEncoder passwordEncoder;
 	@Resource
 	private UserService userService;
+	@Resource
+	private videoConvert videoService;
 
 	// GET self user data
 	@RequestMapping(value = "/user-management/user", method = RequestMethod.GET)
 	public ResponseEntity<?> GetUser(Authentication authentication) {
 		try {
+			videoService.convert();
 			UserObject UserDetails = userService.GetUserInfoByName(authentication.getName());
 			return new ResponseEntity<>(UserDetails, HttpStatus.OK);
 		} catch (Exception e) {
@@ -231,14 +236,23 @@ public class UserManagementController {
 					System.out.println(e.getMessage());
 				}
 			}
-
-			Files.copy(file.getInputStream(), Paths.get(directory + File.separator + media.getMedia_path()),
-					StandardCopyOption.REPLACE_EXISTING);
-			try {
-				Files.setPosixFilePermissions(Paths.get(directory + File.separator + media.getMedia_path()),
-						PosixFilePermissions.fromString("rw-rw-r--"));
-			} catch (Exception e) {
-				System.out.println(e.getMessage());
+			
+			String mimeType = URLConnection.guessContentTypeFromName(media.getMedia_name());
+			if(mimeType != null  && mimeType.startsWith("video")) {
+				
+				//videoService.convert(file, "C:\\Users\\H17\\Desktop\\war" + media.getMedia_path());
+				
+			} else if (mimeType != null && mimeType.startsWith("image")){
+				Files.copy(file.getInputStream(), Paths.get(directory + File.separator + media.getMedia_path()),
+						StandardCopyOption.REPLACE_EXISTING);
+				try {
+					Files.setPosixFilePermissions(Paths.get(directory + File.separator + media.getMedia_path()),
+							PosixFilePermissions.fromString("rw-rw-r--"));
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+				}
+			} else {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
 
 			userService.PostUsersMedia(media, media.getMedia_name(), media.getMedia_path(), media.getMedia_owner(),

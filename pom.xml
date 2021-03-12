@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.materialeinvendita</groupId>
@@ -21,14 +20,13 @@
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
 		</dependency>
-		<!-- javax.mail <dependency> <groupId>javax.mail</groupId> <artifactId>mail</artifactId> 
-			<version>1.4.3</version> </dependency> -->
+		<!-- javax.mail <dependency> <groupId>javax.mail</groupId> <artifactId>mail</artifactId> <version>1.4.3</version> </dependency> -->
 		<dependency>
 			<groupId>com.sun.mail</groupId>
 			<artifactId>javax.mail</artifactId>
 			<version>1.6.2</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>javax.annotation</groupId>
 			<artifactId>javax.annotation-api</artifactId>
@@ -124,18 +122,13 @@
 		</dependency>
 
 
-		<!-- PDF library <dependency> <groupId>com.itextpdf</groupId> <artifactId>itextpdf</artifactId> 
-			<version>5.0.6</version> </dependency> <dependency> <groupId>com.itextpdf</groupId> 
-			<artifactId>kernel</artifactId> <version>7.0.2</version> </dependency> <dependency> 
-			<groupId>com.itextpdf</groupId> <artifactId>io</artifactId> <version>7.0.2</version> 
-			</dependency> <dependency> <groupId>com.itextpdf</groupId> <artifactId>layout</artifactId> 
-			<version>7.0.2</version> </dependency> <dependency> <groupId>com.itextpdf</groupId> 
-			<artifactId>forms</artifactId> <version>7.0.2</version> </dependency> <dependency> 
-			<groupId>com.itextpdf</groupId> <artifactId>pdfa</artifactId> <version>7.0.2</version> 
-			</dependency> <dependency> <groupId>com.itextpdf</groupId> <artifactId>pdftest</artifactId> 
-			<version>7.0.2</version> </dependency> -->
-		<!-- logger http://www.slf4j.org/manual.html <dependency> <groupId>org.slf4j</groupId> 
-			<artifactId>slf4j-log4j12</artifactId> <version>1.7.18</version> </dependency> -->
+		<!-- PDF library <dependency> <groupId>com.itextpdf</groupId> <artifactId>itextpdf</artifactId> <version>5.0.6</version> </dependency> <dependency> <groupId>com.itextpdf</groupId> 
+			<artifactId>kernel</artifactId> <version>7.0.2</version> </dependency> <dependency> <groupId>com.itextpdf</groupId> <artifactId>io</artifactId> <version>7.0.2</version> 
+			</dependency> <dependency> <groupId>com.itextpdf</groupId> <artifactId>layout</artifactId> <version>7.0.2</version> </dependency> <dependency> <groupId>com.itextpdf</groupId> 
+			<artifactId>forms</artifactId> <version>7.0.2</version> </dependency> <dependency> <groupId>com.itextpdf</groupId> <artifactId>pdfa</artifactId> <version>7.0.2</version> 
+			</dependency> <dependency> <groupId>com.itextpdf</groupId> <artifactId>pdftest</artifactId> <version>7.0.2</version> </dependency> -->
+		<!-- logger http://www.slf4j.org/manual.html <dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-log4j12</artifactId> <version>1.7.18</version> 
+			</dependency> -->
 		<!-- spring-security -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -216,6 +209,24 @@
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
 			<version>2.10.9</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ws.schild</groupId>
+			<artifactId>jave-core</artifactId>
+			<version>2.7.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ws.schild</groupId>
+			<artifactId>jave-nativebin-linux64</artifactId>
+			<version>2.7.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ws.schild</groupId>
+			<artifactId>jave-nativebin-win64</artifactId>
+			<version>2.7.1</version>
 		</dependency>
 
 
