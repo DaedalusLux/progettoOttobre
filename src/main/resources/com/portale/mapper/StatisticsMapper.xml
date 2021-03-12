@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.portale.mapper.StatisticsMapper">
+	
+	<select id="GetVisitStatus" resultMap="VisitStatusResultMap">
+		select webstats.* 
+		from webstatistics_visits webstats
+	</select>
+	<resultMap id="VisitStatusResultMap" type="Statistics_Views">
+		<id property="statistic_id" column="id_view" />
+		<result property="ip_address" column="ipaddress" />
+		<result property="msdatetime" column="datetime" />
+	</resultMap>
+	
+	<insert id="AddWebSiteVisit">
+		insert into webstatistics_visits(ipaddress, datetime)
+		values (#{host},#{datetime})
+	</insert>
+
+</mapper>

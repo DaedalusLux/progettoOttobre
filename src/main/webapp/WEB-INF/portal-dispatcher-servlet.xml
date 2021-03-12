@@ -1,0 +1,78 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+      http://www.springframework.org/schema/beans 
+      http://www.springframework.org/schema/beans/spring-beans-4.2.xsd 
+      http://www.springframework.org/schema/context 
+      http://www.springframework.org/schema/context/spring-context-4.2.xsd 
+      http://www.springframework.org/schema/mvc 
+      http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+      http://www.springframework.org/schema/tx 
+      http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+      http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd
+      http://www.springframework.org/schema/util
+      http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+
+
+	<context:property-placeholder
+		location="classpath:application.properties" />
+	<context:component-scan
+		base-package="com.portale" />
+
+	<!-- scan for mappers and let them be autowired -->
+	<mybatis:scan base-package="com.portale.mapper" />
+
+	<mvc:cors>
+
+		<mvc:mapping path="/**" allowed-origins="*"
+
+			allowed-headers="Content-Type, content-type, x-requested-with, Access-Control-Allow-Origin, Access-Control-Allow-Headers, x-auth-token, x-app-id, Origin,Accept, X-Requested-With, Access-Control-Request-Method, Access-Control-Request-Headers"
+
+			allowed-methods="GET,POST,DELETE" allow-credentials="false"
+			exposed-headers="x-auth-token, Access-Control-Allow-Origin" />
+
+	</mvc:cors>
+
+	<mvc:annotation-driven />
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"
+			value="org.postgresql.Driver" />
+		<property name="url"
+			value="jdbc:postgresql://95.110.141.176:5432/materialeinvendita" />
+		<property name="username" value="webclient" />
+		<property name="password" value="jUJ%298Ggn3n$n" />
+	</bean>
+	<!-- value="jdbc:postgresql://95.110.141.176:5432/materialeinvendita" />  -->
+	<tx:annotation-driven
+		transaction-manager="transactionManager" />
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="typeAliasesPackage" value="com.portale.model" />
+		<property name="mapperLocations"
+			value="classpath*:com/portale/mapper/*.xml" />
+	</bean>
+
+	<bean id="sqlSession"
+		class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="5242880" />
+	</bean>
+
+</beans>

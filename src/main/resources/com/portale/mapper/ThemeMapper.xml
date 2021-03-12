@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.portale.mapper.ThemeMapper">
+	<insert id="AddNewTheme"
+		parameterType="com.portale.model.ThemeObject" useGeneratedKeys="true"
+		keyProperty="themeObj.themeId">
+		insert into
+		themes(display_name, css_path, thumbnail_path)
+		values
+		(#{themeName},#{themeCSS},#{themeImage})
+	</insert>
+	
+	<select id="getHomeSettings" resultMap="getHomeSettingsResultMap">
+		select * from home_page
+	</select>
+	
+	
+	<resultMap type="homeSettingsObj" id="getHomeSettingsResultMap">
+		<id property="id_homepage" column="id_homepage" />
+		<result property="colnum" column="colnum" />
+		<result property="isfirstbanner" column="isfirstbanner" />		
+	</resultMap>
+	
+	<update id="updateHomeSettings">
+		update home_page
+		<set>
+			col_num = #{col_num},
+			is_first_banner = #{isfirstbanner}
+		</set>
+		where id_homepage = 1
+	</update>
+</mapper>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+	xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security-4.2.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<global-method-security
+		pre-post-annotations="enabled" />
+
+	<http pattern="/login" security="none" />
+	<http pattern="/stores/**" security="none" />
+	<http pattern="/themes" security="none" />
+
+	<http entry-point-ref="restAuthenticationEntryPoint"
+		create-session="stateless" use-expressions="true">
+		<csrf disabled="true" />
+		
+		
+		<intercept-url pattern="/theme-management/**"
+			access="hasRole('ROLE_ADMIN')" />
+		<intercept-url pattern="/statistics-management/**"
+			access="hasRole('ROLE_ADMIN')" />
+		<intercept-url pattern="/store-management/stores/**"
+			access="hasAnyRole('ROLE_ADMIN','ROLE_USER')" />
+		<intercept-url pattern="/store-management/**"
+			access="hasRole('ROLE_ADMIN')" />
+			
+			<intercept-url pattern="/user-management/user"
+			access="hasAnyRole('ROLE_ADMIN','ROLE_USER')" />
+		<intercept-url pattern="/user-management/**"
+			access="hasRole('ROLE_ADMIN')" />
+
+
+		
+
+
+		<custom-filter before="FORM_LOGIN_FILTER"
+			ref="jwtAuthenticationFilter" />
+
+		<cors configuration-source-ref="corsSource" />
+	</http>
+
+	<beans:bean id="jwtAuthenticationFilter"
+		class="com.portale.security.JwtAuthenticationFilter">
+		<beans:property name="authenticationManager"
+			ref="authenticationManager" />
+		<beans:property name="authenticationSuccessHandler"
+			ref="jwtAuthenticationSuccessHandler" />
+	</beans:bean>
+
+	<authentication-manager
+		alias="authenticationManager">
+		<authentication-provider
+			ref="jwtAuthenticationProvider">
+		</authentication-provider>
+	</authentication-manager>
+
+	<beans:bean id="bCryptPasswordEncoder"
+		class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
+		<beans:constructor-arg value="20" />
+	</beans:bean>
+
+
+	<beans:bean id="jwtAuthenticationProvider"
+		class="com.portale.security.JwtAuthenticationProvider">
+	</beans:bean>
+	<beans:bean id="jwtAuthenticationSuccessHandler"
+		class="com.portale.security.exceptions.JwtAuthenticationSuccessHandler" />
+	<beans:bean id="restAuthenticationEntryPoint"
+		class="com.portale.security.exceptions.RestAuthenticationEntryPoint" />
+	<beans:bean id="authenticationManager"
+		class="org.springframework.security.authentication.AuthenticationManager" />
+
+
+	<beans:bean id="corsSource"
+		class="org.springframework.web.cors.UrlBasedCorsConfigurationSource">
+		<beans:property name="corsConfigurations">
+			<util:map>
+				<beans:entry key="/**">
+					<beans:bean
+						class="org.springframework.web.cors.CorsConfiguration">
+						<beans:property name="allowCredentials"
+							value="true" />
+						<beans:property name="allowedHeaders">
+							<beans:list>
+								<beans:value>Authorization</beans:value>
+								<beans:value>Content-Type</beans:value>
+							</beans:list>
+						</beans:property>
+						<beans:property name="exposedHeaders">
+							<beans:list>
+								<beans:value>Account-Locked</beans:value>
+								<beans:value>Account-Disabled</beans:value>
+								<beans:value>Bad-Credentials</beans:value>
+							</beans:list>
+						</beans:property>
+						<beans:property name="allowedMethods">
+							<beans:list>
+								<beans:value>POST</beans:value>
+								<beans:value>GET</beans:value>
+								<beans:value>OPTIONS</beans:value>
+								<beans:value>DELETE</beans:value>
+							</beans:list>
+						</beans:property>
+						<beans:property name="allowedOrigins" value="*" />
+					</beans:bean>
+				</beans:entry>
+			</util:map>
+		</beans:property>
+	</beans:bean>
+</beans:beans>

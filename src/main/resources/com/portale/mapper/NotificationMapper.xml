@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.portale.mapper.NotificationMapper">
+	
+	<select id="GetNotificationsCount" resultType="java.lang.Long">
+		select count(view_id) from notification_view
+		where ref_to = #{user_id}
+	</select>
+	
+	<insert id="CreateNotification"
+		parameterType="com.portale.model.NotificationObject"
+		useGeneratedKeys="true" keyProperty="notification.notification_id">
+		insert into
+		notifications(date,title,message,importancy_level,from_user)
+		values
+		(#{date},#{title},#{message},#{importancy},#{from_user})
+	</insert>
+
+	<insert id="AppendNotificationToUser">
+		insert into
+		notification_view(ref_to,notification_ref)
+		values
+		(#{ref_to},#{notification_ref})
+	</insert>
+
+	<select id="GetAllNotifications"
+		resultMap="NotificationsResultMap">
+		select n.*, nv.seen, ud.nome as from_user_name, ud.cognome
+		as
+		from_user_surname
+		from notifications n, notification_view nv,
+		users_details ud
+		where n.notification_id = nv.notification_ref
+		and
+		nv.ref_to = #{user_id}
+		and ud.user_ref = n.from_user
+		order by
+		n.notification_id desc
+		limit #{limit}
+		offset #{offset}
+	</select>
+
+	<select id="GetNotificationById"
+		resultMap="NotificationsResultMap">
+		select n.*, nv.seen, ud.nome as from_user_name, ud.cognome
+		as
+		from_user_surname
+		from notifications n, notification_view nv,
+		users_details ud
+		where n.notification_id = nv.notification_ref
+		and nv.ref_to = #{user_id}
+		and ud.user_ref = nv.ref_to
+		and n.notification_id = #{notificationId}
+	</select>
+
+	<resultMap id="NotificationsResultMap"
+		type="NotificationObject">
+		<result property="notification_id" column="notification_id" />
+		<result property="from" column="from_user" />
+		<result property="date" column="date" />
+		<result property="seen" column="seen" />
+		<result property="message" column="message" />
+		<result property="importancyLevel" column="importancy_level" />
+		<result property="fromUserName" column="from_user_name" />
+		<result property="fromUserSurname" column="from_user_surname" />
+	</resultMap>
+	
+	<update id="SetNotificationAsSeen">
+		update notification_view
+		set seen = true
+		from notifications
+		where notifications.notification_id = notification_view.notification_ref
+		and notifications.notification_id = #{notificationId}
+		and notification_view.ref_to = #{user_id}
+	</update>
+
+	<select id="AnyUnseenNotifications"
+		resultType="java.lang.Boolean">
+		select nv.seen
+		from notification_view nv
+		where nv.ref_to =
+		#{to}
+		and nv.seen = false
+		limit 1
+	</select>
+
+	<select id="isNotificationForUser"
+		resultType="java.lang.Integer">
+		select nv.ref_to
+		from notification_view nv, notifications n
+		where n.notification_id = #{notificationId}
+		and n.notification_id =
+		nv.notification_ref
+		and nv.ref_to = #{user_id}
+	</select>
+</mapper>
