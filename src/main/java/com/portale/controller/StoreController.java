@@ -46,8 +46,6 @@ public class StoreController {
 			if (themeService.homeSettingMem == null) {
 				themeService.homeSettingMem = themeService.getHomeSettingsObjs();
 				}
-			
-			
 
 			Store = storeService.GetStoreData();
 			ObjectMapper mapper = new ObjectMapper();

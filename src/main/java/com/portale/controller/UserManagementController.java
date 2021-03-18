@@ -43,6 +43,8 @@ public class UserManagementController {
 	private String archive;
 	@Value("${default.folder.permission}")
 	private String defaultFolderPermission;
+	@Value("${local.dir.temp}")
+	private String tempDirectory;
 
 	// @Autowired
 	// private PasswordEncoder passwordEncoder;
@@ -55,7 +57,6 @@ public class UserManagementController {
 	@RequestMapping(value = "/user-management/user", method = RequestMethod.GET)
 	public ResponseEntity<?> GetUser(Authentication authentication) {
 		try {
-			videoService.convert();
 			UserObject UserDetails = userService.GetUserInfoByName(authentication.getName());
 			return new ResponseEntity<>(UserDetails, HttpStatus.OK);
 		} catch (Exception e) {
@@ -189,15 +190,15 @@ public class UserManagementController {
 
 		return new ResponseEntity<>(media, HttpStatus.OK);
 	}
-	
+
 	static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	static SecureRandom rnd = new SecureRandom();
 
-	String randomString(int len){
-	   StringBuilder sb = new StringBuilder(len);
-	   for(int i = 0; i < len; i++)
-	      sb.append(AB.charAt(rnd.nextInt(AB.length())));
-	   return sb.toString();
+	String randomString(int len) {
+		StringBuilder sb = new StringBuilder(len);
+		for (int i = 0; i < len; i++)
+			sb.append(AB.charAt(rnd.nextInt(AB.length())));
+		return sb.toString();
 	}
 
 	@RequestMapping(value = "/user-management/users/{id}/media/add", method = RequestMethod.POST, consumes = {
@@ -209,21 +210,18 @@ public class UserManagementController {
 
 		try {
 			media.setMedia_name(file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.')));
-			media.setMedia_path(randomString(12) + file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'), file.getOriginalFilename().length()));
+			media.setMedia_path(randomString(12));
 			media.setMedia_owner(new Long(id));
 			media.setMedia_pubblication_date(new Date());
 
-			Boolean mediaExist = userService.CheckIfMediaExist(media.getMedia_path(), media.getMedia_owner());
-			int mediaPrefix = 1;
-			while (mediaExist) {
-				if (userService.CheckIfMediaExist(mediaPrefix + media.getMedia_path(),
-						media.getMedia_owner())) {
-					mediaPrefix++;
-				} else {
-					media.setMedia_path(mediaPrefix + media.getMedia_path());
-					mediaExist = false;
-				}
-			}
+			/*
+			 * Boolean mediaExist = userService.CheckIfMediaExist(media.getMedia_path(),
+			 * media.getMedia_owner()); int mediaPrefix = 1; while (mediaExist) { if
+			 * (userService.CheckIfMediaExist(mediaPrefix + media.getMedia_path(),
+			 * media.getMedia_owner())) { mediaPrefix++; } else {
+			 * media.setMedia_path(mediaPrefix + media.getMedia_path()); mediaExist = false;
+			 * } }
+			 */
 
 			String filePath = String.format("%s//%s", archive, id);
 			File directory = new File(filePath);
@@ -236,13 +234,56 @@ public class UserManagementController {
 					System.out.println(e.getMessage());
 				}
 			}
-			
-			String mimeType = URLConnection.guessContentTypeFromName(media.getMedia_name());
-			if(mimeType != null  && mimeType.startsWith("video")) {
-				
-				//videoService.convert(file, "C:\\Users\\H17\\Desktop\\war" + media.getMedia_path());
-				
-			} else if (mimeType != null && mimeType.startsWith("image")){
+
+			String fileType = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'),
+					file.getOriginalFilename().length());
+			if (fileType == ".mp4" || fileType == ".webm" || fileType == ".mkv" || fileType == ".3gpp"
+					|| fileType == ".ogg" || fileType == ".avi") {
+				Files.copy(file.getInputStream(),
+						Paths.get(tempDirectory + File.separator + file.getOriginalFilename()),
+						StandardCopyOption.REPLACE_EXISTING);
+				try {
+					Files.setPosixFilePermissions(
+							Paths.get(tempDirectory + File.separator + file.getOriginalFilename()),
+							PosixFilePermissions.fromString("rw-rw-r--"));
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+				}
+
+				String donePath = String.format("%s/%s", tempDirectory, media.getMedia_path() + ".webm.done");
+				Path videoOutputPath = Paths.get(donePath);
+				videoService.convert(media.getMedia_owner(), file.getOriginalFilename(), media.getMedia_path());
+
+				int i = 0;
+				while (Files.notExists(videoOutputPath) && i <= 120) // max conversion time 2 min (AVG 30 sec with file
+																		// <= 5MB)
+				{
+					Thread.sleep(1000);
+					i++;
+					if (i == 120) {
+						return new ResponseEntity<>(HttpStatus.GATEWAY_TIMEOUT);
+					}
+				}
+
+				File doneFile = new File(donePath);
+				if (doneFile.delete()) {
+					System.out.println("Deleted the done file of " + media.getMedia_path());
+				} else {
+					System.out.println("Failed to delete the done file of " + media.getMedia_path());
+				}
+
+				File originalVideoFile = new File(String.format("%s/%s/%s", tempDirectory, file.getOriginalFilename()));
+				if (originalVideoFile.delete()) {
+					System.out.println("Deleted originalVideoFile of " + media.getMedia_path());
+				} else {
+					System.out.println("Failed to delete originalVideoFile of " + media.getMedia_path());
+				}
+
+			} else if (fileType == ".jpg" || fileType == ".jpeg" || fileType == ".jfif" || fileType == ".pjpeg"
+					|| fileType == ".pjp" || fileType == ".png" || fileType == ".gif" || fileType == ".bmp"
+					|| fileType == ".tiff" || fileType == ".tif"  || fileType == ".webp") {
+				media.setMedia_path(media.getMedia_path() + file.getOriginalFilename()
+						.substring(file.getOriginalFilename().lastIndexOf('.'), file.getOriginalFilename().length()));
 				Files.copy(file.getInputStream(), Paths.get(directory + File.separator + media.getMedia_path()),
 						StandardCopyOption.REPLACE_EXISTING);
 				try {
