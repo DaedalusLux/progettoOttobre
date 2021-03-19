@@ -207,12 +207,16 @@ public class UserManagementController {
 			@RequestParam(value = "fileUpload[]", required = true) MultipartFile file) {
 
 		MediaObject media = new MediaObject();
-
+		String debugRecord = "";
 		try {
 			media.setMedia_name(file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.')));
+			debugRecord += "(MEDIA_NAME = " + media.getMedia_name() + ") ";
 			media.setMedia_path(randomString(12));
+			debugRecord += "(MEDIA_PATH = " + media.getMedia_path() + ") ";
 			media.setMedia_owner(new Long(id));
+			debugRecord += "(MEDIA_OWNER = " + media.getMedia_owner() + ") ";
 			media.setMedia_pubblication_date(new Date());
+			debugRecord += "(MEDIA_PUBBDATE = " + media.getMedia_pubblication_date() + ") ";
 
 			/*
 			 * Boolean mediaExist = userService.CheckIfMediaExist(media.getMedia_path(),
@@ -237,8 +241,14 @@ public class UserManagementController {
 
 			String fileType = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'),
 					file.getOriginalFilename().length());
-			if (fileType == ".mp4" || fileType == ".webm" || fileType == ".mkv" || fileType == ".3gpp"
-					|| fileType == ".ogg" || fileType == ".avi") {
+			debugRecord += "(MEDIA_ORGINALNAME = " + file.getOriginalFilename() + ") ";
+			debugRecord += "(MEDIA_TYPE = " + fileType + ") ";
+
+			if (fileType.equals(".mp4") || fileType.equals(".webm") || fileType.equals(".mkv") || fileType.equals(".3gpp")
+					|| fileType.equals(".ogg") || fileType.equals(".avi") || fileType.equals(".wmv")) {
+				
+				debugRecord += "(MEDIA_IS = video ) ";
+				
 				Files.copy(file.getInputStream(),
 						Paths.get(tempDirectory + File.separator + file.getOriginalFilename()),
 						StandardCopyOption.REPLACE_EXISTING);
@@ -250,38 +260,59 @@ public class UserManagementController {
 					System.out.println(e.getMessage());
 				}
 
-				String donePath = String.format("%s/%s", tempDirectory, media.getMedia_path() + ".webm.done");
+				String donePath = String.format("%s//%s", tempDirectory, file.getOriginalFilename() + ".done");
+				debugRecord += "(DONE_PATH = " + donePath + ") ";
+				
 				Path videoOutputPath = Paths.get(donePath);
-				videoService.convert(media.getMedia_owner(), file.getOriginalFilename(), media.getMedia_path());
+				debugRecord += "(VIDEO_OUTPUTPATH = " + videoOutputPath + ") ";
 
-				int i = 0;
-				while (Files.notExists(videoOutputPath) && i <= 120) // max conversion time 2 min (AVG 30 sec with file
-																		// <= 5MB)
+				debugRecord += "(before > videoService = " + System.currentTimeMillis() + ") ";
+				debugRecord += videoService.convert(media.getMedia_owner(), file.getOriginalFilename(), media.getMedia_path() + ".webm");
+				debugRecord += "(after > videoService = " +  System.currentTimeMillis() + ") ";
+
+				/*int i = 0;
+				while (Files.notExists(videoOutputPath) && i <= 300) // max conversion time 2 min (AVG 80 sec with file								// <= 5MB)
 				{
+					debugRecord += "([" + videoOutputPath + "] not exist yet " +  System.currentTimeMillis() + ") ";
+
 					Thread.sleep(1000);
 					i++;
-					if (i == 120) {
-						return new ResponseEntity<>(HttpStatus.GATEWAY_TIMEOUT);
+					if (i == 300) {
+						return new ResponseEntity<>(debugRecord, HttpStatus.GATEWAY_TIMEOUT);
 					}
+				}*/
+				debugRecord += "([" + videoOutputPath + "] exist " +  System.currentTimeMillis() + ") ";
+				
+				try {
+					Files.setPosixFilePermissions(Paths.get(directory + File.separator + media.getMedia_path() + ".webm"),
+							PosixFilePermissions.fromString("rw-rw-r--"));
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
 				}
 
 				File doneFile = new File(donePath);
 				if (doneFile.delete()) {
-					System.out.println("Deleted the done file of " + media.getMedia_path());
+					debugRecord += ("Deleted the done file of " + media.getMedia_path());
 				} else {
-					System.out.println("Failed to delete the done file of " + media.getMedia_path());
+					debugRecord += ("Failed to delete the done file of " + media.getMedia_path());
 				}
 
-				File originalVideoFile = new File(String.format("%s/%s/%s", tempDirectory, file.getOriginalFilename()));
+				File originalVideoFile = new File(String.format("%s//%s", tempDirectory, file.getOriginalFilename()));
 				if (originalVideoFile.delete()) {
-					System.out.println("Deleted originalVideoFile of " + media.getMedia_path());
+					debugRecord += ("Deleted originalVideoFile of " + media.getMedia_path());
 				} else {
-					System.out.println("Failed to delete originalVideoFile of " + media.getMedia_path());
+					debugRecord += ("Failed to delete originalVideoFile of " + media.getMedia_path());
 				}
+				
+				media.setMedia_path(media.getMedia_path() + ".webm");
 
-			} else if (fileType == ".jpg" || fileType == ".jpeg" || fileType == ".jfif" || fileType == ".pjpeg"
-					|| fileType == ".pjp" || fileType == ".png" || fileType == ".gif" || fileType == ".bmp"
-					|| fileType == ".tiff" || fileType == ".tif"  || fileType == ".webp") {
+			} else if (fileType.equals(".jpg") || fileType.equals(".jpeg") || fileType.equals(".jfif") || fileType.equals(".pjpeg")
+					|| fileType.equals(".pjp") || fileType.equals(".png") || fileType.equals(".gif") || fileType.equals(".bmp")
+					|| fileType.equals(".tiff") || fileType.equals(".tif") || fileType.equals(".webp")) {
+				
+				debugRecord += "(MEDIA_IS = image ) ";
+
+				
 				media.setMedia_path(media.getMedia_path() + file.getOriginalFilename()
 						.substring(file.getOriginalFilename().lastIndexOf('.'), file.getOriginalFilename().length()));
 				Files.copy(file.getInputStream(), Paths.get(directory + File.separator + media.getMedia_path()),
@@ -293,7 +324,7 @@ public class UserManagementController {
 					System.out.println(e.getMessage());
 				}
 			} else {
-				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(debugRecord, HttpStatus.BAD_REQUEST);
 			}
 
 			userService.PostUsersMedia(media, media.getMedia_name(), media.getMedia_path(), media.getMedia_owner(),
@@ -301,9 +332,9 @@ public class UserManagementController {
 
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(debugRecord + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
+		
 		return new ResponseEntity<>(media.getMedia_id(), HttpStatus.OK);
 	}
 

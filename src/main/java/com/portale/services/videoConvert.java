@@ -1,6 +1,7 @@
 package com.portale.services;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -16,14 +17,26 @@ public class videoConvert {
 	@Value("${local.videoconvert}")
 	private String videoConverterPath;
 	//MultipartFile inputFile
-	public void convert(Long userFolderId, String fileFullName, String outputName) {
-		String tempPath = String.format("%s/%s/%s", archive, "temp", fileFullName);
-		String destinationPath = String.format("%s/%s/%s", archive, userFolderId, outputName);
-		String[] cmd = { "bash", "-c", videoConverterPath + " " + tempPath + " " + destinationPath + ".webm" };
+	public String convert(Long userFolderId, String fileFullName, String outputName) {
+		String ret = "";
+		String tempPath = String.format("%s//%s//%s", archive, "temp", fileFullName);
+		ret += "(vS| tempPath = " + tempPath + ") ";
+		String destinationPath = String.format("%s//%s//%s", archive, userFolderId, outputName);
+		ret += "(vS| destinationPath = " + destinationPath + ") ";
+		//String[] cmd = { "bash", "-c", videoConverterPath + " " + tempPath + " " + destinationPath + ".webm" };
 		try {
-			Runtime.getRuntime().exec(cmd);
+            Process proc = Runtime.getRuntime().exec(videoConverterPath + " " + tempPath + " " + destinationPath );
+            ret += "(vS| runtime " + videoConverterPath + " " + tempPath + " " + destinationPath +  ") ";
+			 try {
+	                proc.waitFor();
+	            } catch (InterruptedException e) {
+	                System.out.println(e.getMessage());
+	            }
+			ret += "(vS| runtime done) ";
 		} catch (IOException e) {
+			ret += "(vS| runtime failed " + e.getMessage() + " )";
 			e.printStackTrace();
 		}
+		return ret;
 	}
 }
