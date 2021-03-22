@@ -12,6 +12,11 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
+
+@Service
+@Repository
 public class EmailService {
 	
 	List<String> recipients = new ArrayList<String>();
