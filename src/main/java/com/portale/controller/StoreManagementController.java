@@ -171,7 +171,7 @@ public class StoreManagementController {
 	}
 
 	// aggiornare i dati di un prodotto
-	@RequestMapping(value = "/store-management/stores/storage/{storageId}/item/{itemId}", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/store-management/stores/storage/{storageId}/item/{itemId}", method = RequestMethod.POST, headers = "Accept=application/json", produces = "application/json; charset=utf-8")
 	public ResponseEntity<?> UpdateStoreProduct(@PathVariable("storageId") int storageId,
 			@PathVariable("itemId") Long itemId, @RequestBody ItemObject _product) {
 		try {

@@ -244,8 +244,8 @@ public class UserManagementController {
 			debugRecord += "(MEDIA_ORGINALNAME = " + file.getOriginalFilename() + ") ";
 			debugRecord += "(MEDIA_TYPE = " + fileType + ") ";
 
-			if (fileType.equals(".mp4") || fileType.equals(".webm") || fileType.equals(".mkv") || fileType.equals(".3gpp")
-					|| fileType.equals(".ogg") || fileType.equals(".avi") || fileType.equals(".wmv")) {
+			if (fileType.toLowerCase().equals(".mp4") || fileType.toLowerCase().equals(".webm") || fileType.toLowerCase().equals(".mkv") || fileType.toLowerCase().equals(".3gpp")
+					|| fileType.toLowerCase().equals(".ogg") || fileType.toLowerCase().equals(".avi") || fileType.toLowerCase().equals(".wmv")) {
 				
 				debugRecord += "(MEDIA_IS = video ) ";
 				
@@ -306,9 +306,9 @@ public class UserManagementController {
 				
 				media.setMedia_path(media.getMedia_path() + ".webm");
 
-			} else if (fileType.equals(".jpg") || fileType.equals(".jpeg") || fileType.equals(".jfif") || fileType.equals(".pjpeg")
-					|| fileType.equals(".pjp") || fileType.equals(".png") || fileType.equals(".gif") || fileType.equals(".bmp")
-					|| fileType.equals(".tiff") || fileType.equals(".tif") || fileType.equals(".webp")) {
+			} else if (fileType.toLowerCase().equals(".jpg") || fileType.toLowerCase().equals(".jpeg") || fileType.toLowerCase().equals(".jfif") || fileType.toLowerCase().equals(".pjpeg")
+					|| fileType.toLowerCase().equals(".pjp") || fileType.toLowerCase().equals(".png") || fileType.toLowerCase().equals(".gif") || fileType.toLowerCase().equals(".bmp")
+					|| fileType.toLowerCase().equals(".tiff") || fileType.toLowerCase().equals(".tif") || fileType.toLowerCase().equals(".webp")) {
 				
 				debugRecord += "(MEDIA_IS = image ) ";
 
