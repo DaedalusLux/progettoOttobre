@@ -26,6 +26,7 @@ public class UserObject {
 	private String provincia;
 	private Long codicePostale;
 	private String telefono;
+	private String codiceFiscale;
 	private Date data_registrazione;
 	
 	
@@ -144,6 +145,12 @@ public class UserObject {
 	}
 	public void setUsr_oldpassword(String usr_oldpassword) {
 		this.usr_oldpassword = usr_oldpassword;
+	}
+	public String getCodiceFiscale() {
+		return codiceFiscale;
+	}
+	public void setCodiceFiscale(String codiceFiscale) {
+		this.codiceFiscale = codiceFiscale;
 	}
 
 }
