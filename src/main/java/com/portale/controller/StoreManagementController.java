@@ -222,9 +222,11 @@ public class StoreManagementController {
 				notification.setMessage("L'utente " + u.getUsername() + " ha aggiunto un nuovo negozio. ("
 						+ "<a href='?negozi=" + _store.getStore_id() + "&sname=" + _store.getStore_name() + "'>"
 						+ _store.getStore_name() + "</a>" + ")");
+				notification.setType(0);
 			} else {
 				notification.setImportancyLevel(new Long(1));
 				notification.setTitle("Una nuova richiesta per aggiungere un nuovo negozio!");
+				notification.setType(1);
 				/*
 				 * notification.setMessage("L'utente " + u.getUsername() +
 				 * " ha inviato una richiesta per aggiungere il proprio negozio per un periodo "
@@ -238,7 +240,7 @@ public class StoreManagementController {
 			}
 
 			notificationService.CreateNotification(notification, notification.getTitle(), notification.getMessage(),
-					notification.getImportancyLevel(), u.getUsr_id());
+					notification.getImportancyLevel(), u.getUsr_id(), notification.getType());
 
 			List<Integer> U = userService.GetUsersIdListByRole("ROLE_ADMIN");
 			for (int a = 0; a < U.size(); a++) {
