@@ -12,43 +12,8 @@ public class NotificationObject {
 	private String title;
 	private String message;
 	private Long importancyLevel; //0 Default (Logs/Updates); 1 Important (Modify data); 2 Urgent (Payments)
-
-	private String fromUserName;
-	private String fromUserSurname;
-	private String toUserName;
-	private String toUserSurname;
-
-	public String getFromUserName() {
-		return fromUserName;
-	}
-
-	public void setFromUserName(String fromUserName) {
-		this.fromUserName = fromUserName;
-	}
-
-	public String getFromUserSurname() {
-		return fromUserSurname;
-	}
-
-	public void setFromUserSurname(String fromUserSurname) {
-		this.fromUserSurname = fromUserSurname;
-	}
-
-	public String getToUserName() {
-		return toUserName;
-	}
-
-	public void setToUserName(String toUserName) {
-		this.toUserName = toUserName;
-	}
-
-	public String getToUserSurname() {
-		return toUserSurname;
-	}
-
-	public void setToUserSurname(String toUserSurname) {
-		this.toUserSurname = toUserSurname;
-	}
+	private int type;
+	private String fromUserFullname;
 
 	public Long getNotification_id() {
 		return notification_id;
@@ -113,5 +78,21 @@ public class NotificationObject {
 
 	public void setImportancyLevel(Long importancyLevel) {
 		this.importancyLevel = importancyLevel;
+	}
+
+	public String getFromUserFullname() {
+		return fromUserFullname;
+	}
+
+	public void setFromUserFullname(String fromUserFullname) {
+		this.fromUserFullname = fromUserFullname;
+	}
+
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
 	}
 }

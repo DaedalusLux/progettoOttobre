@@ -102,7 +102,7 @@ public class NotificationController {
 			AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 
 			notificationService.CreateNotification(notification, notification.getTitle(), notification.getMessage(),
-					notification.getImportancyLevel(), u.getUsr_id());
+					notification.getImportancyLevel(), u.getUsr_id(), 0);
 
 			if (request.isUserInRole("ROLE_ADMIN")) {
 				if (notification.getMto().size() > 1) {

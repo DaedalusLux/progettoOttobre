@@ -21,8 +21,8 @@ public class NotificationService {
 		return result == null ? 0 : result;
 	}
 
-	public void CreateNotification(NotificationObject notification, String title, String message, Long importancyLevel, Long from_user) {
-		mapper.CreateNotification(notification, new Date().getTime(), title, message, importancyLevel, from_user);
+	public void CreateNotification(NotificationObject notification, String title, String message, Long importancyLevel, Long from_user, int type) {
+		mapper.CreateNotification(notification, new Date().getTime(), title, message, importancyLevel, from_user, type);
 	}
 	
 	public void AppendNotificationToUser(Long ref_to, Long notification_ref) {

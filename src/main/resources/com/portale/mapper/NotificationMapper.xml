@@ -13,9 +13,9 @@
 		parameterType="com.portale.model.NotificationObject"
 		useGeneratedKeys="true" keyProperty="notification.notification_id">
 		insert into
-		notifications(date,title,message,importancy_level,from_user)
+		notifications(date,title,message,importancy_level,from_user,type)
 		values
-		(#{date},#{title},#{message},#{importancy},#{from_user})
+		(#{date},#{title},#{message},#{importancy},#{from_user},#{type})
 	</insert>
 
 	<insert id="AppendNotificationToUser">
@@ -27,32 +27,32 @@
 
 	<select id="GetAllNotifications"
 		resultMap="NotificationsResultMap">
-		select n.*, nv.seen, ud.nome as from_user_name, ud.cognome
-		as
-		from_user_surname
-		from notifications n, notification_view nv,
-		users_details ud
-		where n.notification_id = nv.notification_ref
-		and
-		nv.ref_to = #{user_id}
-		and ud.user_ref = n.from_user
+		select sender.*, nv.seen
+		from users_details ud, notification_view nv
+		inner join (select CONCAT(ud.cognome, ' ', ud.nome) AS from_userfullname, n.*
+			from notifications n, users_details ud
+			where n.from_user = ud.user_ref) sender
+			on sender.notification_id = nv.notification_ref
+		where nv.ref_to = #{user_id}
+		and ud.user_ref = sender.from_user
+		
 		order by
-		n.notification_id desc
+		sender.notification_id desc
 		limit #{limit}
 		offset #{offset}
 	</select>
 
 	<select id="GetNotificationById"
 		resultMap="NotificationsResultMap">
-		select n.*, nv.seen, ud.nome as from_user_name, ud.cognome
-		as
-		from_user_surname
-		from notifications n, notification_view nv,
-		users_details ud
-		where n.notification_id = nv.notification_ref
-		and nv.ref_to = #{user_id}
+		select sender.*, nv.seen
+		from users_details ud, notification_view nv
+		inner join (select CONCAT(ud.cognome, ' ', ud.nome) AS from_userfullname, n.*
+			from notifications n, users_details ud
+			where n.from_user = ud.user_ref) sender
+			on sender.notification_id = nv.notification_ref
+		where nv.ref_to = #{user_id}
 		and ud.user_ref = nv.ref_to
-		and n.notification_id = #{notificationId}
+		and sender.notification_id = #{notificationId}
 	</select>
 
 	<resultMap id="NotificationsResultMap"
@@ -63,8 +63,8 @@
 		<result property="seen" column="seen" />
 		<result property="message" column="message" />
 		<result property="importancyLevel" column="importancy_level" />
-		<result property="fromUserName" column="from_user_name" />
-		<result property="fromUserSurname" column="from_user_surname" />
+		<result property="fromUserFullname" column="from_userfullname" />
+		<result property="type" column="type" />
 	</resultMap>
 	
 	<update id="SetNotificationAsSeen">

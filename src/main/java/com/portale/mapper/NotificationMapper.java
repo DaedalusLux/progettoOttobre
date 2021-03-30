@@ -14,7 +14,7 @@ public interface NotificationMapper {
 
 	void CreateNotification(@Param("notification") NotificationObject notification, @Param("date") Long date,
 			@Param("title") String title, @Param("message") String message, @Param("importancy") Long importancyLevel,
-			@Param("from_user") Long from_user);
+			@Param("from_user") Long from_user, @Param("type") int type);
 
 	void AppendNotificationToUser(@Param("ref_to") Long ref_to, @Param("notification_ref") Long notification_ref);
 
