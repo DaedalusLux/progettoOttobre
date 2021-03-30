@@ -16,6 +16,7 @@
 		pre-post-annotations="enabled" />
 
 	<http pattern="/login" security="none" />
+	<http pattern="/register" security="none" />
 	<http pattern="/stores/**" security="none" />
 	<http pattern="/themes" security="none" />
 
