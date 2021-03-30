@@ -9,8 +9,9 @@
 		from users u left join users_details ud
 		on u.user_id =
 		ud.user_ref
+		where u.user_id != 0
 		<if test="search != null">
-			where (user_org ilike #{search}
+			and (user_org ilike #{search}
 			or user_login ilike #{search}
 			or nome ilike #{search}
 			or cognome ilike #{search}
@@ -33,8 +34,8 @@
 		select u.user_id, u.user_login, ud.nome, ud.cognome
 		from
 		users u, users_details ud
-		where u.user_id =
-		ud.user_ref
+		where u.user_id = ud.user_ref
+		and u.user_id != 0
 	</select>
 
 	<select id="GetUserMediaList" resultMap="UserMediaListResultMap">
@@ -59,13 +60,13 @@
 		from users u, users_role ur
 		where u.role =
 		ur.role_index
+		and u.user_id != 0
 		<if test="role_name != null">and ur.user_role = #{role_name}</if>
 	</select>
 
 	<resultMap id="UserNameObjectResultMap" type="UserObject">
 		<result property="usr_id" column="user_id" />
 		<result property="usr_username" column="user_login" />
-
 	</resultMap>
 
 	<resultMap id="UserObjectResultMap" type="UserObject">
@@ -99,8 +100,9 @@
 		left join
 		users_role r
 		on r.role_index = u.role
+		where u.user_id != 0
 		<if test="search != null">
-			where (user_org ilike #{search}
+			and (user_org ilike #{search}
 			or user_login ilike #{search}
 			or nome ilike #{search}
 			or cognome ilike #{search}
