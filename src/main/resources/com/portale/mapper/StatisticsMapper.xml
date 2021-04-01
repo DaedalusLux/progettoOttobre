@@ -20,15 +20,39 @@
 		
 	</insert>
 	
-	<insert id="CreateWSV_Prod">
+	<resultMap id="wvs_prod" type="StatisticDetailsObj">
+		<result property="wvs_today" column="today" />
+		<result property="wvs_all" column="all" />
+	</resultMap>
 	
+	<select id="GetWSV_Prod" resultMap="wvs_prod">
+		SELECT wvs_today today, wvs_all all
+		FROM webstatistics_visits_short
+		WHERE wvs_obj_id = #{wvs_obj_id} AND wvs_details = #{wvs_details}
+	</select>
+	
+	<insert id="CreateWSV_Prod">
+		insert into webstatistics_visits_short (wvs_obj_id, wvs_details)
+		values (#{wvs_obj_id}, #{wvs_details})
 	</insert>
 	
 	<update id="AddAddWSV_Prod">
-	
+		update webstatistics_visits_short
+		set 
+		wvs_today = CASE WHEN (SELECT (CURRENT_DATE::date - (SELECT wvs_date FROM webstatistics_visits_short WHERE wvs_obj_id = #{wvs_obj_id} AND wvs_details = #{wvs_details})::date) AS days) >= 1 THEN 1
+		ELSE wvs_today + 1
+		END,
+		wvs_week = 0,
+		wvs_month = 0,
+		wvs_year= 1,
+		wvs_all = wvs_all + 1,
+		wvs_date =  CASE WHEN (SELECT (CURRENT_DATE::date - (SELECT wvs_date FROM webstatistics_visits_short WHERE wvs_obj_id = #{wvs_obj_id} AND wvs_details = #{wvs_details})::date) AS days) >= 1 THEN CURRENT_DATE
+		ELSE wvs_date
+		END
 	</update>
 	
-	<delete id="">
-	
+	<delete id="DeleteWSV_Prod">
+		DELETE FROM webstatistics_visits_short
+		WHERE wvs_obj_id = #{wvs_obj_id} AND wvs_details = #{wvs_details}
 	</delete>
 </mapper>
