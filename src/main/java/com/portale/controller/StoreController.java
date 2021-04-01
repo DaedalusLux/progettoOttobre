@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -55,8 +56,12 @@ public class StoreController {
 					+ themeService.homeSettingMem.getCol_num() + "\",\"ifb\":\""
 					+ themeService.homeSettingMem.getIs_first_banner().toString() + "\"}, \"stores\": " + json + "}";
 			if (cookieAccepted.equals("ac")) {
+				CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+				    //long running process
+					statisticsService.AddWSV_Prod(0,0);
+				});
 				// CompletableFuture.runAsync(() -> {
-				statisticsService.AddWebSiteVisit(request.getRemoteHost().toString());
+				
 				// });
 			}
 

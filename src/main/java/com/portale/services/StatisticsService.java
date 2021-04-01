@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import com.portale.mapper.StatisticsMapper;
+import com.portale.model.StatisticDetailsObj;
 import com.portale.model.Statistics_Views;
 
 @Service
@@ -26,6 +27,10 @@ public class StatisticsService {
 	
 	public void AddWSV_Page() {
 		
+	}
+	
+	public StatisticDetailsObj GetWSV_Prod(int wvs_obj_id, int wvs_details) {
+		return statisticsMapper.GetWSV_Prod(wvs_obj_id, wvs_details);
 	}
 	
 	public void AddWSV_Prod(int wvs_obj_id, int wvs_details) {
