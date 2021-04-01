@@ -23,7 +23,23 @@ public class StatisticsService {
 
 	DateTimeZone timeZone = DateTimeZone.forID("Europe/Rome");
 	DateTime today = DateTime.now(timeZone);
-
+	
+	public void AddWSV_Page() {
+		
+	}
+	
+	public void AddWSV_Prod(int wvs_obj_id, int wvs_details) {
+		statisticsMapper.AddWSV_Prod(wvs_obj_id, wvs_details);
+	}
+	
+	public void CreateWSV_Prod(int wvs_obj_id, int wvs_details) {
+		statisticsMapper.CreateWSV_Prod(wvs_obj_id, wvs_details);
+	}
+	
+	public void DeleteWSV_Prod(int wvs_obj_id, int wvs_details) {
+		statisticsMapper.DeleteWSV_Prod(wvs_obj_id, wvs_details);
+	}
+/*
 	private Statistics_Views findView(String host, List<Statistics_Views> views) {
 		for (Statistics_Views statistics_View : views) {
 			if (statistics_View.getIp_address().equals(host)) {
@@ -33,7 +49,7 @@ public class StatisticsService {
 		return null;
 	}
 
-	public void AddWebSiteVisit(String host) {
+	public void AddWebSiteVisit(String host, int wvs_obj_id, int wvs_details) {
 		try {
 
 			// when server start today date is recorded
@@ -55,7 +71,7 @@ public class StatisticsService {
 
 			// if visit exist
 			if (statistic_inMemory != null) {
-
+				if(statistic_inMemory.getSdo())
 				// get the visitdate
 				DateTime visitDate = new DateTime(statistic_inMemory.getDatetime(), timeZone);
 				// if it was the same day do nothing
@@ -83,7 +99,7 @@ public class StatisticsService {
 		}
 
 	}
-
+*/
 	public List<Statistics_Views> GetVisitStatus() {
 		return statisticsMapper.GetVisitStatus();
 	}

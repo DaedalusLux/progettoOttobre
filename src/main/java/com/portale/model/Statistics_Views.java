@@ -1,6 +1,7 @@
 package com.portale.model;
 
 import java.util.Date;
+import java.util.List;
 
 //webstatistics_visits
 public class Statistics_Views {
@@ -8,6 +9,7 @@ public class Statistics_Views {
 	private String ip_address;
 	private Date datetime;
 	private Long msdatetime;
+	private List<StatisticDetailsObj> sdo;
 	
 	public Long getStatistic_id() {
 		return statistic_id;
@@ -39,6 +41,14 @@ public class Statistics_Views {
 
 	public void setMsdatetime(Long msdatetime) {
 		this.msdatetime = msdatetime;
+	}
+
+	public List<StatisticDetailsObj> getSdo() {
+		return sdo;
+	}
+
+	public void setSdo(List<StatisticDetailsObj> sdo) {
+		this.sdo = sdo;
 	}
 
 }

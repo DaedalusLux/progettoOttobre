@@ -15,8 +15,20 @@
 	</resultMap>
 	
 	<insert id="AddWebSiteVisit">
-		insert into webstatistics_visits(ipaddress, datetime)
-		values (#{host},#{datetime})
+		insert into webstatistics_visits(ipaddress, datetime, wv_obj_id, wv_details)
+		values (#{host},#{datetime}, #{wv_obj_id}, #{wv_details})
+		
 	</insert>
-
+	
+	<insert id="CreateWSV_Prod">
+	
+	</insert>
+	
+	<update id="AddAddWSV_Prod">
+	
+	</update>
+	
+	<delete id="">
+	
+	</delete>
 </mapper>
