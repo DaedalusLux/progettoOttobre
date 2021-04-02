@@ -26,7 +26,7 @@
 	</resultMap>
 	
 	<select id="GetWSV_Prod" resultMap="wvs_prod">
-		SELECT wvs_today today, wvs_all all
+		SELECT wvs_today as today, wvs_all as all
 		FROM webstatistics_visits_short
 		WHERE wvs_obj_id = #{wvs_obj_id} AND wvs_details = #{wvs_details}
 	</select>
@@ -42,13 +42,11 @@
 		wvs_today = CASE WHEN (SELECT (CURRENT_DATE::date - (SELECT wvs_date FROM webstatistics_visits_short WHERE wvs_obj_id = #{wvs_obj_id} AND wvs_details = #{wvs_details})::date) AS days) >= 1 THEN 1
 		ELSE wvs_today + 1
 		END,
-		wvs_week = 0,
-		wvs_month = 0,
-		wvs_year= 1,
 		wvs_all = wvs_all + 1,
 		wvs_date =  CASE WHEN (SELECT (CURRENT_DATE::date - (SELECT wvs_date FROM webstatistics_visits_short WHERE wvs_obj_id = #{wvs_obj_id} AND wvs_details = #{wvs_details})::date) AS days) >= 1 THEN CURRENT_DATE
 		ELSE wvs_date
 		END
+		WHERE wvs_obj_id = #{wvs_obj_id} AND wvs_details = #{wvs_details}
 	</update>
 	
 	<delete id="DeleteWSV_Prod">

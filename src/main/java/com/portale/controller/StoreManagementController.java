@@ -216,6 +216,7 @@ public class StoreManagementController {
 				StorageObject storageObj = new StorageObject();
 				storeService.AddStoreStorage(storageObj, _store.getStore_id().intValue(), "Prodotti", null, null,
 						_store.getStore_depth() == 0 ? _store.getTheme().getThemeId() : new Long(1));
+				CompletableFuture.runAsync(() -> statisticsService.CreateWSV_Prod(storageObj.getStorage_id().intValue(),1));
 			}
 
 			NotificationObject notification = new NotificationObject();
@@ -418,7 +419,6 @@ public class StoreManagementController {
 	public ResponseEntity<?> RemoveStorage(@PathVariable("storageId") int storageId) {
 		try {
 			storeService.DeleteStorage(storageId);
-			CompletableFuture.runAsync(() -> statisticsService.DeleteWSV_Prod(storageId,1));
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -430,7 +430,6 @@ public class StoreManagementController {
 	public ResponseEntity<?> RemoveItem(@PathVariable("itemId") int itemId) {
 		try {
 			storeService.DeleteItem(itemId);
-			CompletableFuture.runAsync(() -> statisticsService.DeleteWSV_Prod(itemId,2));
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
