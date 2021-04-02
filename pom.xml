@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.materialeinvendita</groupId>
 	<artifactId>portale-jwt</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.8.3</version>
 	<name>materialeinvendita</name>
 	<packaging>war</packaging>
 
