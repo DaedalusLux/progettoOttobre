@@ -60,7 +60,7 @@ public class StoreService {
 		return mapper.GetStoreProductsManager(store_id);
 	}
 
-	public StoreObject GetStoreWithProducts(Long store_id) {
+	public StoreObject GetStoreWithProducts(int store_id) {
 		return mapper.GetStoreWithProducts(store_id);
 	}
 
@@ -72,7 +72,7 @@ public class StoreService {
 		return mapper.GetStorageeWithAllProducts(storageId);
 	}
 
-	public ItemObject GetStoreProductinfo(Long product_id) {
+	public ItemObject GetStoreProductinfo(int product_id) {
 		ItemObject product_info = new ItemObject();
 		product_info = mapper.GetStoreProductinfo(product_id);
 		return product_info;
@@ -105,7 +105,7 @@ public class StoreService {
 		return mapper.GetStoreDataManager(userId, limit, offset, search);
 	}
 
-	public StoreObject GetStoreInfo(Long store_id, HttpServletRequest request) {
+	public StoreObject GetStoreInfo(int store_id, HttpServletRequest request) {
 		StoreObject storeInfo = new StoreObject();
 
 		storeInfo = request.isUserInRole("ROLE_ADMIN") ? mapper.GetStoreInfo(store_id)
@@ -113,7 +113,7 @@ public class StoreService {
 		return storeInfo;
 	}
 
-	public StoreObject GetStoreInfo(Long store_id) {
+	public StoreObject GetStoreInfo(int store_id) {
 		return mapper.GetStoreInfo(store_id);
 	}
 
@@ -180,15 +180,15 @@ public class StoreService {
 		return false;
 	}
 
-	public void DeleteStore(Long storeId) {
+	public void DeleteStore(int storeId) {
 		mapper.DeleteStore(storeId);
 	}
 
-	public void DeleteStorage(Long storageId) {
+	public void DeleteStorage(int storageId) {
 		mapper.DeleteStorage(storageId);
 	}
 
-	public void DeleteItem(Long itemId) {
+	public void DeleteItem(int itemId) {
 		mapper.DeleteItem(itemId);
 	}
 

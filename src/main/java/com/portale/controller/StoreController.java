@@ -56,19 +56,7 @@ public class StoreController {
 					+ themeService.homeSettingMem.getCol_num() + "\",\"ifb\":\""
 					+ themeService.homeSettingMem.getIs_first_banner().toString() + "\"}, \"stores\": " + json + "}";
 			if (cookieAccepted.equals("ac")) {
-				CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-				    //long running process
-					statisticsService.AddWSV_Prod(0,0);
-				});
-				
-				CompletableFuture.runAsync(() -> {
-			        Thread t = Thread.currentThread();
-			        statisticsService.AddWSV_Prod(0,0);
-			        System.out.printf("Thread_Name: %s, Daemon: %s%n", t.getName(), t.isDaemon());
-			    }).join();
-				// CompletableFuture.runAsync(() -> {
-				
-				// });
+				CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(0,0));
 			}
 
 			return new ResponseEntity<>(json, HttpStatus.OK);
@@ -81,8 +69,8 @@ public class StoreController {
 
 	// informazioni di un negozio
 	@RequestMapping(value = "/stores/{storeId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStore(@PathVariable("storeId") Long storeId) {
-
+	public ResponseEntity<?> GetStore(@PathVariable("storeId") int storeId) {
+		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storeId,0));
 		StoreObject storeObj = new StoreObject();
 		try {
 			storeObj = storeService.GetStoreInfo(storeId);
@@ -99,7 +87,7 @@ public class StoreController {
 			@PathVariable("storageId") int storageId,
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@RequestParam(value = "per_page", defaultValue = "20", required = false) int per_page) {
-
+		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storageId,1));
 		PaginationObject obj = new PaginationObject();
 		StoreObject store = new StoreObject();
 		try {
@@ -122,7 +110,7 @@ public class StoreController {
 	@RequestMapping(value = "/stores/{storeId}/storage/{storageId}/allproducts", method = RequestMethod.GET)
 	public ResponseEntity<?> GetStoreProductsList(@PathVariable("storeId") Long storeId,
 			@PathVariable("storageId") int storageId) {
-
+		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storageId,1));
 		StoreObject store = new StoreObject();
 		try {
 			store = storeService.GetStorageeWithAllProducts(new Long(storageId));
@@ -136,8 +124,8 @@ public class StoreController {
 
 	// lista dei prodotti di un negozio
 	@RequestMapping(value = "/stores/{storeId}/products", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreProductsList(@PathVariable("storeId") Long storeId) {
-
+	public ResponseEntity<?> GetStoreProductsList(@PathVariable("storeId") int storeId) {
+		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storeId,0));
 		try {
 
 			StoreObject store = storeService.GetStoreWithProducts(storeId);
@@ -154,8 +142,8 @@ public class StoreController {
 
 	// un prodotto di un negozio
 	@RequestMapping(value = "/stores/products/{productId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreProductInfo(@PathVariable("productId") Long productId) {
-
+	public ResponseEntity<?> GetStoreProductInfo(@PathVariable("productId") int productId) {
+		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(productId,2));
 		ItemObject productInformation = new ItemObject();
 		try {
 			productInformation = storeService.GetStoreProductinfo(productId);

@@ -3,6 +3,7 @@ package com.portale.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +27,7 @@ import com.portale.model.StorageObject;
 import com.portale.model.StoreObject;
 import com.portale.security.model.AuthenticatedUser;
 import com.portale.services.NotificationService;
+import com.portale.services.StatisticsService;
 import com.portale.services.StoreService;
 import com.portale.services.ThemeService;
 import com.portale.services.UserService;
@@ -40,6 +42,8 @@ public class StoreManagementController {
 	private UserService userService;
 	@Resource
 	private ThemeService themeService;
+	@Resource
+	private StatisticsService statisticsService;
 
 	// ritorna la lista dei negozi
 	@RequestMapping(value = "/store-management/stores", method = RequestMethod.GET)
@@ -73,7 +77,7 @@ public class StoreManagementController {
 
 	// ritorna informazione di un singolo negozio
 	@RequestMapping(value = "/store-management/stores/{storeId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreInfoManager(@PathVariable("storeId") Long storeId, HttpServletRequest request) {
+	public ResponseEntity<?> GetStoreInfoManager(@PathVariable("storeId") int storeId, HttpServletRequest request) {
 
 		StoreObject storeDetails = new StoreObject();
 		try {
@@ -146,7 +150,7 @@ public class StoreManagementController {
 
 	// informazione di un singolo prodotto di un negozio
 	@RequestMapping(value = "/store-management/stores/products/{productId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreProductInfoManager(@PathVariable("productId") Long productId) {
+	public ResponseEntity<?> GetStoreProductInfoManager(@PathVariable("productId") int productId) {
 
 		ItemObject storeProductInfo = new ItemObject();
 		try {
@@ -247,7 +251,7 @@ public class StoreManagementController {
 				Long currentU = Long.parseLong(String.valueOf(U.get(a)));
 				notificationService.AppendNotificationToUser(currentU, notification.getNotification_id());
 			}
-
+			CompletableFuture.runAsync(() -> statisticsService.CreateWSV_Prod(_store.getStore_id().intValue(),0));
 			return new ResponseEntity<>(_store, HttpStatus.OK);
 		} catch (DataIntegrityViolationException e) {
 			System.out.println(e.getMessage());
@@ -277,7 +281,8 @@ public class StoreManagementController {
 
 			storeService.UpdateSotreProductDetails(ItemObject.getProduct_id(), null, null, null, null, null, null, null,
 					null, null, ItemObject.getPreview_media());
-
+			
+			CompletableFuture.runAsync(() -> statisticsService.CreateWSV_Prod(ItemObject.getProduct_id().intValue(),2));
 			return new ResponseEntity<>(ItemObject.getProduct_id(), HttpStatus.OK);
 		} catch (DataIntegrityViolationException e) {
 			System.out.println(e.getMessage());
@@ -309,7 +314,7 @@ public class StoreManagementController {
 
 			// UPDATE STORAGE THEME IF STORE DEPTH IS 0
 			if (_store.getTheme() != null) {
-				StoreObject _storeCheck = storeService.GetStoreInfo(new Long(storeId));
+				StoreObject _storeCheck = storeService.GetStoreInfo(storeId);
 				if (_storeCheck.getStore_depth().equals(new Long(0)) && _storeCheck.getStorage().size() > 0) {
 					storeService.UpdateStorage(_storeCheck.getStorage().get(0).getStorage_id(), null, null, null,
 							_store.getTheme().getThemeId());
@@ -343,7 +348,7 @@ public class StoreManagementController {
 
 			storeService.AddStoreStorage(_storage, storeId, _storage.getStorage_name(), _storage.getSubstorage_ref(),
 					selectedMediaId, _storage.getTheme().getThemeId());
-
+			CompletableFuture.runAsync(() -> statisticsService.CreateWSV_Prod(_storage.getStorage_id().intValue(),1));
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -398,9 +403,10 @@ public class StoreManagementController {
 	}
 
 	@RequestMapping(value = "store-management/stores/{storeId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> RemoveStore(@PathVariable("storeId") Long storeId) {
+	public ResponseEntity<?> RemoveStore(@PathVariable("storeId") int storeId) {
 		try {
 			storeService.DeleteStore(storeId);
+			CompletableFuture.runAsync(() -> statisticsService.DeleteWSV_Prod(storeId,0));
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -409,9 +415,10 @@ public class StoreManagementController {
 	}
 
 	@RequestMapping(value = "/store-management/stores/storage/{storageId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> RemoveStorage(@PathVariable("storeId") Long storeId) {
+	public ResponseEntity<?> RemoveStorage(@PathVariable("storageId") int storageId) {
 		try {
-			storeService.DeleteStorage(storeId);
+			storeService.DeleteStorage(storageId);
+			CompletableFuture.runAsync(() -> statisticsService.DeleteWSV_Prod(storageId,1));
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -420,9 +427,10 @@ public class StoreManagementController {
 	}
 
 	@RequestMapping(value = "/store-management/stores/products/{itemId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> RemoveItem(@PathVariable("itemId") Long itemId) {
+	public ResponseEntity<?> RemoveItem(@PathVariable("itemId") int itemId) {
 		try {
 			storeService.DeleteItem(itemId);
+			CompletableFuture.runAsync(() -> statisticsService.DeleteWSV_Prod(itemId,2));
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());

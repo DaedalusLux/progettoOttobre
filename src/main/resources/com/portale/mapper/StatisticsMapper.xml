@@ -36,7 +36,7 @@
 		values (#{wvs_obj_id}, #{wvs_details})
 	</insert>
 	
-	<update id="AddAddWSV_Prod">
+	<update id="AddWSV_Prod">
 		update webstatistics_visits_short
 		set 
 		wvs_today = CASE WHEN (SELECT (CURRENT_DATE::date - (SELECT wvs_date FROM webstatistics_visits_short WHERE wvs_obj_id = #{wvs_obj_id} AND wvs_details = #{wvs_details})::date) AS days) >= 1 THEN 1

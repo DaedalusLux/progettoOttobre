@@ -29,14 +29,14 @@ public interface StoreMapper {
 
 	List<StorageObject> GetStoreProductsManager(@Param("storeId") Long storeId);
 
-	StoreObject GetStoreWithProducts(@Param("storeId") Long storeId);
+	StoreObject GetStoreWithProducts(@Param("storeId") int storeId);
 
 	StoreObject GetStorageeWithProducts(@Param("storageId") Long storageId, @Param("limit") int limit,
 			@Param("offset") int offset);
 
 	StoreObject GetStorageeWithAllProducts(@Param("storageId") Long storageId);
 
-	ItemObject GetStoreProductinfo(@Param("product_id") Long product_id);
+	ItemObject GetStoreProductinfo(@Param("product_id") int product_id);
 
 	void UpdateSotreProductDetails(@Param("product_id") Long item_id, @Param("item_name") String item_name,
 			@Param("item_description") String item_description, @Param("item_category") String item_category,
@@ -48,9 +48,9 @@ public interface StoreMapper {
 	List<StoreObject> GetStoreDataManager(@Param("store_owner") int store_owner, @Param("limit") int limit,
 			@Param("offset") int offset, @Param("search") String search);
 
-	StoreObject GetStoreInfo(@Param("store_id") Long store_id);
+	StoreObject GetStoreInfo(@Param("store_id") int store_id);
 
-	StoreObject GetStoreInfo(@Param("store_id") Long store_id, @Param("userName") String userName);
+	StoreObject GetStoreInfo(@Param("store_id") int store_id, @Param("userName") String userName);
 
 	List<ThemeObject> GetThemesData();
 
@@ -83,11 +83,11 @@ public interface StoreMapper {
 
 	Boolean isStoreConfirmed(@Param("storeId") int storeId);
 
-	void DeleteStore(@Param("storeId") Long storeId);
+	void DeleteStore(@Param("storeId") int storeId);
 
-	void DeleteStorage(@Param("storageId") Long storageId);
+	void DeleteStorage(@Param("storageId") int storageId);
 
-	void DeleteItem(@Param("itemId") Long itemId);
+	void DeleteItem(@Param("itemId") int itemId);
 
 	void SetItemImage(@Param("media_id") Long media_id, @Param("item_id") Long item_id);
 
