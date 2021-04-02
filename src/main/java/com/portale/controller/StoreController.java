@@ -60,6 +60,12 @@ public class StoreController {
 				    //long running process
 					statisticsService.AddWSV_Prod(0,0);
 				});
+				
+				CompletableFuture.runAsync(() -> {
+			        Thread t = Thread.currentThread();
+			        statisticsService.AddWSV_Prod(0,0);
+			        System.out.printf("Thread_Name: %s, Daemon: %s%n", t.getName(), t.isDaemon());
+			    }).join();
 				// CompletableFuture.runAsync(() -> {
 				
 				// });
