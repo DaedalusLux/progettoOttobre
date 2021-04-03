@@ -19,6 +19,7 @@ public class ItemObject {
 	private Date pubblication_date;
 	private Long preview_media;
 	private List<MediaObject> item_media;
+	private int type;
 	
 	private Long sub_store;
 	
@@ -115,5 +116,11 @@ public class ItemObject {
 	}
 	public void setStorage_name(String storage_name) {
 		this.storage_name = storage_name;
+	}
+	public int getType() {
+		return type;
+	}
+	public void setType(int type) {
+		this.type = type;
 	}
 }

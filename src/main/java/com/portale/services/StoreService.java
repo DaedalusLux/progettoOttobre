@@ -147,10 +147,10 @@ public class StoreService {
 
 	public void AddStorageItem(ItemObject product, Long storage_id, String item_name, String item_description,
 			String item_category, Long unit_price, Boolean storaged, Boolean shipment_included, String quality,
-			Long quantity, Date pubblication_date) {
+			Long quantity, Date pubblication_date, int type) {
 
 		mapper.AddStorageItem(product, storage_id, item_name, item_description, item_category, unit_price, storaged,
-				shipment_included, quality, quantity, pubblication_date);
+				shipment_included, quality, quantity, pubblication_date, type);
 	}
 
 	public void SetItemImage(Long item_id, List<Long> selected_media_id) {

@@ -649,7 +649,8 @@
 		shipment_included,
 		quality,
 		quantity,
-		pubblication_date)
+		pubblication_date,
+		type)
 		values
 		(#{storage_id},
 		#{item_name},
@@ -660,7 +661,8 @@
 		#{shipment_included},
 		#{quality},
 		#{quantity},
-		#{pubblication_date})
+		#{pubblication_date},
+		#{type})
 	</insert>
 
 	<insert id="SetItemImage">

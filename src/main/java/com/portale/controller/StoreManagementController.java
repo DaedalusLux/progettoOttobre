@@ -273,7 +273,7 @@ public class StoreManagementController {
 			storeService.AddStorageItem(ItemObject, storage_id, ItemObject.getItem_name(), ItemObject.getItem_description(),
 					ItemObject.getItem_category(), ItemObject.getUnit_price(), ItemObject.getStoraged(),
 					ItemObject.getShipment_included(),
-					ItemObject.getQuality(), ItemObject.getQuantity(), new Date());
+					ItemObject.getQuality(), ItemObject.getQuantity(), new Date(), ItemObject.getType());
 
 			if (ItemObject.getItem_media().get(0).getSelected_media_id().size() > 0) {
 				storeService.SetItemImage(ItemObject.getProduct_id(),
