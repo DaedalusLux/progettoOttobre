@@ -79,7 +79,7 @@ public interface StoreMapper {
 			@Param("item_category") String item_category, @Param("unit_price") Long unit_price,
 			@Param("storaged") Boolean storaged, @Param("shipment_included") Boolean shipment_included,
 			@Param("quality") String quality, @Param("quantity") Long quantity,
-			@Param("pubblication_date") Date pubblication_date,@Param("type") int type);
+			@Param("pubblication_date") Date pubblication_date, @Param("type") int type);
 
 	Boolean isStoreConfirmed(@Param("storeId") int storeId);
 

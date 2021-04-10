@@ -167,7 +167,7 @@
 	</resultMap>
 
 	<select id="GetStorageItems" resultMap="StorageItemsResultMap">
-		select s_it.*, st.*,
+		select store_dett.store_name, s_it.*, st.*,
 
 		item_pref.media_id as item_media_id,
 		item_pref.media_name as item_media_name,
@@ -214,7 +214,8 @@
 		WHEN s_it.preview_media IS NULL THEN
 		item_pref.media_id = ml.link_media
 		END)
-
+		inner join (select stores.store_name, stores.store_id from stores) store_dett
+		on store_dett.store_id = st.store_ref
 		where
 		st.storage_id =
 		#{storageId}
@@ -232,7 +233,7 @@
 	</select>
 
 	<select id="GetStoreProductsManager" resultMap="StorageItemsResultMap">
-		select s_it.*, st.*,
+		select us.store_name, s_it.*, st.*,
 		item_pref.media_id as item_media_id,
 		item_pref.media_name as
 		item_media_name,
@@ -281,7 +282,6 @@
 		THEN
 		item_pref.media_id = ml.link_media
 		END)
-
 		where
 		st.store_ref =
 		us.store_id
@@ -788,8 +788,9 @@
 		<id property="storage_id" column="storage_id" />
 		<result property="store_ref" column="store_ref" />
 		<result property="storage_name" column="storage_name" />
+		<result property="ref_store_name" column="store_name" />
 		<association property="theme" javaType="ThemeObject">
-			<id property="themeId" column="storage_theme" />
+		<id property="themeId" column="storage_theme" />
 		</association>
 		<association property="storage_media" javaType="MediaObject">
 			<id property="media_id" column="storage_media_id" />
@@ -815,6 +816,7 @@
 		<result property="quantity" column="quantity" />
 		<result property="pubblication_date" column="pubblication_date" />
 		<result property="preview_media" column="preview_media" />
+		<result property="type" column="type" />
 		<collection property="item_media" resultMap="ItemImageResultMap" />
 	</resultMap>
 

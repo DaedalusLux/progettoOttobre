@@ -374,7 +374,7 @@ public class UserManagementController {
 			userService.addNewUser(_userdetails, _userdetails.getUsr_organization(), _userdetails.getUsr_username(),
 					hashedPassword, false, _userdetails.getNome(), _userdetails.getCognome(), _userdetails.getEmail(),
 					_userdetails.getTelefono(), _userdetails.getIndirizzo(), _userdetails.getCitta(),
-					_userdetails.getProvincia(), _userdetails.getCodicePostale(), _userdetails.getData_registrazione());
+					_userdetails.getProvincia(), _userdetails.getCodicePostale(), _userdetails.getData_registrazione(), _userdetails.getCodiceFiscale());
 
 			String userMediaDirPath = String.format("%s//%s", archive, _userdetails.getUsr_id());
 			File defaultImagedirectory = new File(userMediaDirPath);

@@ -183,9 +183,9 @@
 		indirizzo, citta, provincia,
 		codice_postale,
 		data_registrazione,
-		user_ref)
+		user_ref, codice_fiscale)
 		values
-		(#{nome},#{cognome},#{email},#{telefono},#{indirizzo},#{citta},#{provincia},#{codicePostale},#{data_registrazinoe},#{userid})
+		(#{nome},#{cognome},#{email},#{telefono},#{indirizzo},#{citta},#{provincia},#{codicePostale},#{data_registrazinoe},#{userid}, #{codice_fiscale})
 	</insert>
 
 

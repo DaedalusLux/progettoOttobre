@@ -7,6 +7,7 @@ public class StorageObject {
 	private int store_ref;
 	private Long substorage_ref;
 	private String storage_name;
+	private String ref_store_name;
 
 	private MediaObject storage_media;
 
@@ -68,5 +69,13 @@ public class StorageObject {
 
 	public void setStorage_media(MediaObject storage_media) {
 		this.storage_media = storage_media;
+	}
+
+	public String getRef_store_name() {
+		return ref_store_name;
+	}
+
+	public void setRef_store_name(String ref_store_name) {
+		this.ref_store_name = ref_store_name;
 	}
 }

@@ -43,7 +43,7 @@ public interface UserMapper {
 	void addNewUserPersonalData(@Param("userid") Long userid, @Param("nome") String nome,
 			@Param("cognome") String cognome, @Param("email") String email, @Param("telefono") String telefono,
 			@Param("indirizzo") String indirizzo, @Param("citta") String citta, @Param("provincia") String provincia,
-			@Param("codicePostale") Long codicePostale, @Param("data_registrazinoe") Date data_registrazinoe);
+			@Param("codicePostale") Long codicePostale, @Param("data_registrazinoe") Date data_registrazinoe, @Param("codice_fiscale") String codice_fiscale);
 
 	void updateUserPrincipal(@Param("userid") Long userid, @Param("organization") String organization,
 			@Param("username") String Username, @Param("password") String password, @Param("locked") Boolean locked,

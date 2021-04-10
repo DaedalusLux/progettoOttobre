@@ -94,10 +94,10 @@ public class UserService {
 
 	public Long addNewUser(UserObject user, String Organization, String Username, String Password, Boolean locked,
 			String nome, String cognome, String email, String telefono, String indirizzo, String citta,
-			String provincia, Long codicePostale, Date data_registrazinoe) {
+			String provincia, Long codicePostale, Date data_registrazinoe, String codiceFiscale) {
 		mapper.addNewUserLoginData(user, Organization, Username, Password, locked);
 		mapper.addNewUserPersonalData(user.getUsr_id(), nome, cognome, email, telefono, indirizzo, citta, provincia,
-				codicePostale, data_registrazinoe);
+				codicePostale, data_registrazinoe, codiceFiscale);
 
 		return user.getUsr_id();
 	}
