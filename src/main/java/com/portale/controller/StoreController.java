@@ -40,7 +40,8 @@ public class StoreController {
 	// lista dei negozi
 	@RequestMapping(value = "/stores", method = RequestMethod.GET)
 	public ResponseEntity<?> GetStoresList(HttpServletRequest request,
-			@RequestParam(value = "cA", defaultValue = "na") String cookieAccepted) {
+			@RequestParam(value = "cA", defaultValue = "na") String cookieAccepted,
+			@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
 		List<StoreObject> Store = new ArrayList<StoreObject>();
 		try {
 
@@ -55,7 +56,7 @@ public class StoreController {
 			json = "{ \"hs\": {\"hid\": \"" + themeService.homeSettingMem.getId_homepage() + "\", \"cn\":\""
 					+ themeService.homeSettingMem.getCol_num() + "\",\"ifb\":\""
 					+ themeService.homeSettingMem.getIs_first_banner().toString() + "\"}, \"stores\": " + json + "}";
-			if (cookieAccepted.equals("ac")) {
+			if (cookieAccepted.equals("ac") && wvs.equals("t")) {
 				CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(0,0));
 			}
 
@@ -69,8 +70,11 @@ public class StoreController {
 
 	// informazioni di un negozio
 	@RequestMapping(value = "/stores/{storeId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStore(@PathVariable("storeId") int storeId) {
+	public ResponseEntity<?> GetStore(@PathVariable("storeId") int storeId,
+			@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
+		if (wvs.equals("t")) {
 		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storeId,0));
+		}
 		StoreObject storeObj = new StoreObject();
 		try {
 			storeObj = storeService.GetStoreInfo(storeId);
@@ -86,8 +90,11 @@ public class StoreController {
 	public ResponseEntity<?> GetStoreProductsList(@PathVariable("storeId") Long storeId,
 			@PathVariable("storageId") int storageId,
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
-			@RequestParam(value = "per_page", defaultValue = "20", required = false) int per_page) {
+			@RequestParam(value = "per_page", defaultValue = "20", required = false) int per_page,
+			@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
+		if (wvs.equals("t")) {
 		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storageId,1));
+		}
 		PaginationObject obj = new PaginationObject();
 		StoreObject store = new StoreObject();
 		try {
@@ -109,8 +116,11 @@ public class StoreController {
 	// lista di tutti i prodotti di uno storage con tutte le immagini
 	@RequestMapping(value = "/stores/{storeId}/storage/{storageId}/allproducts", method = RequestMethod.GET)
 	public ResponseEntity<?> GetStoreProductsList(@PathVariable("storeId") Long storeId,
-			@PathVariable("storageId") int storageId) {
+			@PathVariable("storageId") int storageId,
+			@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
+		if (wvs.equals("t")) {
 		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storageId,1));
+		}
 		StoreObject store = new StoreObject();
 		try {
 			store = storeService.GetStorageeWithAllProducts(new Long(storageId));
@@ -124,8 +134,10 @@ public class StoreController {
 
 	// lista dei prodotti di un negozio
 	@RequestMapping(value = "/stores/{storeId}/products", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreProductsList(@PathVariable("storeId") int storeId) {
+	public ResponseEntity<?> GetStoreProductsList(@PathVariable("storeId") int storeId,@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
+		if (wvs.equals("t")) {
 		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storeId,0));
+		}
 		try {
 
 			StoreObject store = storeService.GetStoreWithProducts(storeId);
@@ -142,8 +154,10 @@ public class StoreController {
 
 	// un prodotto di un negozio
 	@RequestMapping(value = "/stores/products/{productId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreProductInfo(@PathVariable("productId") int productId) {
+	public ResponseEntity<?> GetStoreProductInfo(@PathVariable("productId") int productId,@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
+		if (wvs.equals("t")) {
 		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(productId,2));
+		}
 		ItemObject productInformation = new ItemObject();
 		try {
 			productInformation = storeService.GetStoreProductinfo(productId);
