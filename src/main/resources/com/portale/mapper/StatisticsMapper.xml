@@ -3,6 +3,44 @@
    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.portale.mapper.StatisticsMapper">
+
+	<select id="GetWSV_TopStores" resultMap="VisitStatusMLResultMap">
+		select s.store_name as el_name, wvs_today, wvs_all, wvs_obj_id as el_id from webstatistics_visits_short
+inner join (
+select store_id, store_name 
+from stores
+)s on s.store_id = wvs_obj_id
+order by wvs_all desc, wvs_today desc, store_name asc
+limit 10
+	</select>
+	
+	<select id="GetWSV_TopProd" resultMap="VisitStatusMLResultMap">
+	select p.item_name as el_name, wvs_today, wvs_all, wvs_obj_id as el_id from webstatistics_visits_short
+inner join (
+select item_id, item_name 
+from storage_items
+)p on p.item_id = wvs_obj_id
+order by wvs_all desc, wvs_today desc, item_name asc
+limit 10
+	</select>
+	
+	<select id="GetWSV_TopStorages" resultMap="VisitStatusMLResultMap">
+	select s.storage_name as el_name, wvs_today, wvs_all, wvs_obj_id as el_id from webstatistics_visits_short
+inner join (
+select storage_id, storage_name 
+from storage
+inner join (select store_id from stores where store_depth != 0)x on x.store_id = store_ref
+)s on s.storage_id = wvs_obj_id
+order by wvs_all desc, wvs_today desc, storage_name asc
+limit 10
+</select>
+	
+	<resultMap id="VisitStatusMLResultMap" type="StatisticDetailsObj">
+		<result property="wvs_today" column="wvs_today" />
+		<result property="wvs_all" column="wvs_all" />
+		<result property="wvs_obj_name" column="el_name" />
+		<result property="wvs_obj_id" column="el_id" />
+	</resultMap>
 	
 	<select id="GetVisitStatus" resultMap="VisitStatusResultMap">
 		select webstats.* 

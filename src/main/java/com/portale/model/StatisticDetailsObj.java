@@ -7,6 +7,8 @@ public class StatisticDetailsObj {
 	private int wvs_today;
 	private int wvs_all;
 	
+	private String wvs_obj_name;
+	
 	public int getWvs_obj_id() {
 		return wvs_obj_id;
 	}
@@ -30,5 +32,11 @@ public class StatisticDetailsObj {
 	}
 	public void setWvs_all(int wvs_all) {
 		this.wvs_all = wvs_all;
+	}
+	public String getWvs_obj_name() {
+		return wvs_obj_name;
+	}
+	public void setWvs_obj_name(String wvs_obj_name) {
+		this.wvs_obj_name = wvs_obj_name;
 	}
 }

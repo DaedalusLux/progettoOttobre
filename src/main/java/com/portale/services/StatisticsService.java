@@ -28,6 +28,16 @@ public class StatisticsService {
 	public void AddWSV_Page() {
 		
 	}
+
+	public List<StatisticDetailsObj> GetWSV_TopStores() {
+		return statisticsMapper.GetWSV_TopStores();
+	}
+	public List<StatisticDetailsObj> GetWSV_TopStorages() {
+		return statisticsMapper.GetWSV_TopStorages();
+	}
+	public List<StatisticDetailsObj> GetWSV_TopProd() {
+		return statisticsMapper.GetWSV_TopProd();
+	}
 	
 	public StatisticDetailsObj GetWSV_Prod(int wvs_obj_id, int wvs_details) {
 		return statisticsMapper.GetWSV_Prod(wvs_obj_id, wvs_details);

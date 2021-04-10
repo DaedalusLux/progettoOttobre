@@ -48,4 +48,46 @@ public class StatisticController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	@RequestMapping(value = "/statistics-management/wvstopst", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<?> WVSTS() {
+		try {
+			List<StatisticDetailsObj> statistics_Views = statisticsService.GetWSV_TopStores();
+			return new ResponseEntity<>(statistics_Views, HttpStatus.OK);
+		}
+		catch(Exception e)
+		{	
+			System.out.println(e.getMessage());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@RequestMapping(value = "/statistics-management/wvstoppr", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<?> WVSTP() {
+		try {
+			List<StatisticDetailsObj> statistics_Views = statisticsService.GetWSV_TopProd();
+			return new ResponseEntity<>(statistics_Views, HttpStatus.OK);
+		}
+		catch(Exception e)
+		{	
+			System.out.println(e.getMessage());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@RequestMapping(value = "/statistics-management/wvstopstr", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<?> WVSTST() {
+		try {
+			List<StatisticDetailsObj> statistics_Views = statisticsService.GetWSV_TopStorages();
+			return new ResponseEntity<>(statistics_Views, HttpStatus.OK);
+		}
+		catch(Exception e)
+		{	
+			System.out.println(e.getMessage());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }
