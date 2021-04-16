@@ -18,6 +18,7 @@ public class StoreObject {
 	private Date creation;
 	private Date valid_until;
 	private int items_type;
+	private String items_type_desc;
 	
 	public Long getStore_place() {
 		return store_place;
@@ -160,6 +161,14 @@ public class StoreObject {
 
 	public void setItems_type(int items_type) {
 		this.items_type = items_type;
+	}
+
+	public String getItems_type_desc() {
+		return items_type_desc;
+	}
+
+	public void setItems_type_desc(String items_type_desc) {
+		this.items_type_desc = items_type_desc;
 	}
 
 }

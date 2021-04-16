@@ -9,6 +9,7 @@ public class StorageObject {
 	private String storage_name;
 	private String ref_store_name;
 	private int store_items_type;
+	private String store_items_type_desc;
 
 	private MediaObject storage_media;
 
@@ -86,5 +87,13 @@ public class StorageObject {
 
 	public void setStore_items_type(int store_items_type) {
 		this.store_items_type = store_items_type;
+	}
+
+	public String getStore_items_type_desc() {
+		return store_items_type_desc;
+	}
+
+	public void setStore_items_type_desc(String store_items_type_desc) {
+		this.store_items_type_desc = store_items_type_desc;
 	}
 }

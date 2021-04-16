@@ -167,7 +167,7 @@
 	</resultMap>
 
 	<select id="GetStorageItems" resultMap="StorageItemsResultMap">
-		select store_dett.store_name, store_dett.items_type, s_it.*, st.*,
+		select store_dett.store_name, store_dett.items_type, store_dett.item_type_desc, s_it.*, st.*,
 
 		item_pref.media_id as item_media_id,
 		item_pref.media_name as item_media_name,
@@ -214,7 +214,7 @@
 		WHEN s_it.preview_media IS NULL THEN
 		item_pref.media_id = ml.link_media
 		END)
-		inner join (select stores.store_name, stores.store_id, stores.items_type from stores) store_dett
+		inner join (select item_type.item_type_desc, stores.store_name, stores.store_id, stores.items_type from stores, item_type where stores.items_type = item_type.item_type_id) store_dett
 		on store_dett.store_id = st.store_ref
 		where
 		st.storage_id =
@@ -233,7 +233,7 @@
 	</select>
 
 	<select id="GetStoreProductsManager" resultMap="StorageItemsResultMap">
-		select us.store_name, us.items_type, s_it.*, st.*,
+		select us.store_name, us.items_type, it.item_type_desc, s_it.*, st.*,
 		item_pref.media_id as item_media_id,
 		item_pref.media_name as
 		item_media_name,
@@ -251,7 +251,7 @@
 		strg_media.media_owner as storage_media_owner,
 		strg_media.media_pubblication_date as storage_media_pubblication_date
 
-		from stores
+		from item_type it, stores
 		us, storage_items s_it
 		left join
 		storage st
@@ -282,9 +282,8 @@
 		THEN
 		item_pref.media_id = ml.link_media
 		END)
-		where
-		st.store_ref =
-		us.store_id
+		where st.store_ref = us.store_id
+		and it.item_type_id = us.items_type
 
 		and us.store_id =
 		#{storeId}
@@ -567,7 +566,7 @@
 	</select>
 
 	<select id="GetStoreInfo" resultMap="StoreInfoResultMap">
-		select s.*, m.*, t.* ,
+		select s.*, m.*, t.* , it.item_type_desc,
 		ud.nome, ud.cognome, st.*,
 		storage_t.theme_id as storage_themeId,
 		storage_t.display_name as storage_themeName,
@@ -582,6 +581,7 @@
 		sm.media_pubblication_date as
 		storage_media_pubblication_date
 		from
+		item_type it,
 		users_details
 		ud,
 		themes t
@@ -609,6 +609,7 @@
 		where
 		ud.user_ref =
 		s.store_owner
+		and it.item_type_id = s.items_type
 		and
 		s.store_id =
 		#{store_id}
@@ -770,7 +771,7 @@
 		<result property="store_place" column="store_place" />
 		<result property="place_expire" column="place_expire" />
 		<result property="items_type" column="items_type" />
-
+		<result property="items_type_desc" column="item_type_desc" />
 		<association property="media" javaType="MediaObject">
 			<id property="media_id" column="media_id" />
 			<result property="media_name" column="media_name" />
@@ -791,7 +792,7 @@
 		<result property="storage_name" column="storage_name" />
 		<result property="ref_store_name" column="store_name" />
 		<result property="store_items_type" column="items_type" />
-		
+		<result property="store_items_type_desc" column="item_type_desc" />		
 		<association property="theme" javaType="ThemeObject">
 		<id property="themeId" column="storage_theme" />
 		</association>
@@ -837,6 +838,8 @@
 		<result property="banner_link" column="banner_link" />
 		<result property="store_depth" column="store_depth" />
 		<result property="category" column="category" />
+		<result property="items_type" column="items_type" />
+		<result property="items_type_desc" column="item_type_desc" />
 		<association property="theme" javaType="ThemeObject">
 			<id property="themeId" column="theme" />
 		</association>
@@ -854,6 +857,8 @@
 		<id property="storage_id" column="storage_id" />
 		<result property="store_ref" column="store_ref" />
 		<result property="storage_name" column="storage_name" />
+		<result property="store_items_type" column="items_type" />
+		<result property="store_items_type_desc" column="item_type_desc" />
 		<association property="theme" javaType="ThemeObject">
 			<id property="themeId" column="storage_theme" />
 			<result property="themeName" column="display_name" />
@@ -873,6 +878,7 @@
 		<result property="store_name" column="store_name" />
 		<result property="category" column="category" />
 		<result property="items_type" column="items_type" />
+		<result property="items_type_desc" column="item_type_desc" />
 		<result property="open" column="open" />
 		<result property="confirmed" column="confirmed" />
 		<result property="creation" column="creation" />
@@ -903,6 +909,7 @@
 		<result property="confirmed" column="confirmed" />
 		<result property="store_depth" column="store_depth" />
 		<result property="items_type" column="items_type" />
+		<result property="items_type_desc" column="item_type_desc" />
 		<association property="theme" javaType="ThemeObject">
 			<id property="themeId" column="theme_id" />
 			<result property="themeName" column="display_name" />
@@ -923,6 +930,8 @@
 		<id property="storage_id" column="storage_id" />
 		<result property="store_ref" column="store_ref" />
 		<result property="storage_name" column="storage_name" />
+		<result property="store_items_type" column="items_type" />
+		<result property="store_items_type_desc" column="item_type_desc" />
 		<association property="storage_media" javaType="MediaObject">
 			<id property="media_id" column="storage_media_id" />
 			<result property="media_name" column="storage_media_name" />
