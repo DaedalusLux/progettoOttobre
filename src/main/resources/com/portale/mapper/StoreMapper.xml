@@ -872,6 +872,7 @@
 		<id property="store_id" column="store_id" />
 		<result property="store_name" column="store_name" />
 		<result property="category" column="category" />
+		<result property="items_type" column="items_type" />
 		<result property="open" column="open" />
 		<result property="confirmed" column="confirmed" />
 		<result property="creation" column="creation" />
