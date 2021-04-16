@@ -119,14 +119,14 @@ public class StoreService {
 
 	public void AddNewStore(StoreObject store, String store_name, Long store_owner, Boolean open, String category,
 			Date creation, Date valid_until, Long themeId, Boolean confirmed, Long store_depth,
-			List<Long> selected_media_id) {
+			List<Long> selected_media_id, int items_type) {
 		Long media_id = null;
 		if (selected_media_id.size() > 0) {
 			media_id = selected_media_id.get(0);
 		}
 
 		mapper.AddNewStore(store, store_name, store_owner, open, category, creation, valid_until, themeId, confirmed,
-				store_depth, media_id);
+				store_depth, media_id, items_type);
 	}
 
 	public void UpdateStore(int storeId, String store_name, int store_owner, Long media_id, Boolean status,

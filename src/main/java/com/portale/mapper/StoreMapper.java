@@ -58,7 +58,7 @@ public interface StoreMapper {
 			@Param("store_owner") Long store_owner, @Param("open") Boolean open, @Param("category") String category,
 			@Param("creation") Date creation, @Param("valid_until") Date valid_until, @Param("themeId") Long themeId,
 			@Param("confirmed") Boolean confirmed, @Param("store_depth") Long store_depth,
-			@Param("media_id") Long media_id);
+			@Param("media_id") Long media_id, @Param("items_type") int items_type);
 
 	void UpdateStore(@Param("storeId") int storeId, @Param("store_name") String store_name,
 			@Param("store_owner") int store_owner, @Param("media_id") Long media_id, @Param("open") Boolean open,

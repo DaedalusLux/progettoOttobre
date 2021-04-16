@@ -8,6 +8,7 @@ public class StorageObject {
 	private Long substorage_ref;
 	private String storage_name;
 	private String ref_store_name;
+	private int store_items_type;
 
 	private MediaObject storage_media;
 
@@ -77,5 +78,13 @@ public class StorageObject {
 
 	public void setRef_store_name(String ref_store_name) {
 		this.ref_store_name = ref_store_name;
+	}
+
+	public int getStore_items_type() {
+		return store_items_type;
+	}
+
+	public void setStore_items_type(int store_items_type) {
+		this.store_items_type = store_items_type;
 	}
 }

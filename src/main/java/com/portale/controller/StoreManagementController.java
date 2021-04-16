@@ -206,7 +206,7 @@ public class StoreManagementController {
 			storeService.AddNewStore(_store, _store.getStore_name(), _store.getStore_owner(), false,
 					_store.getCategory(), new Date(), _store.getValid_until(), _store.getTheme().getThemeId(),
 					request.isUserInRole("ROLE_ADMIN") ? true : false, _store.getStore_depth(),
-					_store.getMedia().getSelected_media_id());
+					_store.getMedia().getSelected_media_id(), _store.getItems_type());
 
 			// If administratore created the shop it will be automatically confirmed
 			// If it's confirmed store must have a storage

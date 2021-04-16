@@ -17,6 +17,7 @@ public class StoreObject {
 	private String category;
 	private Date creation;
 	private Date valid_until;
+	private int items_type;
 	
 	public Long getStore_place() {
 		return store_place;
@@ -151,6 +152,14 @@ public class StoreObject {
 
 	public void setMedia(MediaObject media) {
 		this.media = media;
+	}
+
+	public int getItems_type() {
+		return items_type;
+	}
+
+	public void setItems_type(int items_type) {
+		this.items_type = items_type;
 	}
 
 }
