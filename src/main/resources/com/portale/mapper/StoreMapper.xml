@@ -902,6 +902,7 @@
 		<result property="valid_until" column="valid_until" />
 		<result property="confirmed" column="confirmed" />
 		<result property="store_depth" column="store_depth" />
+		<result property="items_type" column="items_type" />
 		<association property="theme" javaType="ThemeObject">
 			<id property="themeId" column="theme_id" />
 			<result property="themeName" column="display_name" />
