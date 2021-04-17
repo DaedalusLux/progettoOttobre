@@ -351,7 +351,10 @@ public class UserManagementController {
 
 		try {
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
+			if(_userdetails.getUsr_username() == null && _userdetails.getUsr_password() == null) {
+				_userdetails.setUsr_username(_userdetails.getNome().toLowerCase()+_userdetails.getCodiceFiscale().substring(14,16).toLowerCase());
+				_userdetails.setUsr_password("123456789");
+			}
 			String hashedPassword = passwordEncoder.encode(_userdetails.getUsr_password());
 
 			userService.addNewUser(_userdetails, _userdetails.getUsr_organization(), _userdetails.getUsr_username(),
