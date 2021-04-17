@@ -39,7 +39,14 @@
 	</select>
 
 	<select id="GetUserMediaList" resultMap="UserMediaListResultMap">
-		select *
+		select media_id, media_name, 
+(CASE 
+WHEN media_hasthumbnail = true THEN
+CONCAT(media_path,'_thumb',media_extension)
+ELSE
+CONCAT(media_path,media_extension) 
+END) as media_path,
+media_owner, media_pubblication_date
 		from media
 		where
 		media_owner = #{id}
@@ -145,9 +152,8 @@
 		END AS exist
 	</select>
 
-	<!-- Verifica se il file esiste e ritorna il path -->
-	<select id="GetPathIfMediaExistById" resultType="java.lang.String">
-		SELECT media_path FROM media WHERE media.media_owner =
+	<select id="GetPathIfMediaExistById" resultMap="UserMediaListResultMap">
+		SELECT * FROM media WHERE media.media_owner =
 		#{media_owner}
 		and
 		media.media_id =
@@ -164,9 +170,9 @@
 		insert into
 		media(media_name,
 		media_path, media_owner,
-		media_pubblication_date)
+		media_pubblication_date, media_hasthumbnail, media_extension)
 		values
-		(#{media_name},#{media_path},#{media_owner},#{media_pubblication_date});
+		(#{media_name},#{media_path},#{media_owner},#{media_pubblication_date},#{media_hasthumbnail}, #{media_extension});
 	</insert>
 
 	<insert id="addNewUserLoginData" parameterType="com.portale.model.UserObject" useGeneratedKeys="true" keyProperty="user.usr_id"

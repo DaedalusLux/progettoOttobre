@@ -34,7 +34,7 @@ import com.portale.model.PaginationObject;
 import com.portale.model.UserObject;
 import com.portale.security.model.AuthenticatedUser;
 import com.portale.services.UserService;
-import com.portale.services.videoConvert;
+import com.portale.services.MediaService;
 
 @RestController
 public class UserManagementController {
@@ -51,7 +51,7 @@ public class UserManagementController {
 	@Resource
 	private UserService userService;
 	@Resource
-	private videoConvert videoService;
+	private MediaService mediaService;
 
 	// GET self user data
 	@RequestMapping(value = "/user-management/user", method = RequestMethod.GET)
@@ -207,16 +207,11 @@ public class UserManagementController {
 			@RequestParam(value = "fileUpload[]", required = true) MultipartFile file) {
 
 		MediaObject media = new MediaObject();
-		String debugRecord = "";
 		try {
 			media.setMedia_name(file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.')));
-			debugRecord += "(MEDIA_NAME = " + media.getMedia_name() + ") ";
 			media.setMedia_path(randomString(12));
-			debugRecord += "(MEDIA_PATH = " + media.getMedia_path() + ") ";
 			media.setMedia_owner(new Long(id));
-			debugRecord += "(MEDIA_OWNER = " + media.getMedia_owner() + ") ";
 			media.setMedia_pubblication_date(new Date());
-			debugRecord += "(MEDIA_PUBBDATE = " + media.getMedia_pubblication_date() + ") ";
 
 			/*
 			 * Boolean mediaExist = userService.CheckIfMediaExist(media.getMedia_path(),
@@ -239,15 +234,12 @@ public class UserManagementController {
 				}
 			}
 
-			String fileType = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'),
+			String fileType = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1,
 					file.getOriginalFilename().length());
-			debugRecord += "(MEDIA_ORGINALNAME = " + file.getOriginalFilename() + ") ";
-			debugRecord += "(MEDIA_TYPE = " + fileType + ") ";
 
-			if (fileType.toLowerCase().equals(".mp4") || fileType.toLowerCase().equals(".webm") || fileType.toLowerCase().equals(".mkv") || fileType.toLowerCase().equals(".3gpp")
-					|| fileType.toLowerCase().equals(".ogg") || fileType.toLowerCase().equals(".avi") || fileType.toLowerCase().equals(".wmv")) {
+			if (fileType.toLowerCase().equals("mp4") || fileType.toLowerCase().equals("webm") || fileType.toLowerCase().equals("mkv") || fileType.toLowerCase().equals("3gpp")
+					|| fileType.toLowerCase().equals("ogg") || fileType.toLowerCase().equals("avi") || fileType.toLowerCase().equals("wmv")) {
 				
-				debugRecord += "(MEDIA_IS = video ) ";
 				
 				Files.copy(file.getInputStream(),
 						Paths.get(tempDirectory + File.separator + file.getOriginalFilename()),
@@ -261,14 +253,10 @@ public class UserManagementController {
 				}
 
 				String donePath = String.format("%s//%s", tempDirectory, file.getOriginalFilename() + ".done");
-				debugRecord += "(DONE_PATH = " + donePath + ") ";
 				
 				Path videoOutputPath = Paths.get(donePath);
-				debugRecord += "(VIDEO_OUTPUTPATH = " + videoOutputPath + ") ";
 
-				debugRecord += "(before > videoService = " + System.currentTimeMillis() + ") ";
-				debugRecord += videoService.convert(media.getMedia_owner(), file.getOriginalFilename(), media.getMedia_path() + ".webm");
-				debugRecord += "(after > videoService = " +  System.currentTimeMillis() + ") ";
+				mediaService.convert(media.getMedia_owner(), file.getOriginalFilename(), media.getMedia_path() + ".webm");
 
 				/*int i = 0;
 				while (Files.notExists(videoOutputPath) && i <= 300) // max conversion time 2 min (AVG 80 sec with file								// <= 5MB)
@@ -281,7 +269,6 @@ public class UserManagementController {
 						return new ResponseEntity<>(debugRecord, HttpStatus.GATEWAY_TIMEOUT);
 					}
 				}*/
-				debugRecord += "([" + videoOutputPath + "] exist " +  System.currentTimeMillis() + ") ";
 				
 				try {
 					Files.setPosixFilePermissions(Paths.get(directory + File.separator + media.getMedia_path() + ".webm"),
@@ -291,48 +278,41 @@ public class UserManagementController {
 				}
 
 				File doneFile = new File(donePath);
-				if (doneFile.delete()) {
-					debugRecord += ("Deleted the done file of " + media.getMedia_path());
-				} else {
-					debugRecord += ("Failed to delete the done file of " + media.getMedia_path());
-				}
+				doneFile.delete();
 
 				File originalVideoFile = new File(String.format("%s//%s", tempDirectory, file.getOriginalFilename()));
-				if (originalVideoFile.delete()) {
-					debugRecord += ("Deleted originalVideoFile of " + media.getMedia_path());
-				} else {
-					debugRecord += ("Failed to delete originalVideoFile of " + media.getMedia_path());
-				}
+				originalVideoFile.delete();
 				
-				media.setMedia_path(media.getMedia_path() + ".webm");
+				media.setMedia_path(media.getMedia_path());
+				media.setMedia_extension(".webm");
+				media.setMedia_hasthumbnail(false);
 
-			} else if (fileType.toLowerCase().equals(".jpg") || fileType.toLowerCase().equals(".jpeg") || fileType.toLowerCase().equals(".jfif") || fileType.toLowerCase().equals(".pjpeg")
-					|| fileType.toLowerCase().equals(".pjp") || fileType.toLowerCase().equals(".png") || fileType.toLowerCase().equals(".gif") || fileType.toLowerCase().equals(".bmp")
-					|| fileType.toLowerCase().equals(".tiff") || fileType.toLowerCase().equals(".tif") || fileType.toLowerCase().equals(".webp")) {
+			} else if (fileType.toLowerCase().equals("jpg") || fileType.toLowerCase().equals("jpeg") || fileType.toLowerCase().equals("jfif") || fileType.toLowerCase().equals("pjpeg")
+					|| fileType.toLowerCase().equals("pjp") || fileType.toLowerCase().equals("png") || fileType.toLowerCase().equals("gif") || fileType.toLowerCase().equals("bmp")
+					|| fileType.toLowerCase().equals("tiff") || fileType.toLowerCase().equals("tif") || fileType.toLowerCase().equals("webp")) {
+								
+				media.setMedia_path(mediaService.CompressIMGSCALR(file.getInputStream(), filePath, media.getMedia_path(),fileType.toLowerCase()));
+				media.setMedia_extension("."+fileType.toLowerCase());
+				media.setMedia_hasthumbnail(true);
 				
-				debugRecord += "(MEDIA_IS = image ) ";
-
-				
-				media.setMedia_path(media.getMedia_path() + file.getOriginalFilename()
-						.substring(file.getOriginalFilename().lastIndexOf('.'), file.getOriginalFilename().length()));
-				Files.copy(file.getInputStream(), Paths.get(directory + File.separator + media.getMedia_path()),
+				/*Files.copy(file.getInputStream(), Paths.get(directory + File.separator + media.getMedia_path()),
 						StandardCopyOption.REPLACE_EXISTING);
 				try {
 					Files.setPosixFilePermissions(Paths.get(directory + File.separator + media.getMedia_path()),
 							PosixFilePermissions.fromString("rw-rw-r--"));
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
-				}
+				}*/
 			} else {
-				return new ResponseEntity<>(debugRecord, HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
 
 			userService.PostUsersMedia(media, media.getMedia_name(), media.getMedia_path(), media.getMedia_owner(),
-					media.getMedia_pubblication_date());
+					media.getMedia_pubblication_date(), media.isMedia_hasthumbnail(), media.getMedia_extension());
 
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
-			return new ResponseEntity<>(debugRecord + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 		return new ResponseEntity<>(media.getMedia_id(), HttpStatus.OK);
@@ -346,13 +326,16 @@ public class UserManagementController {
 		try {
 
 			for (int m = 0; m < deleteMedia.length; m++) {
-				String mediaExist = userService.GetPathIfMediaExistById(deleteMedia[m], id);
-				if (mediaExist != null) {
+				MediaObject mediaExist = userService.GetPathIfMediaExistById(deleteMedia[m], id);
+				if (mediaExist.getMedia_id() != null) {
 					userService.DeleteMediaById(deleteMedia[m]);
 				}
 				String filePath = String.format("%s//%s", archive, id);
 				File directory = new File(filePath);
-				Files.deleteIfExists(Paths.get(directory + File.separator + mediaExist));
+				Files.deleteIfExists(Paths.get(directory + File.separator + mediaExist.getMedia_path() + mediaExist.getMedia_extension()));
+				if(mediaExist.isMedia_hasthumbnail()) {
+					Files.deleteIfExists(Paths.get(directory + File.separator + mediaExist.getMedia_path() + "_thumb" + mediaExist.getMedia_extension()));		
+				}
 			}
 
 		} catch (Exception e) {

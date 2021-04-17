@@ -9,6 +9,8 @@ public class MediaObject {
 	private String media_path;
 	private Long media_owner;
 	private Date media_pubblication_date;
+	private boolean media_hasthumbnail;
+	private String media_extension;
 	
 	private List<Long> selected_media_id;
 	
@@ -47,5 +49,18 @@ public class MediaObject {
 	}
 	public void setSelected_media_id(List<Long> selected_media_id) {
 		this.selected_media_id = selected_media_id;
+	}
+
+	public String getMedia_extension() {
+		return media_extension;
+	}
+	public void setMedia_extension(String media_extension) {
+		this.media_extension = media_extension;
+	}
+	public boolean isMedia_hasthumbnail() {
+		return media_hasthumbnail;
+	}
+	public void setMedia_hasthumbnail(boolean media_hasthumbnail) {
+		this.media_hasthumbnail = media_hasthumbnail;
 	}
 }

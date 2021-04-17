@@ -29,11 +29,11 @@ public interface UserMapper {
 
 	void PostUsersMedia(@Param("media") MediaObject media, @Param("media_name") String media_name,
 			@Param("media_path") String media_path, @Param("media_owner") Long media_owner,
-			@Param("media_pubblication_date") Date media_pubblication_date);
+			@Param("media_pubblication_date") Date media_pubblication_date,@Param("media_hasthumbnail") boolean media_hasthumbnail,@Param("media_extension") String media_extension);
 
 	Boolean CheckIfMediaExist(@Param("media_path") String media_path, @Param("media_owner") Long media_owner);
 
-	String GetPathIfMediaExistById(@Param("media_id") int media_id, @Param("media_owner") int media_owner);
+	MediaObject GetPathIfMediaExistById(@Param("media_id") int media_id, @Param("media_owner") int media_owner);
 
 	void DeleteMediaById(@Param("media_id") int media_id);
 

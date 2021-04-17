@@ -41,8 +41,8 @@ public class UserService {
 	}
 
 	public void PostUsersMedia(MediaObject media, String media_name, String media_path, Long media_owner,
-			Date media_pubblication_date) {
-		mapper.PostUsersMedia(media, media_name, media_path, media_owner, media_pubblication_date);
+			Date media_pubblication_date, boolean media_hasthumbnail, String media_extension) {
+		mapper.PostUsersMedia(media, media_name, media_path, media_owner, media_pubblication_date,media_hasthumbnail,media_extension);
 	}
 
 	public Boolean CheckIfMediaExist(String media_path, Long media_owner) {
@@ -55,12 +55,8 @@ public class UserService {
 		return false;
 	}
 
-	public String GetPathIfMediaExistById(int media_id, int media_owner) {
-		String mediaExist = mapper.GetPathIfMediaExistById(media_id, media_owner);
-		if (mediaExist != null) {
-			return mediaExist;
-		}
-		return null;
+	public MediaObject GetPathIfMediaExistById(int media_id, int media_owner) {
+			return mapper.GetPathIfMediaExistById(media_id, media_owner);
 	}
 
 	public void DeleteMediaById(int media_id) {

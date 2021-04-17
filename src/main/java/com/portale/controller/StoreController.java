@@ -26,6 +26,7 @@ import com.portale.model.StoreObject;
 import com.portale.services.StatisticsService;
 import com.portale.services.StoreService;
 import com.portale.services.ThemeService;
+import com.portale.services.MediaService;
 
 @RestController
 public class StoreController {
@@ -36,7 +37,8 @@ public class StoreController {
 	@Resource
 	private ThemeService themeService;
 
-
+	@Resource
+	private MediaService VideoConvert;
 	// lista dei negozi
 	@RequestMapping(value = "/stores", method = RequestMethod.GET)
 	public ResponseEntity<?> GetStoresList(HttpServletRequest request,
@@ -48,7 +50,6 @@ public class StoreController {
 			if (themeService.homeSettingMem == null) {
 				themeService.homeSettingMem = themeService.getHomeSettingsObjs();
 				}
-
 			Store = storeService.GetStoreData();
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.setSerializationInclusion(Include.NON_NULL);
