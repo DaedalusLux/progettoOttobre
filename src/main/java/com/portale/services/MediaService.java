@@ -125,7 +125,7 @@ public class MediaService {
 			image_OutputName = image_Name+"_opt";
 			ImageIO.write(outputImage, image_Extension, outputfile);
 			try {
-				Files.setPosixFilePermissions(Paths.get(outputfile.getAbsolutePath()),
+				Files.setPosixFilePermissions(Paths.get(image_Path+ File.separator + image_Name+"_opt."+image_Extension),
 						PosixFilePermissions.fromString("rw-rw-r--"));
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
@@ -133,7 +133,7 @@ public class MediaService {
 		    outputfile = new File(image_Path + File.separator + image_Name+"_opt_thumb."+image_Extension);
 		    ImageIO.write(outputImage_Thumbail, image_Extension, outputfile);
 		    try {
-				Files.setPosixFilePermissions(Paths.get(outputfile.getAbsolutePath()),
+				Files.setPosixFilePermissions(Paths.get(image_Path + File.separator + image_Name+"_opt_thumb."+image_Extension),
 						PosixFilePermissions.fromString("rw-rw-r--"));
 			} catch (Exception e) {
 				System.out.println(e.getMessage());

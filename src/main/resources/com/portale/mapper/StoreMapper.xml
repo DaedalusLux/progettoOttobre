@@ -78,7 +78,7 @@
 	<select id="GetStoreData" resultMap="StoreObjectResultMap">
 		select distinct st.store_id,
 		st.category, st.store_name,
-		strg.storage_id, m.*
+		strg.storage_id, m.media_id, m.media_name, m.media_owner, CONCAT(m.media_path, m.media_extension) as media_path, m.media_pubblication_date
 		,st.store_place,
 		st.place_expire
 		from stores
@@ -135,6 +135,7 @@
 	</select>
 
 	<!-- seleziona un prodotto a caso dal negozio tuttocitta (scegle i prodotti che hanno inpostato l'immagine preferita) -->
+	<!-- TODO si deve modificare la chiamata, invece di un'immagine deve tornare la lista -->
 	<select id="GetRandomItemTC" resultMap="RandomItemTCResultMap">
 		select distinct RANDOM(),
 		m.*, si.item_id, si.storage_ref from media m,
@@ -171,15 +172,23 @@
 
 		item_pref.media_id as item_media_id,
 		item_pref.media_name as item_media_name,
-		item_pref.media_path as
-		item_media_path,
+		(CASE WHEN item_pref.media_hasthumbnail = true THEN
+		CONCAT(item_pref.media_path, '_thumb',item_pref.media_extension)
+		ELSE
+		CONCAT(item_pref.media_path, item_pref.media_extension)
+		END)
+		as item_media_path,
 		item_pref.media_owner as item_media_owner,
 		item_pref.media_pubblication_date as item_media_pubblication_date,
 
 		strg_media.media_id as storage_media_id,
 		strg_media.media_name as
 		storage_media_name,
-		strg_media.media_path as storage_media_path,
+		(CASE WHEN strg_media.media_hasthumbnail = true THEN
+		CONCAT(strg_media.media_path, '_thumb',strg_media.media_extension)
+		ELSE
+		CONCAT(strg_media.media_path, strg_media.media_extension)
+		END) as storage_media_path,
 		strg_media.media_owner as storage_media_owner,
 		strg_media.media_pubblication_date as
 		storage_media_pubblication_date
@@ -237,8 +246,12 @@
 		item_pref.media_id as item_media_id,
 		item_pref.media_name as
 		item_media_name,
-		item_pref.media_path as
-		item_media_path,
+		(CASE WHEN item_pref.media_hasthumbnail = true THEN
+		CONCAT(item_pref.media_path, '_thumb',item_pref.media_extension)
+		ELSE
+		CONCAT(item_pref.media_path, item_pref.media_extension)
+		END)
+		as item_media_path,
 		item_pref.media_owner as item_media_owner,
 		item_pref.media_pubblication_date as
 		item_media_pubblication_date,
@@ -246,8 +259,11 @@
 		strg_media.media_id as storage_media_id,
 		strg_media.media_name as
 		storage_media_name,
-		strg_media.media_path as
-		storage_media_path,
+		(CASE WHEN strg_media.media_hasthumbnail = true THEN
+		CONCAT(strg_media.media_path, '_thumb',strg_media.media_extension)
+		ELSE
+		CONCAT(strg_media.media_path, strg_media.media_extension)
+		END) as storage_media_path,
 		strg_media.media_owner as storage_media_owner,
 		strg_media.media_pubblication_date as storage_media_pubblication_date
 
@@ -284,7 +300,6 @@
 		END)
 		where st.store_ref = us.store_id
 		and it.item_type_id = us.items_type
-
 		and us.store_id =
 		#{storeId}
 		order by item_id desc,
@@ -292,17 +307,28 @@
 		limit #{limit}
 		offset
 		#{offset}
+		
 	</select>
 
 	<select id="GetStoreWithProducts" resultMap="StoreWithProductsResultMap">
-		select s_m.*, us.*, s.*, i.*,
+		select s_m.media_id, s_m.media_name, 
+		(CASE WHEN s_m.media_hasthumbnail = true THEN
+		CONCAT(s_m.media_path, '_thumb',s_m.media_extension)
+		ELSE
+		CONCAT(s_m.media_path, s_m.media_extension)
+		END) as media_path,
+		s_m.media_owner,
+		s_m.media_pubblication_date,
+		us.*, s.*, i.*,
 		st_m.media_id as
 		storage_media_id,
 		st_m.media_name as
 		storage_media_name,
-		st_m.media_path
-		as
-		storage_media_path,
+		(CASE WHEN st_m.media_hasthumbnail = true THEN
+		CONCAT(st_m.media_path, '_thumb',st_m.media_extension)
+		ELSE
+		CONCAT(st_m.media_path, st_m.media_extension)
+		END) as storage_media_path,
 		st_m.media_owner as storage_media_owner,
 		st_m.media_pubblication_date
 		as
@@ -310,7 +336,11 @@
 		i_m.media_id as
 		item_media_id,
 		i_m.media_name as item_media_name,
-		i_m.media_path as item_media_path,
+		(CASE WHEN i_m.media_hasthumbnail = true THEN
+		CONCAT(i_m.media_path, '_thumb',i_m.media_extension)
+		ELSE
+		CONCAT(i_m.media_path, i_m.media_extension)
+		END) as item_media_path,
 		i_m.media_owner as
 		item_media_owner,
 		i_m.media_pubblication_date as
@@ -351,14 +381,23 @@
 	</select>
 
 	<select id="GetStorageeWithProducts" resultMap="StoreWithProductsResultMap">
-		select s_m.*, us.*, s.*, i.*,
+		select s_m.media_id, s_m.media_name, 
+		(CASE WHEN s_m.media_hasthumbnail = true THEN
+		CONCAT(s_m.media_path, '_thumb',s_m.media_extension)
+		ELSE
+		CONCAT(s_m.media_path, s_m.media_extension)
+		END) as media_path,
+		s_m.media_owner,
+		s_m.media_pubblication_date, us.*, s.*, i.*,
 		st_m.media_id as
 		storage_media_id,
 		st_m.media_name as
 		storage_media_name,
-		st_m.media_path
-		as
-		storage_media_path,
+		(CASE WHEN st_m.media_hasthumbnail = true THEN
+		CONCAT(st_m.media_path, '_thumb',st_m.media_extension)
+		ELSE
+		CONCAT(st_m.media_path, st_m.media_extension)
+		END) as storage_media_path,
 		st_m.media_owner as storage_media_owner,
 		st_m.media_pubblication_date
 		as
@@ -367,8 +406,11 @@
 		item_media_id,
 		item_pref.media_name as
 		item_media_name,
-		item_pref.media_path as
-		item_media_path,
+		(CASE WHEN item_pref.media_hasthumbnail = true THEN
+		CONCAT(item_pref.media_path, '_thumb',item_pref.media_extension)
+		ELSE
+		CONCAT(item_pref.media_path, item_pref.media_extension)
+		END) as item_media_path,
 		item_pref.media_owner as
 		item_media_owner,
 		item_pref.media_pubblication_date as
@@ -429,14 +471,24 @@
 	</select>
 
 	<select id="GetStorageeWithAllProducts" resultMap="StoreWithProductsResultMap">
-		select s_m.*, us.*, s.*, i.*,
+		select s_m.media_id, s_m.media_name, 
+		(CASE WHEN s_m.media_hasthumbnail = true THEN
+		CONCAT(s_m.media_path, '_thumb',s_m.media_extension)
+		ELSE
+		CONCAT(s_m.media_path, s_m.media_extension)
+		END) as media_path,
+		s_m.media_owner,
+		s_m.media_pubblication_date,
+		us.*, s.*, i.*,
 		st_m.media_id as
 		storage_media_id,
 		st_m.media_name as
 		storage_media_name,
-		st_m.media_path
-		as
-		storage_media_path,
+		(CASE WHEN st_m.media_hasthumbnail = true THEN
+		CONCAT(st_m.media_path, '_thumb',st_m.media_extension)
+		ELSE
+		CONCAT(st_m.media_path, st_m.media_extension)
+		END) as storage_media_path,
 		st_m.media_owner as storage_media_owner,
 		st_m.media_pubblication_date
 		as
@@ -445,8 +497,11 @@
 		item_media_id,
 		item_pref.media_name as
 		item_media_name,
-		item_pref.media_path as
-		item_media_path,
+		(CASE WHEN item_pref.media_hasthumbnail = true THEN
+		CONCAT(item_pref.media_path, '_thumb',item_pref.media_extension)
+		ELSE
+		CONCAT(item_pref.media_path, item_pref.media_extension)
+		END) as item_media_path,
 		item_pref.media_owner as
 		item_media_owner,
 		item_pref.media_pubblication_date as
@@ -498,8 +553,7 @@
 		item_media_id,
 		m.media_name as
 		item_media_name,
-		m.media_path as
-		item_media_path,
+		CONCAT(m.media_path, m.media_extension) as item_media_path,
 		m.media_owner as
 		item_media_owner,
 		m.media_pubblication_date as
@@ -532,8 +586,7 @@
 		select * from
 		themes,
 		storage
-
-		left join media
+		left join (select media_id, media_name, CONCAT(media_path,media_extension) as media_path, media_owner, media_pubblication_date from media) media
 		on media.media_id = storage.storage_media
 		where
 		theme_id =
@@ -546,7 +599,12 @@
 		select distinct s.*, m.*, ud.nome, ud.cognome
 		from stores s
 		left join
-		media m
+		(select media_id, media_name, 
+		 (CASE WHEN media_hasthumbnail = true THEN
+		CONCAT(media_path, '_thumb', media_extension)
+		ELSE
+		CONCAT(media_path, media_extension)
+		END) as media_path, media_owner, media_pubblication_date from media) m
 		on m.media_id = s.store_media
 		left join users_details ud
 		on
@@ -566,7 +624,12 @@
 	</select>
 
 	<select id="GetStoreInfo" resultMap="StoreInfoResultMap">
-		select s.*, m.*, t.* , it.item_type_desc,
+		select s.*,
+m.media_id, m.media_name, 
+		CONCAT(m.media_path, m.media_extension) as media_path,
+		m.media_owner,
+		m.media_pubblication_date,
+t.* , it.item_type_desc,
 		ud.nome, ud.cognome, st.*,
 		storage_t.theme_id as storage_themeId,
 		storage_t.display_name as storage_themeName,
@@ -575,8 +638,11 @@
 		sm.media_id as storage_media_id,
 		sm.media_name as
 		storage_media_name,
-		sm.media_path as
-		storage_media_path,
+		(CASE WHEN sm.media_hasthumbnail = true THEN
+		CONCAT(sm.media_path, '_thumb',sm.media_extension)
+		ELSE
+		CONCAT(sm.media_path, sm.media_extension)
+		END) as storage_media_path,
 		sm.media_owner as storage_media_owner,
 		sm.media_pubblication_date as
 		storage_media_pubblication_date
