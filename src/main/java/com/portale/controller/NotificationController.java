@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.portale.model.NotificationObject;
 import com.portale.model.PaginationObject;
 import com.portale.security.model.AuthenticatedUser;
+import com.portale.services.ErrorHandlerService;
 import com.portale.services.NotificationService;
 import com.portale.services.UserService;
 
@@ -28,31 +29,35 @@ public class NotificationController {
 	private NotificationService notificationService;
 	@Resource
 	private UserService userService;
+	@Resource
+	private ErrorHandlerService errorHandlerService;
+	
+	  @RequestMapping(value = "/notifications/all", method = RequestMethod.GET)
+		public ResponseEntity<?> GetAllNotifications(
+				@RequestParam(value = "page", defaultValue = "1", required = false) int page,
+				@RequestParam(value = "per_page", defaultValue = "10", required = false) int per_page,
+				Authentication authentication) {
 
-	@RequestMapping(value = "/notifications/all", method = RequestMethod.GET)
-	public ResponseEntity<?> GetAllNotifications(
-			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
-			@RequestParam(value = "per_page", defaultValue = "10", required = false) int per_page,
-			Authentication authentication) {
-
-		PaginationObject obj = new PaginationObject();
-		List<NotificationObject> notification = new ArrayList<NotificationObject>();
-		try {
-			page = page > 0 ? (page-1) : 0;
-			AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
-			obj.setTotalResult(notificationService.GetNotificationsCount((int)u.getUsr_id()));
-			notification = notificationService.GetAllNotifications((int)u.getUsr_id(), per_page, (page * per_page));
-			obj.setData(notification);
-			return new ResponseEntity<>(obj, HttpStatus.OK);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			PaginationObject obj = new PaginationObject();
+			List<NotificationObject> notification = new ArrayList<NotificationObject>();
+			try {
+				page = page > 0 ? (page - 1) : 0;
+				AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
+				//obj.setTotalResult(notificationService.GetNotificationsCount((int) u.getUsr_id()));
+				notification = notificationService.GetAllNotifications((int) u.getUsr_id(), per_page,
+						(page * per_page));
+				obj.setData(notification);
+				return new ResponseEntity<>(obj, HttpStatus.OK);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
-	}
+	 
 
 	@RequestMapping(value = "/notifications/{notificationId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetNotificationById(@PathVariable("notificationId") Long notificationId,
-			Authentication authentication) {
+	public ResponseEntity<?> GetNotificationById(HttpServletRequest request,
+			@PathVariable("notificationId") int notificationId, Authentication authentication) {
 		try {
 			AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 
@@ -63,44 +68,44 @@ public class NotificationController {
 
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@RequestMapping(value = "/notifications/{notificationId}", method = RequestMethod.POST, headers = "Accept=application/json")
-	public ResponseEntity<?> PostNotificationResponse(@PathVariable("notificationId") Long notificationId,
-			Authentication authentication) {
-		try {
-			AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
+	public ResponseEntity<?> PostNotificationResponse(HttpServletRequest request,
+			@PathVariable("notificationId") int notificationId, Authentication authentication) {
 
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
+		try {
 			notificationService.SetNotificationAsSeen(u.getUsr_id(), notificationId);
 			return new ResponseEntity<>(HttpStatus.OK);
 
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@RequestMapping(value = "/notifications/check", method = RequestMethod.GET)
-	public ResponseEntity<?> CheckForUnseenNotifications(Authentication authentication) {
+	public ResponseEntity<?> CheckForUnseenNotifications(HttpServletRequest request, Authentication authentication) {
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 		try {
-			AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 			Boolean any = notificationService.AnyUnseenNotifications(u.getUsr_id());
 			return new ResponseEntity<>(any, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@RequestMapping(value = "/notifications/create", method = RequestMethod.POST, headers = "Accept=application/json")
 	public ResponseEntity<?> CreateNotification(Authentication authentication, HttpServletRequest request,
 			@RequestBody NotificationObject notification) {
-		try {
-			AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 
+		try {
 			notificationService.CreateNotification(notification, notification.getTitle(), notification.getMessage(),
 					notification.getImportancyLevel(), u.getUsr_id(), 0);
 
@@ -108,7 +113,7 @@ public class NotificationController {
 				if (notification.getMto().size() > 1) {
 					for (int rec = 0; rec < notification.getMto().size(); rec++) {
 						notificationService.AppendNotificationToUser(
-								Long.parseLong(notification.getMto().get(rec).getId(), 10),
+								Integer.parseInt(notification.getMto().get(rec).getId()),
 								notification.getNotification_id());
 					}
 				} else {
@@ -127,21 +132,21 @@ public class NotificationController {
 						receviers.add(Integer.parseInt(notification.getMto().get(0).getId()));
 					}
 					for (int a = 0; a < receviers.size(); a++) {
-						Long currentU = Long.parseLong(String.valueOf(receviers.get(a)));
+						int currentU = receviers.get(a);
 						notificationService.AppendNotificationToUser(currentU, notification.getNotification_id());
 					}
 				}
 			} else {
 				List<Integer> U = userService.GetUsersIdListByRole("ROLE_ADMIN");
 				for (int a = 0; a < U.size(); a++) {
-					Long currentU = Long.parseLong(String.valueOf(U.get(a)));
+					int currentU = U.get(a);
 					notificationService.AppendNotificationToUser(currentU, notification.getNotification_id());
 				}
 			}
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }

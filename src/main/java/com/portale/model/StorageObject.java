@@ -5,7 +5,6 @@ import java.util.List;
 public class StorageObject {
 	private Long storage_id;
 	private int store_ref;
-	private Long substorage_ref;
 	private String storage_name;
 	private String ref_store_name;
 	private int store_items_type;
@@ -55,14 +54,6 @@ public class StorageObject {
 
 	public void setTheme(ThemeObject theme) {
 		this.theme = theme;
-	}
-
-	public Long getSubstorage_ref() {
-		return substorage_ref;
-	}
-
-	public void setSubstorage_ref(Long substorage_ref) {
-		this.substorage_ref = substorage_ref;
 	}
 
 	public MediaObject getStorage_media() {

@@ -26,6 +26,7 @@ import com.portale.model.StoreObject;
 import com.portale.services.StatisticsService;
 import com.portale.services.StoreService;
 import com.portale.services.ThemeService;
+import com.portale.services.ErrorHandlerService;
 import com.portale.services.MediaService;
 
 @RestController
@@ -36,9 +37,10 @@ public class StoreController {
 	private StatisticsService statisticsService;
 	@Resource
 	private ThemeService themeService;
-
 	@Resource
 	private MediaService VideoConvert;
+	@Resource
+	private ErrorHandlerService errorHandlerService;
 	// lista dei negozi
 	@RequestMapping(value = "/stores", method = RequestMethod.GET)
 	public ResponseEntity<?> GetStoresList(HttpServletRequest request,
@@ -49,7 +51,7 @@ public class StoreController {
 
 			if (themeService.homeSettingMem == null) {
 				themeService.homeSettingMem = themeService.getHomeSettingsObjs();
-				}
+			}
 			Store = storeService.GetStoreData();
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.setSerializationInclusion(Include.NON_NULL);
@@ -58,20 +60,21 @@ public class StoreController {
 					+ themeService.homeSettingMem.getCol_num() + "\",\"ifb\":\""
 					+ themeService.homeSettingMem.getIs_first_banner().toString() + "\"}, \"stores\": " + json + "}";
 			if (cookieAccepted.equals("ac") && wvs.equals("t")) {
-				CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(0,0));
+				CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(0, 0));
 			}
 
 			return new ResponseEntity<>(json, HttpStatus.OK);
 
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, null, request);
 		}
+
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// informazioni di un negozio
 	@RequestMapping(value = "/stores/{storeId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStore(@PathVariable("storeId") int storeId,
+	public ResponseEntity<?> GetStore(HttpServletRequest request, @PathVariable("storeId") int storeId,
 			@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
 		if (wvs.equals("t")) {
 		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storeId,0));
@@ -81,14 +84,14 @@ public class StoreController {
 			storeObj = storeService.GetStoreInfo(storeId);
 			return new ResponseEntity<>(storeObj, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, null, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// lista dei prodotti di un storage
 	@RequestMapping(value = "/stores/{storeId}/storage/{storageId}/products", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreProductsList(@PathVariable("storeId") Long storeId,
+	public ResponseEntity<?> GetStoreProductsList(HttpServletRequest request, @PathVariable("storeId") Long storeId,
 			@PathVariable("storageId") int storageId,
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@RequestParam(value = "per_page", defaultValue = "20", required = false) int per_page,
@@ -100,7 +103,7 @@ public class StoreController {
 		StoreObject store = new StoreObject();
 		try {
 			page = page > 0 ? (page - 1) : 0;
-			obj.setTotalResult(storeService.GetPublicStorageItemsCount(storageId));
+			//obj.setTotalResult(storeService.GetPublicStorageItemsCount(storageId));
 			store = storeService.GetStorageeWithProducts(new Long(storageId), per_page, (page * per_page));
 			obj.setData(store);
 			// ObjectMapper mapper = new ObjectMapper();
@@ -109,14 +112,14 @@ public class StoreController {
 
 			return new ResponseEntity<>(obj, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, null, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// lista di tutti i prodotti di uno storage con tutte le immagini
 	@RequestMapping(value = "/stores/{storeId}/storage/{storageId}/allproducts", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreProductsList(@PathVariable("storeId") Long storeId,
+	public ResponseEntity<?> GetStoreProductsList(HttpServletRequest request, @PathVariable("storeId") Long storeId,
 			@PathVariable("storageId") int storageId,
 			@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
 		if (wvs.equals("t")) {
@@ -128,14 +131,14 @@ public class StoreController {
 
 			return new ResponseEntity<>(store, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, null, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// lista dei prodotti di un negozio
 	@RequestMapping(value = "/stores/{storeId}/products", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreProductsList(@PathVariable("storeId") int storeId,@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
+	public ResponseEntity<?> GetStoreProductsList(HttpServletRequest request, @PathVariable("storeId") int storeId,@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
 		if (wvs.equals("t")) {
 		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storeId,0));
 		}
@@ -148,14 +151,14 @@ public class StoreController {
 
 			return new ResponseEntity<>(json, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, null, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// un prodotto di un negozio
 	@RequestMapping(value = "/stores/products/{productId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreProductInfo(@PathVariable("productId") int productId,@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
+	public ResponseEntity<?> GetStoreProductInfo(HttpServletRequest request, @PathVariable("productId") int productId,@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
 		if (wvs.equals("t")) {
 		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(productId,2));
 		}
@@ -167,40 +170,40 @@ public class StoreController {
 			}
 			return new ResponseEntity<>(productInformation, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, null, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@RequestMapping(value = "/stores/categories", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreCategories() {
+	public ResponseEntity<?> GetStoreCategories(HttpServletRequest request) {
 		try {
 			List<String> storeCategories = storeService.GetStoreCategories();
 			return new ResponseEntity<>(storeCategories, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, null, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// Ritorna un prodotto casuale per far vedere nel tuttocitta
 	@RequestMapping(value = "/stores/tuttocittaads", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoresList() {
+	public ResponseEntity<?> GetStoresList(HttpServletRequest request) {
 		ItemAds itemAd = new ItemAds();
 		try {
 			itemAd = storeService.GetRandomItemTC();
 			return new ResponseEntity<>(itemAd, HttpStatus.OK);
 
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, null, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// Ritorna la lista delle immagini che si trovano nella directory delle immagini
 	// statiche var/www/html/Img/
 	@RequestMapping(value = "/stores/staticontent", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStaticImagesList() {
+	public ResponseEntity<?> GetStaticImagesList(HttpServletRequest request) {
 		try {
 			String[] pathnames;
 			File f = new File("//var//www//html//Img");
@@ -216,8 +219,8 @@ public class StoreController {
 			return new ResponseEntity<>(pathnames, HttpStatus.OK);
 
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+			errorHandlerService.submitError(500, e, null, request);
+			}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }

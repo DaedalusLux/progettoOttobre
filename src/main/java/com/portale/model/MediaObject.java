@@ -7,10 +7,11 @@ public class MediaObject {
 	private Long media_id;
 	private String media_name;
 	private String media_path;
-	private Long media_owner;
+	private int media_owner;
 	private Date media_pubblication_date;
 	private boolean media_hasthumbnail;
 	private String media_extension;
+	private long media_size;
 	
 	private List<Long> selected_media_id;
 	
@@ -32,10 +33,10 @@ public class MediaObject {
 	public void setMedia_path(String media_path) {
 		this.media_path = media_path;
 	}
-	public Long getMedia_owner() {
+	public int getMedia_owner() {
 		return media_owner;
 	}
-	public void setMedia_owner(Long media_owner) {
+	public void setMedia_owner(int media_owner) {
 		this.media_owner = media_owner;
 	}
 	public Date getMedia_pubblication_date() {
@@ -62,5 +63,11 @@ public class MediaObject {
 	}
 	public void setMedia_hasthumbnail(boolean media_hasthumbnail) {
 		this.media_hasthumbnail = media_hasthumbnail;
+	}
+	public long getMedia_size() {
+		return media_size;
+	}
+	public void setMedia_size(long media_size) {
+		this.media_size = media_size;
 	}
 }

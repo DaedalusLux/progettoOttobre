@@ -11,6 +11,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -29,11 +30,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.portale.model.MediaFolderObj;
 import com.portale.model.MediaObject;
 import com.portale.model.PaginationObject;
 import com.portale.model.UserObject;
 import com.portale.security.model.AuthenticatedUser;
 import com.portale.services.UserService;
+import com.portale.services.ErrorHandlerService;
+import com.portale.services.FilesStorageService;
 import com.portale.services.MediaService;
 
 @RestController
@@ -52,43 +56,46 @@ public class UserManagementController {
 	private UserService userService;
 	@Resource
 	private MediaService mediaService;
-
+	@Resource
+	private ErrorHandlerService errorHandlerService;
+	
 	// GET self user data
 	@RequestMapping(value = "/user-management/user", method = RequestMethod.GET)
-	public ResponseEntity<?> GetUser(Authentication authentication) {
+	public ResponseEntity<?> GetUser(HttpServletRequest request, Authentication authentication) {
 		try {
 			UserObject UserDetails = userService.GetUserInfoByName(authentication.getName());
 			return new ResponseEntity<>(UserDetails, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// GET list of users data
 	@RequestMapping(value = "/user-management/users", method = RequestMethod.GET)
-	public ResponseEntity<?> GetUsersList(@RequestParam(value = "page", defaultValue = "1", required = false) int page,
+	public ResponseEntity<?> GetUsersList(HttpServletRequest request, Authentication authentication, @RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@RequestParam(value = "per_page", defaultValue = "10", required = false) int per_page,
+			@RequestParam(value = "lastResultID", defaultValue = "-1", required = false) int lastResultID,
+			@RequestParam(value = "abstractN", defaultValue = "false", required = false) boolean abstractN,			
 			@RequestParam(value = "search", required = false) String search) {
 
 		PaginationObject obj = new PaginationObject();
 		List<UserObject> UsersDetails = new ArrayList<UserObject>();
-
 		try {
-			page = page > 0 ? (page - 1) : 0;
-			obj.setTotalResult(userService.GetUsersCount(search));
-			UsersDetails = userService.GetUsersDetailsData(per_page, (page * per_page), search);
+			UsersDetails = userService.GetUsersDetailsData((per_page > 0 ? per_page : 20), abstractN, ((page > 0 ? (page - 1) : 0) * per_page), lastResultID, search);
+			obj.setPSO(UsersDetails.get(0).getPSO());
 			obj.setData(UsersDetails);
 			return new ResponseEntity<>(obj, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// GET user data from id
 	@RequestMapping(value = "/user-management/users/{id}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetUserInfo(@PathVariable("id") Long usr_id) {
+	public ResponseEntity<?> GetUserInfo(HttpServletRequest request,
+			Authentication authentication, @PathVariable("id") int usr_id) {
 
 		UserObject UserInfo = new UserObject();
 		try {
@@ -96,9 +103,9 @@ public class UserManagementController {
 			return new ResponseEntity<>(UserInfo, HttpStatus.OK);
 
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// UPDATE self user data
@@ -106,8 +113,8 @@ public class UserManagementController {
 	public ResponseEntity<?> PostSelfUserAction(@RequestBody UserObject _userdetails, HttpServletRequest request,
 			Authentication authentication) {
 
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 		try {
-			AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 			UserObject userObject = new UserObject();
 			Boolean updatePassword = false;
 			Boolean isUserAdmin = request.isUserInRole("ROLE_ADMIN") ? true : false;
@@ -121,36 +128,38 @@ public class UserManagementController {
 					_userdetails.setUsr_password(passwordEncoder.encode(_userdetails.getUsr_password()));
 					updatePassword = true;
 				} else {
+					Exception e = new Exception("Some of required data was not supplied.");
+					errorHandlerService.submitError(400, e, authentication, request);
 					return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 				}
 			}
 
-			userService.updateUserData(u.getUsr_id(), _userdetails.getUsr_organization(),
+			/*!userService.updateUserData(u.getUsr_id(), _userdetails.getUsr_organization(),
 					isUserAdmin ? _userdetails.getUsr_username() : null,
 					updatePassword ? _userdetails.getUsr_password() : null,
 					isUserAdmin ? _userdetails.getLocked() : null, isUserAdmin ? _userdetails.getRole_id() : null,
 					_userdetails.getNome(), _userdetails.getCognome(), _userdetails.getEmail(),
 					_userdetails.getTelefono(), _userdetails.getIndirizzo(), _userdetails.getCitta(),
-					_userdetails.getProvincia(), _userdetails.getCodicePostale());
+					_userdetails.getProvincia(), _userdetails.getCodicePostale());*/
 
 			return new ResponseEntity<>(HttpStatus.OK);
 
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// UPDATE user data
 	@RequestMapping(value = "/user-management/users/{id}", method = RequestMethod.POST, headers = "Accept=application/json")
-	public ResponseEntity<?> PostUserAction(@PathVariable("id") Long usr_id, @RequestBody UserObject _userdetails) {
+	public ResponseEntity<?> PostUserAction(@PathVariable("id") int usr_id, @RequestBody UserObject _userdetails) {
 
 		try {
 			if (_userdetails.getUsr_password() != null) {
 				BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 				_userdetails.setUsr_password(passwordEncoder.encode(_userdetails.getUsr_password()));
 			}
-			userService.updateUserData(usr_id, _userdetails.getUsr_organization(), _userdetails.getUsr_username(),
+			userService.updateUserData(usr_id, _userdetails.getUsr_organization(), null,
 					_userdetails.getUsr_password(), _userdetails.getLocked(), _userdetails.getRole_id(),
 					_userdetails.getNome(), _userdetails.getCognome(), _userdetails.getEmail(),
 					_userdetails.getTelefono(), _userdetails.getIndirizzo(), _userdetails.getCitta(),
@@ -164,31 +173,30 @@ public class UserManagementController {
 	}
 
 	@RequestMapping(value = "/user-management/users/login", method = RequestMethod.GET)
-	public ResponseEntity<?> GetUsersLoginList() {
+	public ResponseEntity<?> GetUsersLoginList(HttpServletRequest request, Authentication authentication) {
 
 		List<UserObject> UsersLogin = new ArrayList<UserObject>();
 		try {
 			UsersLogin = userService.GetUserPrincipalList();
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
 		return new ResponseEntity<>(UsersLogin, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/user-management/users/{id}/media", method = RequestMethod.GET)
-	public ResponseEntity<?> GetUsersMediaList(@PathVariable("id") int id) {
+	@RequestMapping(value = "/user-management/users/media/{parentFolderId}", method = RequestMethod.GET)
+	public ResponseEntity<?> GetUsersMediaList(HttpServletRequest request, Authentication authentication, @PathVariable("parentFolderId") int parentFolderId) {
 
-		List<MediaObject> media = new ArrayList<MediaObject>();
+		MediaFolderObj mediaFolders = new MediaFolderObj();
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 		try {
-			media = userService.GetUserMediaList(id);
+			mediaFolders = mediaService.GetUserMediaList(parentFolderId, u.getUsr_id());
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
-		return new ResponseEntity<>(media, HttpStatus.OK);
+		return new ResponseEntity<>(mediaFolders, HttpStatus.OK);
 	}
 
 	static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -201,28 +209,24 @@ public class UserManagementController {
 		return sb.toString();
 	}
 
-	@RequestMapping(value = "/user-management/users/{id}/media/add", method = RequestMethod.POST, consumes = {
+	@RequestMapping(value = "/user-management/users/media/add", method = RequestMethod.POST, consumes = {
 			"multipart/form-data" })
-	public ResponseEntity<?> PostUsersMedia(@PathVariable("id") int id,
-			@RequestParam(value = "fileUpload[]", required = true) MultipartFile file) {
+	public ResponseEntity<?> PostUsersMedia(HttpServletRequest request, Authentication authentication,
+			@RequestParam(value = "fileUpload[]", required = true) MultipartFile file,
+			@RequestParam(value = "pid", defaultValue = "-1", required = false) int parentId,
+			@RequestParam(value = "path", defaultValue = "", required = false) String parentPath) {
 
 		MediaObject media = new MediaObject();
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
+
 		try {
 			media.setMedia_name(file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.')));
-			media.setMedia_path(randomString(12));
-			media.setMedia_owner(new Long(id));
+			media.setMedia_path((parentPath != "" ? (parentPath+"//") : "")+randomString(24));
+			media.setMedia_owner(u.getUsr_id());
 			media.setMedia_pubblication_date(new Date());
-
-			/*
-			 * Boolean mediaExist = userService.CheckIfMediaExist(media.getMedia_path(),
-			 * media.getMedia_owner()); int mediaPrefix = 1; while (mediaExist) { if
-			 * (userService.CheckIfMediaExist(mediaPrefix + media.getMedia_path(),
-			 * media.getMedia_owner())) { mediaPrefix++; } else {
-			 * media.setMedia_path(mediaPrefix + media.getMedia_path()); mediaExist = false;
-			 * } }
-			 */
-
-			String filePath = String.format("%s//%s", archive, id);
+			media.setMedia_size(file.getSize());
+			
+			String filePath = String.format("%s//%s", archive, u.getUsr_id());
 			File directory = new File(filePath);
 			Path path = Paths.get(filePath);
 			if (Files.notExists(path)) {
@@ -257,18 +261,7 @@ public class UserManagementController {
 				Path videoOutputPath = Paths.get(donePath);
 
 				mediaService.convert(media.getMedia_owner(), file.getOriginalFilename(), media.getMedia_path() + ".webm");
-
-				/*int i = 0;
-				while (Files.notExists(videoOutputPath) && i <= 300) // max conversion time 2 min (AVG 80 sec with file								// <= 5MB)
-				{
-					debugRecord += "([" + videoOutputPath + "] not exist yet " +  System.currentTimeMillis() + ") ";
-
-					Thread.sleep(1000);
-					i++;
-					if (i == 300) {
-						return new ResponseEntity<>(debugRecord, HttpStatus.GATEWAY_TIMEOUT);
-					}
-				}*/
+				
 				
 				try {
 					Files.setPosixFilePermissions(Paths.get(directory + File.separator + media.getMedia_path() + ".webm"),
@@ -295,59 +288,89 @@ public class UserManagementController {
 				media.setMedia_extension("."+fileType.toLowerCase());
 				media.setMedia_hasthumbnail(true);
 				
-				/*Files.copy(file.getInputStream(), Paths.get(directory + File.separator + media.getMedia_path()),
-						StandardCopyOption.REPLACE_EXISTING);
-				try {
-					Files.setPosixFilePermissions(Paths.get(directory + File.separator + media.getMedia_path()),
-							PosixFilePermissions.fromString("rw-rw-r--"));
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
-				}*/
+				
 			} else {
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
 
-			userService.PostUsersMedia(media, media.getMedia_name(), media.getMedia_path(), media.getMedia_owner(),
-					media.getMedia_pubblication_date(), media.isMedia_hasthumbnail(), media.getMedia_extension());
+			mediaService.PostUsersMedia(media, media.getMedia_name(), media.getMedia_path(), media.getMedia_owner(),
+					media.getMedia_pubblication_date(), media.isMedia_hasthumbnail(), media.getMedia_extension(), parentId, media.getMedia_size());
 
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 		return new ResponseEntity<>(media.getMedia_id(), HttpStatus.OK);
 	}
-
-	@RequestMapping(value = "/user-management/users/{id}/media", method = RequestMethod.DELETE)
-	public ResponseEntity<?> PostUsersMedia(@PathVariable("id") int id, @RequestBody int[] deleteMedia) {
+	
+	@RequestMapping(value = "/user-management/users/media", method = RequestMethod.POST)
+	public ResponseEntity<?> RenameMediaElement(HttpServletRequest request, Authentication authentication, @RequestBody Map<String, String> r) {
 
 		MediaObject media = new MediaObject();
-
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
+		String elType = null;
+		String elId = null;
+		String elName = null;
 		try {
-
-			for (int m = 0; m < deleteMedia.length; m++) {
-				MediaObject mediaExist = userService.GetPathIfMediaExistById(deleteMedia[m], id);
-				if (mediaExist.getMedia_id() != null) {
-					userService.DeleteMediaById(deleteMedia[m]);
+			elType = r.get("itemType");
+			elId = r.get("itemID");
+			elName = r.get("itemName");
+			if (elId != null) {
+				if (mediaService.renameElement(elType, elId,elName,u.getUsr_id())) {
+					return new ResponseEntity<>(HttpStatus.OK);
+				} else {
+					throw new Exception("Can't rename element");
 				}
-				String filePath = String.format("%s//%s", archive, id);
+			} else {
+				throw new Exception("No element specified");
+			}
+		} catch (Exception e) {
+			errorHandlerService.submitError(500, e, authentication, request);
+		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	
+	@RequestMapping(value = "/user-management/users/media", method = RequestMethod.DELETE)
+	public ResponseEntity<?> PostUsersMedia(HttpServletRequest request, Authentication authentication,
+			@RequestBody Map<String, String> d) {
+
+		MediaObject media = new MediaObject();
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
+		String elType = null;
+		String elId = null;
+		String elName = null;
+		try {
+			elType = d.get("itemType");
+			elId = d.get("itemID");
+			elName = d.get("itemName");
+			if (mediaService.deleteElement(elType, elId,elName,u.getUsr_id())) {
+				return new ResponseEntity<>(HttpStatus.OK);
+			} else {
+				throw new Exception("Can't rename element");
+			}
+			/*for (int m = 0; m < deleteMedia.length; m++) {
+				MediaObject mediaExist = mediaService.GetPathIfMediaExistById(deleteMedia[m], u.getUsr_id());
+				if (mediaExist.getMedia_id() != null) {
+					mediaService.DeleteMediaById(deleteMedia[m]);
+				}
+				String filePath = String.format("%s//%s", archive, u.getUsr_id());
 				File directory = new File(filePath);
 				Files.deleteIfExists(Paths.get(directory + File.separator + mediaExist.getMedia_path() + mediaExist.getMedia_extension()));
 				if(mediaExist.isMedia_hasthumbnail()) {
 					Files.deleteIfExists(Paths.get(directory + File.separator + mediaExist.getMedia_path() + "_thumb" + mediaExist.getMedia_extension()));		
 				}
-			}
+			}*/
 
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			errorHandlerService.submitError(500, e, authentication, request);
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
-		return new ResponseEntity<>(media.getMedia_id(), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/user-management/users/create", method = RequestMethod.POST, headers = "Accept=application/json")
-	public ResponseEntity<?> addNewUser(@RequestBody UserObject _userdetails) {
+	public ResponseEntity<?> addNewUser(HttpServletRequest request, Authentication authentication,@RequestBody UserObject _userdetails) {
 
 		try {
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -377,12 +400,39 @@ public class UserManagementController {
 			System.out.println(_userdetails.getUsr_id());
 			return new ResponseEntity<>(_userdetails.getUsr_id(), HttpStatus.OK);
 		} catch (DataIntegrityViolationException e) {
-			System.out.println(e.getMessage());
+			errorHandlerService.submitError(409, e, authentication, request);
 			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-
+	
+	@RequestMapping(value = "/user-management/users/media/addfolder", method = RequestMethod.POST, headers = "Accept=application/json")
+	public ResponseEntity<?> PostUsersFolder(HttpServletRequest request, Authentication authentication,
+			@RequestBody Map<String, String> fp) {
+		int folderParent = -1;
+		try {
+			folderParent = Integer.parseInt(fp.get("parent"));
+		} catch (Exception e) {}
+		String folderName = null;
+		String folderPath = null;
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
+		try {
+			folderName = fp.get("name");
+			folderPath = fp.get("path");
+			if (folderName != null) {
+				if (mediaService.createFolder(folderParent,folderPath,folderName,u.getUsr_id())) {
+					return new ResponseEntity<>(HttpStatus.OK);
+				} else {
+					throw new Exception("Can't create folder with params (folderParent:" + folderParent + ", folderPath:" + folderPath + ", folderName:" + folderName + ", uid:" + u.getUsr_id() + ")");
+				}
+			} else {
+				throw new Exception("No folder path specified");
+			}
+		} catch (Exception e) {
+			errorHandlerService.submitError(500, e, authentication, request);
+		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 }

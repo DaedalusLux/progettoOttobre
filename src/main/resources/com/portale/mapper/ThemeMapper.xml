@@ -18,9 +18,9 @@
 	
 	
 	<resultMap type="homeSettingsObj" id="getHomeSettingsResultMap">
-		<id property="id_homepage" column="id_homepage" />
-		<result property="colnum" column="colnum" />
-		<result property="isfirstbanner" column="isfirstbanner" />		
+		<id property="id_homepage" column="hp_id" />
+		<result property="col_num" column="hp_col_num" />
+		<result property="is_first_banner" column="hp_is_first_banner" />		
 	</resultMap>
 	
 	<update id="updateHomeSettings">

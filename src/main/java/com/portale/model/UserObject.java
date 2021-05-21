@@ -3,9 +3,11 @@ package com.portale.model;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class UserObject {
 
-	private Long usr_id;
+	private int usr_id;
 	private String usr_username;
 	private String usr_password;
 	private String usr_oldpassword;
@@ -14,7 +16,7 @@ public class UserObject {
 	private String authorities;
 	//role_name Utente/Admin
 	private String role_name;
-	private Long role_id;
+	private int role_id;
 	private Boolean locked;
 	
 	private List<String> usr_store;
@@ -24,11 +26,11 @@ public class UserObject {
 	private String indirizzo;
 	private String citta;
 	private String provincia;
-	private Long codicePostale;
+	private String codicePostale;
 	private String telefono;
 	private String codiceFiscale;
 	private Date data_registrazione;
-	
+	private PaginationSupportObject PSO;
 	
 	public String getNome() {
 		return nome;
@@ -74,10 +76,10 @@ public class UserObject {
 		this.telefono = telefono;
 	}
 	
-	public Long getUsr_id() {
+	public int getUsr_id() {
 		return usr_id;
 	}
-	public void setUsr_id(Long usr_id) {
+	public void setUsr_id(int usr_id) {
 		this.usr_id = usr_id;
 	}
 	public String getUsr_username() {
@@ -110,12 +112,6 @@ public class UserObject {
 	public void setLocked(Boolean locked) {
 		this.locked = locked;
 	}
-	public Long getCodicePostale() {
-		return codicePostale;
-	}
-	public void setCodicePostale(Long codicePostale) {
-		this.codicePostale = codicePostale;
-	}
 	public List<String> getUsr_store() {
 		return usr_store;
 	}
@@ -134,12 +130,13 @@ public class UserObject {
 	public void setRole_name(String role_name) {
 		this.role_name = role_name;
 	}
-	public Long getRole_id() {
+	public int getRole_id() {
 		return role_id;
 	}
-	public void setRole_id(Long role_id) {
+	public void setRole_id(int role_id) {
 		this.role_id = role_id;
 	}
+	@JsonIgnore
 	public String getUsr_oldpassword() {
 		return usr_oldpassword;
 	}
@@ -151,6 +148,19 @@ public class UserObject {
 	}
 	public void setCodiceFiscale(String codiceFiscale) {
 		this.codiceFiscale = codiceFiscale;
+	}
+	@JsonIgnore
+	public PaginationSupportObject getPSO() {
+		return PSO;
+	}
+	public void setPSO(PaginationSupportObject pSO) {
+		PSO = pSO;
+	}
+	public String getCodicePostale() {
+		return codicePostale;
+	}
+	public void setCodicePostale(String codicePostale) {
+		this.codicePostale = codicePostale;
 	}
 
 }

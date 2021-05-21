@@ -1,7 +1,13 @@
 package com.portale.model;
 
 public class PaginationObject {
-	private Long totalResult;
+	
+	public PaginationObject() {
+		this.PSO = new PaginationSupportObject();
+		this.data = new Object();
+	}
+	
+	private PaginationSupportObject PSO;
 	private Object data;
 
 	public Object getData() {
@@ -12,12 +18,11 @@ public class PaginationObject {
 		this.data = data;
 	}
 
-	public Long getTotalResult() {
-		return totalResult;
+	public PaginationSupportObject getPSO() {
+		return PSO;
 	}
 
-	public void setTotalResult(Long totalResult) {
-		this.totalResult = totalResult;
+	public void setPSO(PaginationSupportObject pSO) {
+		PSO = pSO;
 	}
-
 }

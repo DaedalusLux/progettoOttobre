@@ -5,7 +5,7 @@
 <mapper namespace="com.portale.mapper.NotificationMapper">
 	
 	<select id="GetNotificationsCount" resultType="java.lang.Long">
-		select count(view_id) from notification_view
+		select count(nv_view_id) from notification_view
 		where ref_to = #{user_id}
 	</select>
 	
@@ -13,28 +13,28 @@
 		parameterType="com.portale.model.NotificationObject"
 		useGeneratedKeys="true" keyProperty="notification.notification_id">
 		insert into
-		notifications(date,title,message,importancy_level,from_user,type)
+		notifications(notification_title,notification_message,notification_importancy_level,notification_from_user,notification_type)
 		values
-		(#{date},#{title},#{message},#{importancy},#{from_user},#{type})
+		(#{title},#{message},#{importancy},#{from_user},#{type})
 	</insert>
 
 	<insert id="AppendNotificationToUser">
 		insert into
-		notification_view(ref_to,notification_ref)
+		notification_view(nv_ref_to,nv_notification_ref)
 		values
 		(#{ref_to},#{notification_ref})
 	</insert>
 
 	<select id="GetAllNotifications"
 		resultMap="NotificationsResultMap">
-		select sender.*, nv.seen
+		select sender.*, nv.nv_seen
 		from users_details ud, notification_view nv
-		inner join (select CONCAT(ud.cognome, ' ', ud.nome) AS from_userfullname, n.*
+		inner join (select CONCAT(ud.ud_cognome, ' ', ud.ud_nome) AS from_userfullname, n.*
 			from notifications n, users_details ud
-			where n.from_user = ud.user_ref) sender
-			on sender.notification_id = nv.notification_ref
-		where nv.ref_to = #{user_id}
-		and ud.user_ref = sender.from_user
+			where n.notification_from_user = ud.ud_user_ref) sender
+			on sender.notification_id = nv.nv_notification_ref
+		where nv.nv_ref_to = #{user_id}
+		and ud.ud_user_ref = sender.notification_from_user
 		
 		order by
 		sender.notification_id desc
@@ -44,55 +44,55 @@
 
 	<select id="GetNotificationById"
 		resultMap="NotificationsResultMap">
-		select sender.*, nv.seen
+		select sender.*, nv.nv_seen
 		from users_details ud, notification_view nv
-		inner join (select CONCAT(ud.cognome, ' ', ud.nome) AS from_userfullname, n.*
+		inner join (select CONCAT(ud.ud_cognome, ' ', ud.ud_nome) AS from_userfullname, n.*
 			from notifications n, users_details ud
-			where n.from_user = ud.user_ref) sender
-			on sender.notification_id = nv.notification_ref
-		where nv.ref_to = #{user_id}
-		and ud.user_ref = nv.ref_to
+			where n.notification_from_user = ud.ud_user_ref) sender
+			on sender.notification_id = nv.nv_notification_ref
+		where nv.nv_ref_to = #{user_id}
+		and ud.ud_user_ref = nv.nv_ref_to
 		and sender.notification_id = #{notificationId}
 	</select>
 
 	<resultMap id="NotificationsResultMap"
 		type="NotificationObject">
 		<result property="notification_id" column="notification_id" />
-		<result property="from" column="from_user" />
-		<result property="date" column="date" />
-		<result property="seen" column="seen" />
-		<result property="message" column="message" />
-		<result property="importancyLevel" column="importancy_level" />
+		<result property="from" column="notification_from_user" />
+		<result property="date" column="notification_timestamp" />
+		<result property="seen" column="nv_seen" />
+		<result property="message" column="notification_message" />
+		<result property="importancyLevel" column="notification_importancy_level" />
 		<result property="fromUserFullname" column="from_userfullname" />
-		<result property="type" column="type" />
+		<result property="type" column="notification_type" />
 	</resultMap>
 	
 	<update id="SetNotificationAsSeen">
 		update notification_view
-		set seen = true
+		set nv_seen = true
 		from notifications
-		where notifications.notification_id = notification_view.notification_ref
+		where notifications.notification_id = notification_view.nv_notification_ref
 		and notifications.notification_id = #{notificationId}
-		and notification_view.ref_to = #{user_id}
+		and notification_view.nv_ref_to = #{user_id}
 	</update>
 
 	<select id="AnyUnseenNotifications"
 		resultType="java.lang.Boolean">
-		select nv.seen
+		select nv.nv_seen
 		from notification_view nv
-		where nv.ref_to =
+		where nv.nv_ref_to =
 		#{to}
-		and nv.seen = false
+		and nv.nv_seen = false
 		limit 1
 	</select>
 
 	<select id="isNotificationForUser"
 		resultType="java.lang.Integer">
-		select nv.ref_to
+		select nv.nv_ref_to
 		from notification_view nv, notifications n
 		where n.notification_id = #{notificationId}
 		and n.notification_id =
-		nv.notification_ref
-		and nv.ref_to = #{user_id}
+		nv.nv_notification_ref
+		and nv.nv_ref_to = #{user_id}
 	</select>
 </mapper>

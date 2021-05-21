@@ -24,7 +24,8 @@
 		create-session="stateless" use-expressions="true">
 		<csrf disabled="true" />
 		
-		
+		<intercept-url pattern="/management/errorhandler/**"
+			access="hasRole('ROLE_ADMIN')" />
 		<intercept-url pattern="/theme-management/**"
 			access="hasRole('ROLE_ADMIN')" />
 		<intercept-url pattern="/statistics-management/**"

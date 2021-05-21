@@ -1,42 +1,35 @@
 package com.portale.model;
 
+import java.util.Date;
 import java.util.List;
 
 public class NotificationObject {
-	private Long notification_id;
-	private Long from;
+	private int notification_id;
+	private int from;
 	private List<NotificationRecevier> mto;
-	private Long date;
+	private Date date;
 	private Boolean seen;
 	
 	private String title;
 	private String message;
-	private Long importancyLevel; //0 Default (Logs/Updates); 1 Important (Modify data); 2 Urgent (Payments)
+	private int importancyLevel; //0 Default (Logs/Updates); 1 Important (Modify data); 2 Urgent (Payments)
 	private int type;
 	private String fromUserFullname;
 
-	public Long getNotification_id() {
+	public int getNotification_id() {
 		return notification_id;
 	}
 
-	public void setNotification_id(Long notification_id) {
+	public void setNotification_id(int notification_id) {
 		this.notification_id = notification_id;
 	}
 
-	public Long getFrom() {
+	public int getFrom() {
 		return from;
 	}
 
-	public void setFrom(Long from) {
+	public void setFrom(int from) {
 		this.from = from;
-	}
-
-	public Long getDate() {
-		return date;
-	}
-
-	public void setDate(Long date) {
-		this.date = date;
 	}
 
 	public Boolean getSeen() {
@@ -72,11 +65,11 @@ public class NotificationObject {
 		this.mto = mto;
 	}
 
-	public Long getImportancyLevel() {
+	public int getImportancyLevel() {
 		return importancyLevel;
 	}
 
-	public void setImportancyLevel(Long importancyLevel) {
+	public void setImportancyLevel(int importancyLevel) {
 		this.importancyLevel = importancyLevel;
 	}
 
@@ -94,5 +87,13 @@ public class NotificationObject {
 
 	public void setType(int type) {
 		this.type = type;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
 	}
 }

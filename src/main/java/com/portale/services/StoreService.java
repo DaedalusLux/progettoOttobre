@@ -46,9 +46,6 @@ public class StoreService {
 	}
 
 	public StorageObject GetStorageItems(int storageId, int limit, int offset, String search) {
-		if (search != null) {
-			search = "%" + search + "%";
-		}
 		return mapper.GetStorageItems(storageId, limit, offset, search);
 	}
 
@@ -98,11 +95,8 @@ public class StoreService {
 		return storesList;
 	}
 
-	public List<StoreObject> GetStoreData(int userId, int limit, int offset, String search) {
-		if (search != null) {
-			search = "%" + search + "%";
-		}
-		return mapper.GetStoreDataManager(userId, limit, offset, search);
+	public List<StoreObject> GetStoreData(boolean selfquery, int userId, int limit, int offset, String search) {
+		return mapper.GetStoreDataManager(selfquery, userId, limit, offset, search);
 	}
 
 	public StoreObject GetStoreInfo(int store_id, HttpServletRequest request) {
@@ -135,14 +129,13 @@ public class StoreService {
 				confirmed);
 	}
 
-	public void AddStoreStorage(StorageObject storageObject, int storeId, String storageName, Long subStorage,
-			Long storage_media, Long themeId) {
+	public void AddStoreStorage(StorageObject storageObject, int storeId, String storageName, Long storage_media, Long themeId) {
 
-		mapper.AddStoreStorage(storageObject, storeId, storageName, subStorage, storage_media, themeId);
+		mapper.AddStoreStorage(storageObject, storeId, storageName, storage_media, themeId);
 	}
 
-	public void UpdateStorage(Long storageId, String storageName, Long subStorage, Long storage_media, Long themeId) {
-		mapper.UpdateStorage(storageId, storageName, subStorage, storage_media, themeId);
+	public void UpdateStorage(Long storageId, String storageName, Long storage_media, Long themeId) {
+		mapper.UpdateStorage(storageId, storageName, storage_media, themeId);
 	}
 
 	public void AddStorageItem(ItemObject product, Long storage_id, String item_name, String item_description,

@@ -45,7 +45,7 @@
 		<property name="driverClassName"
 			value="org.postgresql.Driver" />
 		<property name="url"
-			value="jdbc:postgresql://localhost:5432/materialeinvendita" />
+			value="jdbc:postgresql://95.110.141.176:5432/materialeinvendita" />
 		<property name="username" value="webclient" />
 		<property name="password" value="jUJ%298Ggn3n$n" />
 	</bean>

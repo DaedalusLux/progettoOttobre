@@ -1,6 +1,5 @@
 package com.portale.model;
 
-import java.util.Date;
 
 public class HomeSettingsObj {
 	private int id_homepage;

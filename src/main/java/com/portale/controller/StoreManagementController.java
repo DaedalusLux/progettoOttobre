@@ -26,6 +26,7 @@ import com.portale.model.PaginationObject;
 import com.portale.model.StorageObject;
 import com.portale.model.StoreObject;
 import com.portale.security.model.AuthenticatedUser;
+import com.portale.services.ErrorHandlerService;
 import com.portale.services.NotificationService;
 import com.portale.services.StatisticsService;
 import com.portale.services.StoreService;
@@ -44,42 +45,49 @@ public class StoreManagementController {
 	private ThemeService themeService;
 	@Resource
 	private StatisticsService statisticsService;
+	@Resource
+	private ErrorHandlerService errorHandlerService;
 
 	// ritorna la lista dei negozi
+
 	@RequestMapping(value = "/store-management/stores", method = RequestMethod.GET)
 	public ResponseEntity<?> GetStoresListManager(
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@RequestParam(value = "per_page", defaultValue = "10", required = false) int per_page,
-			@RequestParam(value = "search", required = false) String search, HttpServletRequest request,
+			@RequestParam(value = "search", required = false) String search,
+			@RequestParam(value = "tp", defaultValue = "main", required = false) String tp, HttpServletRequest request,
 			Authentication authentication) {
 
 		PaginationObject obj = new PaginationObject();
 		List<StoreObject> storesList = new ArrayList<StoreObject>();
 
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 		try {
 			page = page > 0 ? (page - 1) : 0;
 			if (request.isUserInRole("ROLE_ADMIN")) {
-				obj.setTotalResult(storeService.GetStoresCount(0, search));
-				storesList = storeService.GetStoreData(0, per_page, (page * per_page), search);
+				// obj.setTotalResult(2);
+				storesList = storeService.GetStoreData((tp.equals("main") ? true : false), u.getUsr_id(), per_page,
+						(page * per_page), search);
 			} else {
-				AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
-				obj.setTotalResult(storeService.GetStoresCount((int) u.getUsr_id(), search));
-				storesList = storeService.GetStoreData((int) u.getUsr_id(), per_page, (page * per_page), search);
+				// obj.setTotalResult(storeService.GetStoresCount((int) u.getUsr_id(), search));
+				storesList = storeService.GetStoreData(true, u.getUsr_id(), per_page, (page * per_page), search);
 			}
-
 			obj.setData(storesList);
+
 			return new ResponseEntity<>(obj, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// ritorna informazione di un singolo negozio
 	@RequestMapping(value = "/store-management/stores/{storeId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreInfoManager(@PathVariable("storeId") int storeId, HttpServletRequest request) {
+	public ResponseEntity<?> GetStoreInfoManager(@PathVariable("storeId") int storeId, HttpServletRequest request,
+			Authentication authentication) {
 
 		StoreObject storeDetails = new StoreObject();
+
 		try {
 			storeDetails = storeService.GetStoreInfo(storeId, request);
 			if (storeDetails == null) {
@@ -87,9 +95,9 @@ public class StoreManagementController {
 			}
 			return new ResponseEntity<>(storeDetails, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// ritorna la lista dei oggetti che si trovano in un storage
@@ -105,15 +113,15 @@ public class StoreManagementController {
 
 		try {
 			page = page > 0 ? (page - 1) : 0;
-			obj.setTotalResult(storeService.GetStorageItemsCount(storageId, search));
+			// obj.setTotalResult(storeService.GetStorageItemsCount(storageId, search));
 			storageItemList = storeService.GetStorageItems(storageId, per_page, (page * per_page), search);
 			obj.setData(storageItemList);
 
 			return new ResponseEntity<>(obj, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	/*
@@ -134,7 +142,8 @@ public class StoreManagementController {
 
 	// la lista dei prodotti di un storage
 	@RequestMapping(value = "/store-management/stores/{storeId}/storage", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreProductsManager(@PathVariable("storeId") Long storeId) {
+	public ResponseEntity<?> GetStoreProductsManager(HttpServletRequest request, Authentication authentication,
+			@PathVariable("storeId") Long storeId) {
 
 		List<StorageObject> storageItems = new ArrayList<StorageObject>();
 
@@ -143,41 +152,45 @@ public class StoreManagementController {
 
 			return new ResponseEntity<>(storageItems, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// informazione di un singolo prodotto di un negozio
 	@RequestMapping(value = "/store-management/stores/products/{productId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreProductInfoManager(@PathVariable("productId") int productId) {
+	public ResponseEntity<?> GetStoreProductInfoManager(HttpServletRequest request, Authentication authentication,
+			@PathVariable("productId") int productId) {
 
 		ItemObject storeProductInfo = new ItemObject();
+
 		try {
 			storeProductInfo = storeService.GetStoreProductinfo(productId);
 			return new ResponseEntity<>(storeProductInfo, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@RequestMapping(value = "/store-management/storage/{storageId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStorageInfoManager(@PathVariable("storageId") Long storageId) {
+	public ResponseEntity<?> GetStorageInfoManager(HttpServletRequest request, Authentication authentication,
+			@PathVariable("storageId") Long storageId) {
 
 		try {
 			StorageObject storageInfo = storeService.GetStorageInfo(storageId);
 			return new ResponseEntity<>(storageInfo, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// aggiornare i dati di un prodotto
 	@RequestMapping(value = "/store-management/stores/storage/{storageId}/item/{itemId}", method = RequestMethod.POST, headers = "Accept=application/json", produces = "application/json; charset=utf-8")
-	public ResponseEntity<?> UpdateStoreProduct(@PathVariable("storageId") int storageId,
-			@PathVariable("itemId") Long itemId, @RequestBody ItemObject _product) {
+	public ResponseEntity<?> UpdateStoreProduct(HttpServletRequest request, Authentication authentication,
+			@PathVariable("storageId") int storageId, @PathVariable("itemId") Long itemId,
+			@RequestBody ItemObject _product) {
 		try {
 
 			storeService.SetItemImage(itemId, _product.getItem_media().get(0).getSelected_media_id());
@@ -189,19 +202,19 @@ public class StoreManagementController {
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// aggiungere un nuovo negozio
 	@RequestMapping(value = "/store-management/stores/add-store", method = RequestMethod.POST, headers = "Accept=application/json")
-	public ResponseEntity<?> AddStore(HttpServletRequest request, @RequestBody StoreObject _store,
-			Authentication authentication) {
+	public ResponseEntity<?> AddStore(HttpServletRequest request, Authentication authentication,
+			@RequestBody StoreObject _store) {
 //,@RequestPart(value = "storeprice", required = false) Long _option
 
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 		try {
-			AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 
 			storeService.AddNewStore(_store, _store.getStore_name(), _store.getStore_owner(), false,
 					_store.getCategory(), new Date(), _store.getValid_until(), _store.getTheme().getThemeId(),
@@ -212,24 +225,25 @@ public class StoreManagementController {
 			// If it's confirmed store must have a storage
 			// By default if user request a store, no storage is added before store is
 			// confirmed
-			if (request.isUserInRole("ROLE_ADMIN")) {
+			/*if (request.isUserInRole("ROLE_ADMIN")) {
 				StorageObject storageObj = new StorageObject();
-				storeService.AddStoreStorage(storageObj, _store.getStore_id().intValue(), "Prodotti", null, null,
+				storeService.AddStoreStorage(storageObj, _store.getStore_id().intValue(), "Prodotti", null,
 						_store.getStore_depth() == 0 ? _store.getTheme().getThemeId() : new Long(1));
-				CompletableFuture.runAsync(() -> statisticsService.CreateWSV_Prod(storageObj.getStorage_id().intValue(),1));
-			}
+				CompletableFuture
+						.runAsync(() -> statisticsService.CreateWSV_Prod(storageObj.getStorage_id().intValue(), 1));
+			}*/
 
 			NotificationObject notification = new NotificationObject();
 
 			if (request.isUserInRole("ROLE_ADMIN")) {
-				notification.setImportancyLevel(new Long(0));
+				notification.setImportancyLevel(0);
 				notification.setTitle("Un nuovo negozio è stato aggiunto.");
 				notification.setMessage("L'utente " + u.getUsername() + " ha aggiunto un nuovo negozio. ("
 						+ "<a href='?negozi=" + _store.getStore_id() + "&sname=" + _store.getStore_name() + "'>"
 						+ _store.getStore_name() + "</a>" + ")");
 				notification.setType(0);
 			} else {
-				notification.setImportancyLevel(new Long(1));
+				notification.setImportancyLevel(1);
 				notification.setTitle("Una nuova richiesta per aggiungere un nuovo negozio!");
 				notification.setType(1);
 				/*
@@ -249,31 +263,30 @@ public class StoreManagementController {
 
 			List<Integer> U = userService.GetUsersIdListByRole("ROLE_ADMIN");
 			for (int a = 0; a < U.size(); a++) {
-				Long currentU = Long.parseLong(String.valueOf(U.get(a)));
+				int currentU = U.get(a);
 				notificationService.AppendNotificationToUser(currentU, notification.getNotification_id());
 			}
-			CompletableFuture.runAsync(() -> statisticsService.CreateWSV_Prod(_store.getStore_id().intValue(),0));
+			CompletableFuture.runAsync(() -> statisticsService.CreateWSV_Prod(_store.getStore_id().intValue(), 0));
 			return new ResponseEntity<>(_store, HttpStatus.OK);
 		} catch (DataIntegrityViolationException e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+			errorHandlerService.submitError(409, e, authentication, request);
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// aggiungere un nuovo prodotto per un negozio
 	@RequestMapping(value = "/store-management/stores/storage/{storageid}/add-item", method = RequestMethod.POST, headers = "Accept=application/json")
-	public ResponseEntity<?> AddStoreProduct(@PathVariable("storageid") Long storage_id,
-			@RequestBody ItemObject ItemObject) {
+	public ResponseEntity<?> AddStoreProduct(HttpServletRequest request, Authentication authentication,
+			@PathVariable("storageid") Long storage_id, @RequestBody ItemObject ItemObject) {
 
 		try {
-
-			storeService.AddStorageItem(ItemObject, storage_id, ItemObject.getItem_name(), ItemObject.getItem_description(),
-					ItemObject.getItem_category(), ItemObject.getUnit_price(), ItemObject.getStoraged(),
-					ItemObject.getShipment_included(),
-					ItemObject.getQuality(), ItemObject.getQuantity(), new Date(), ItemObject.getType());
+			storeService.AddStorageItem(ItemObject, storage_id, ItemObject.getItem_name(),
+					ItemObject.getItem_description(), ItemObject.getItem_category(), ItemObject.getUnit_price(),
+					ItemObject.getStoraged(), ItemObject.getShipment_included(), ItemObject.getQuality(),
+					ItemObject.getQuantity(), new Date(), ItemObject.getType());
 
 			if (ItemObject.getItem_media().get(0).getSelected_media_id().size() > 0) {
 				storeService.SetItemImage(ItemObject.getProduct_id(),
@@ -282,21 +295,23 @@ public class StoreManagementController {
 
 			storeService.UpdateSotreProductDetails(ItemObject.getProduct_id(), null, null, null, null, null, null, null,
 					null, null, ItemObject.getPreview_media());
-			
-			CompletableFuture.runAsync(() -> statisticsService.CreateWSV_Prod(ItemObject.getProduct_id().intValue(),2));
+
+			CompletableFuture
+					.runAsync(() -> statisticsService.CreateWSV_Prod(ItemObject.getProduct_id().intValue(), 2));
 			return new ResponseEntity<>(ItemObject.getProduct_id(), HttpStatus.OK);
 		} catch (DataIntegrityViolationException e) {
-			System.out.println(e.getMessage());
+			errorHandlerService.submitError(409, e, authentication, request);
 			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// aggiornare i dati di un negozio
 	@RequestMapping(value = "/store-management/stores/{storeId}", method = RequestMethod.POST, headers = "Accept=application/json")
-	public ResponseEntity<?> UpdateStore(@RequestBody StoreObject _store, @PathVariable("storeId") int storeId) {
+	public ResponseEntity<?> UpdateStore(HttpServletRequest request, Authentication authentication,
+			@RequestBody StoreObject _store, @PathVariable("storeId") int storeId) {
 		try {
 			Long selectedMediaId = new Long(0);
 
@@ -317,19 +332,19 @@ public class StoreManagementController {
 			if (_store.getTheme() != null) {
 				StoreObject _storeCheck = storeService.GetStoreInfo(storeId);
 				if (_storeCheck.getStore_depth().equals(new Long(0)) && _storeCheck.getStorage().size() > 0) {
-					storeService.UpdateStorage(_storeCheck.getStorage().get(0).getStorage_id(), null, null, null,
+					storeService.UpdateStorage(_storeCheck.getStorage().get(0).getStorage_id(), null, null,
 							_store.getTheme().getThemeId());
 				}
 			}
 
 			return new ResponseEntity<>(storeId, HttpStatus.OK);
 		} catch (DataIntegrityViolationException e) {
-			System.out.println(e.getMessage());
+			errorHandlerService.submitError(409, e, authentication, request);
 			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// aggiungere uno storage
@@ -347,14 +362,14 @@ public class StoreManagementController {
 				}
 			}
 
-			storeService.AddStoreStorage(_storage, storeId, _storage.getStorage_name(), _storage.getSubstorage_ref(),
+			storeService.AddStoreStorage(_storage, storeId, _storage.getStorage_name(),
 					selectedMediaId, _storage.getTheme().getThemeId());
-			CompletableFuture.runAsync(() -> statisticsService.CreateWSV_Prod(_storage.getStorage_id().intValue(),1));
+			CompletableFuture.runAsync(() -> statisticsService.CreateWSV_Prod(_storage.getStorage_id().intValue(), 1));
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	// aggiornare uno storage
@@ -373,24 +388,30 @@ public class StoreManagementController {
 				}
 			}
 
-			storeService.UpdateStorage(storageId, _storage.getStorage_name(), _storage.getSubstorage_ref(),
+			storeService.UpdateStorage(storageId, _storage.getStorage_name(),
 					selectedMediaId, _storage.getTheme().getThemeId());
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@RequestMapping(value = "/store-management/stores/updateorder", method = RequestMethod.POST, headers = "Accept=application/json")
 	public ResponseEntity<?> UpdateStoreOrder(HttpServletRequest request, @RequestBody HomeSettingsObj homeSettings,
 			Authentication authentication) {
+
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
+
 		try {
-
-			AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 			if (u.getUsr_id() != 3) {
-
+				try {
+					Exception e = new Exception("User without rights tried to update home order.");
+					errorHandlerService.submitError(403, e, authentication, request);
+				} catch (Exception EXerrorHandlerService) {
+					System.out.println(EXerrorHandlerService.getMessage());
+				}
 				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 			}
 			themeService.updateHomePage(homeSettings.getCol_num(), homeSettings.getIs_first_banner());
@@ -398,43 +419,46 @@ public class StoreManagementController {
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@RequestMapping(value = "store-management/stores/{storeId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> RemoveStore(@PathVariable("storeId") int storeId) {
+	public ResponseEntity<?> RemoveStore(HttpServletRequest request, Authentication authentication,
+			@PathVariable("storeId") int storeId) {
 		try {
 			storeService.DeleteStore(storeId);
-			CompletableFuture.runAsync(() -> statisticsService.DeleteWSV_Prod(storeId,0));
+			CompletableFuture.runAsync(() -> statisticsService.DeleteWSV_Prod(storeId, 0));
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@RequestMapping(value = "/store-management/stores/storage/{storageId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> RemoveStorage(@PathVariable("storageId") int storageId) {
+	public ResponseEntity<?> RemoveStorage(HttpServletRequest request, Authentication authentication,
+			@PathVariable("storageId") int storageId) {
 		try {
 			storeService.DeleteStorage(storageId);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@RequestMapping(value = "/store-management/stores/products/{itemId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> RemoveItem(@PathVariable("itemId") int itemId) {
+	public ResponseEntity<?> RemoveItem(HttpServletRequest request, Authentication authentication,
+			@PathVariable("itemId") int itemId) {
 		try {
 			storeService.DeleteItem(itemId);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			errorHandlerService.submitError(500, e, authentication, request);
 		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 }

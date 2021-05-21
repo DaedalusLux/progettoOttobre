@@ -7,23 +7,23 @@
 	<!-- Seleziona il numero di negozi Indicando l'id del utente ritorna il numori di negozi appartenente a quel utente -->
 	<select id="GetStoresCount" resultType="java.lang.Long">
 		select distinct count(*) over ()
-		from stores
+		from store
 		left join users_details ud
 		on
-		stores.store_owner =
-		ud.user_ref
+		store.store_owner =
+		ud.ud_user_ref
 		<if test="search != null">
 			where (store_name ilike #{search}
-			or nome ilike #{search}
-			or cognome
+			or ud_nome ilike #{search}
+			or ud_cognome
 			ilike #{search}
-			or category ilike #{search})
-			<if test="store_owner != 0">and stores.store_owner = #{store_owner} or
-				stores.store_owner = 3
+			or store_tags ilike #{search})
+			<if test="store_owner != 0">and store.store_owner = #{store_owner} or
+				store.store_owner = 3
 			</if>
 		</if>
-		<if test="store_owner != 0">where stores.store_owner = #{store_owner} or
-			stores.store_owner = 3
+		<if test="store_owner != 0">where store.store_owner = #{store_owner} or
+			store.store_owner = 3
 		</if>
 	</select>
 
@@ -38,10 +38,10 @@
 		where storage_ref =
 		#{storageId}
 		<if test="search != null">
-			and (name ilike #{search}
-			or description ilike #{search}
+			and (item_name ilike CONCAT('%',#{search},'%')
+			or item_description ilike CONCAT('%',#{search},'%')
 			or
-			category ilike #{search})
+			category ilike CONCAT('%',#{search},'%'))
 		</if>
 	</select>
 
@@ -57,19 +57,19 @@
 	<select id="isStoreConfirmed" resultType="java.lang.Boolean">
 		select s.confirmed
 		from
-		stores s
+		store s
 		where s.store_id = #{storeId}
 	</select>
 
 	<!-- Seleziona il nome di tutte le categorie dei negozi (ESEMPIO: Negozio che vende vestiti >> Abbigliamento) -->
 	<select id="GetStoreCategoriesList" resultType="string">
 		select distinct
-		s.category from stores s where category is not NULL
+		s.store_tags from store s where store_tags is not NULL
 	</select>
 
 	<!-- Seleziona ogni tema -->
 	<select id="GetThemesData" resultMap="StoreThemesResultMap">
-		select * from themes
+		select * from theme
 		order
 		by theme_id
 	</select>
@@ -77,11 +77,11 @@
 	<!-- seleziona i negozi confermati che hanno almeno un prodotto e (senza data di scadenza o con la data di scadenza valida) -->
 	<select id="GetStoreData" resultMap="StoreObjectResultMap">
 		select distinct st.store_id,
-		st.category, st.store_name,
+		st.store_tags, st.store_name,
 		strg.storage_id, m.media_id, m.media_name, m.media_owner, CONCAT(m.media_path, m.media_extension) as media_path, m.media_pubblication_date
 		,st.store_place,
-		st.place_expire
-		from stores
+		st.store_place_expire
+		from store
 		st
 		left
 		join
@@ -91,44 +91,44 @@
 		on
 		(storage.storage_id)
 		* from storage,
-		stores
+		store
 		where
-		storage.store_ref =
-		stores.store_id
-		and stores.store_depth
+		storage.storage_store_ref =
+		store.store_id
+		and store.store_depth
 		= 0
 		) as strg
-		on strg.store_ref =
+		on strg.storage_store_ref =
 		st.store_id
 		left join media m
 		on m.media_id =
 		st.store_media
 		join (select
-		storage.store_ref,
+		storage.storage_store_ref,
 		count(storage_items.item_id) from storage,
 		storage_items
 		where
-		storage_items.storage_ref = storage.storage_id
-		<!-- and storage_items.avability = true -->
+		storage_items.item_storage_ref = storage.storage_id
+
 		GROUP BY storage.storage_id,
 		storage_items.item_id
 		HAVING
 		storage_items.item_id > 1 ) as
 		storage_having_prod
 		on
-		storage_having_prod.store_ref =
+		storage_having_prod.storage_store_ref =
 		st.store_id
 		where
-		st.open
+		st.store_open
 		= true
 		and
-		st.confirmed = true
+		st.store_confirmed = true
 		and
-		(st.valid_until is null or
-		st.valid_until >
+		(st.store_valid_until is null or
+		st.store_valid_until >
 		current_date)
 		and
-		storage_having_prod.store_ref =
+		storage_having_prod.storage_store_ref =
 		st.store_id
 		order by
 		store_place, st.store_id desc
@@ -139,7 +139,7 @@
 	<select id="GetRandomItemTC" resultMap="RandomItemTCResultMap">
 		select distinct RANDOM(),
 		m.*, si.item_id, si.storage_ref from media m,
-		stores s, storage_items
+		store s, storage_items
 		si
 		where m.media_id =
 		si.preview_media
@@ -168,7 +168,7 @@
 	</resultMap>
 
 	<select id="GetStorageItems" resultMap="StorageItemsResultMap">
-		select store_dett.store_name, store_dett.items_type, store_dett.item_type_desc, s_it.*, st.*,
+		select store_dett.store_name, store_dett.store_items_type, store_dett.item_type_desc, s_it.*, st.*,
 
 		item_pref.media_id as item_media_id,
 		item_pref.media_name as item_media_name,
@@ -196,7 +196,7 @@
 		from storage_items s_it
 		left join
 		storage st
-		on s_it.storage_ref =
+		on s_it.item_storage_ref =
 		st.storage_id
 
 		LEFT JOIN media strg_media
@@ -217,22 +217,22 @@
 		item_pref
 		on (CASE
 		WHEN
-		s_it.preview_media IS NOT NULL THEN
+		s_it.item_preview_media IS NOT NULL THEN
 		item_pref.media_id =
-		s_it.preview_media
-		WHEN s_it.preview_media IS NULL THEN
+		s_it.item_preview_media
+		WHEN s_it.item_preview_media IS NULL THEN
 		item_pref.media_id = ml.link_media
 		END)
-		inner join (select item_type.item_type_desc, stores.store_name, stores.store_id, stores.items_type from stores, item_type where stores.items_type = item_type.item_type_id) store_dett
-		on store_dett.store_id = st.store_ref
+		inner join (select item_type.item_type_desc, store.store_name, store.store_id, store.store_items_type from store, item_type where store.store_items_type = item_type.item_type_id) store_dett
+		on store_dett.store_id = st.storage_store_ref
 		where
 		st.storage_id =
 		#{storageId}
 		<if test="search != null">
-			and (s_it.name ilike #{search}
-			or s_it.description ilike
-			#{search}
-			or s_it.category ilike #{search})
+			and (s_it.item_name ilike CONCAT('%',#{search},'%)
+			or s_it.item_description ilike
+			CONCAT('%',#{search},'%)
+			or s_it.item_tags ilike CONCAT('%',#{search},'%))
 		</if>
 		order by s_it.item_id desc
 		limit
@@ -242,7 +242,7 @@
 	</select>
 
 	<select id="GetStoreProductsManager" resultMap="StorageItemsResultMap">
-		select us.store_name, us.items_type, it.item_type_desc, s_it.*, st.*,
+		select us.store_name, us.store_items_type, it.item_type_desc, s_it.*, st.*,
 		item_pref.media_id as item_media_id,
 		item_pref.media_name as
 		item_media_name,
@@ -267,12 +267,12 @@
 		strg_media.media_owner as storage_media_owner,
 		strg_media.media_pubblication_date as storage_media_pubblication_date
 
-		from item_type it, stores
+		from item_type it, store
 		us, storage_items s_it
 		left join
 		storage st
 		on
-		s_it.storage_ref =
+		s_it.item_storage_ref =
 		st.storage_id
 
 		LEFT JOIN media strg_media
@@ -291,15 +291,15 @@
 		item_pref
 		on (CASE
 		WHEN
-		s_it.preview_media IS NOT NULL THEN
+		s_it.item_preview_media IS NOT NULL THEN
 		item_pref.media_id =
-		s_it.preview_media
-		WHEN s_it.preview_media IS NULL
+		s_it.item_preview_media
+		WHEN s_it.item_preview_media IS NULL
 		THEN
 		item_pref.media_id = ml.link_media
 		END)
-		where st.store_ref = us.store_id
-		and it.item_type_id = us.items_type
+		where st.storage_store_ref = us.store_id
+		and it.item_type_id = us.store_items_type
 		and us.store_id =
 		#{storeId}
 		order by item_id desc,
@@ -345,14 +345,14 @@
 		item_media_owner,
 		i_m.media_pubblication_date as
 		item_media_pubblication_date
-		from stores
+		from store
 		us
 		left join storage s
 		on
-		s.store_ref = us.store_id
+		s.storage_store_ref = us.store_id
 		left join
 		storage_items i
-		on i.storage_ref =
+		on i.item_storage_ref =
 		s.storage_id
 		left
 		join
@@ -416,13 +416,13 @@
 		item_pref.media_pubblication_date as
 		item_media_pubblication_date
 		from
-		stores us
+		store us
 		left join storage s
 		on
-		s.store_ref = us.store_id
+		s.storage_store_ref = us.store_id
 		left join
 		storage_items i
-		on i.storage_ref =
+		on i.item_storage_ref =
 		s.storage_id
 		left join
 		media s_m
@@ -447,18 +447,18 @@
 		left join media item_pref
 		on (CASE
 		WHEN
-		i.preview_media IS
+		i.item_preview_media IS
 		NOT
 		NULL THEN
 		item_pref.media_id =
-		i.preview_media
-		WHEN i.preview_media IS
+		i.item_preview_media
+		WHEN i.item_preview_media IS
 		NULL THEN
 		item_pref.media_id = ml.link_media
 		END)
 
 		where us.store_id =
-		s.store_ref
+		s.storage_store_ref
 		and
 		s.storage_id =
 		#{storageId}
@@ -507,13 +507,13 @@
 		item_pref.media_pubblication_date as
 		item_media_pubblication_date
 		from
-		stores us
+		store us
 		left join storage s
 		on
-		s.store_ref = us.store_id
+		s.storage_store_ref = us.store_id
 		left join
 		storage_items i
-		on i.storage_ref =
+		on i.item_storage_ref =
 		s.storage_id
 		left join
 		media s_m
@@ -539,7 +539,7 @@
 
 
 		where us.store_id =
-		s.store_ref
+		s.storage_store_ref
 		and
 		s.storage_id =
 		#{storageId}
@@ -559,15 +559,15 @@
 		m.media_pubblication_date as
 		item_pubblication_date
 
-		from stores us
+		from store us
 		left join
 		storage s
-		on s.store_ref =
+		on s.storage_store_ref =
 		us.store_id
 		left join
 		storage_items i
 		on
-		i.storage_ref = s.storage_id
+		i.item_storage_ref = s.storage_id
 		left join
 		media_linked ml
 		on ml.link_reference = i.item_id
@@ -577,14 +577,14 @@
 		ml.link_media
 
 		where
-		s.store_ref = us.store_id
+		s.storage_store_ref = us.store_id
 		and i.item_id =
 		#{product_id}
 	</select>
 
 	<select id="GetStorageInfo" resultMap="StorageResultMap">
 		select * from
-		themes,
+		theme,
 		storage
 		left join (select media_id, media_name, CONCAT(media_path,media_extension) as media_path, media_owner, media_pubblication_date from media) media
 		on media.media_id = storage.storage_media
@@ -596,8 +596,8 @@
 	</select>
 
 	<select id="GetStoreDataManager" resultMap="StoreManagerObjectResultMap">
-		select distinct s.*, m.*, ud.nome, ud.cognome
-		from stores s
+		select distinct s.*, m.*, ud.ud_nome, ud.ud_cognome, item_type.item_type_desc
+		from store s
 		left join
 		(select media_id, media_name, 
 		 (CASE WHEN media_hasthumbnail = true THEN
@@ -609,18 +609,27 @@
 		left join users_details ud
 		on
 		s.store_owner =
-		ud.user_ref
+		ud.ud_user_ref
+		left join item_type on store_items_type = item_type_id
+		where (1=1)
 		<if test="search != null">
-			where (store_name ilike #{search}
-			or nome ilike #{search}
-			or cognome ilike #{search}
-			or category ilike #{search})
+			and (store_name ilike CONCAT('%',#{search},'%')
+			or ud_nome ilike CONCAT('%',#{search},'%')
+			or ud_cognome ilike CONCAT('%',#{search},'%')
+			or store_tags ilike CONCAT('%',#{search},'%'))
 		</if>
+		<choose>
+			<when test="selfquery == true">
+				and s.store_owner = #{store_owner}
+			</when>
+			<otherwise>
+				and s.store_owner != #{store_owner}
+			</otherwise>
+		</choose>
 		order by store_id
 		limit #{limit}
 		offset
 		#{offset}
-		<!-- <if test="store_owner != 0">and s.store_owner = #{store_owner}</if> -->
 	</select>
 
 	<select id="GetStoreInfo" resultMap="StoreInfoResultMap">
@@ -630,10 +639,10 @@ m.media_id, m.media_name,
 		m.media_owner,
 		m.media_pubblication_date,
 t.* , it.item_type_desc,
-		ud.nome, ud.cognome, st.*,
+		ud.ud_nome, ud.ud_cognome, st.*,
 		storage_t.theme_id as storage_themeId,
-		storage_t.display_name as storage_themeName,
-		storage_t.thumbnail_path
+		storage_t.theme_display_name as storage_themeName,
+		storage_t.theme_thumbnail_path
 		as storage_themePreviewImage,
 		sm.media_id as storage_media_id,
 		sm.media_name as
@@ -650,19 +659,19 @@ t.* , it.item_type_desc,
 		item_type it,
 		users_details
 		ud,
-		themes t
+		theme t
 		left join
-		stores
+		store
 		s
 		on
-		s.theme =
+		s.store_theme =
 		t.theme_id
 		left join
 		storage st
 		on
-		st.store_ref = s.store_id
+		st.storage_store_ref = s.store_id
 		left
-		join themes storage_t
+		join theme storage_t
 		on
 		storage_t.theme_id = st.storage_theme
 		left join
@@ -673,19 +682,19 @@ t.* , it.item_type_desc,
 		on st.storage_media =
 		sm.media_id
 		where
-		ud.user_ref =
+		ud.ud_user_ref =
 		s.store_owner
-		and it.item_type_id = s.items_type
+		and it.item_type_id = s.store_items_type
 		and
 		s.store_id =
 		#{store_id}
 	</select>
 
 	<insert id="AddNewStore" parameterType="com.portale.model.StoreObject" useGeneratedKeys="true" keyProperty="store.store_id">
-		insert into stores(store_media,
-		open, category,
-		creation,
-		valid_until, store_name, store_owner, theme, confirmed, store_depth, items_type)
+		insert into store(store_media,
+		store_open, store_tags,
+		store_creation_date,
+		store_valid_until, store_name, store_owner, store_theme, store_confirmed, store_depth, store_items_type)
 		values
 		(#{media_id}, #{open}, #{category}, #{creation},
 		#{valid_until},
@@ -698,26 +707,26 @@ t.* , it.item_type_desc,
 	<insert id="AddStoreStorage" parameterType="com.portale.model.StorageObject" useGeneratedKeys="true" keyProperty="storage.storage_id">
 		insert into
 		storage(storage_name,
-		store_ref, substorage_ref, storage_theme, storage_media)
+		storage_store_ref, storage_theme, storage_media)
 		values
-		(#{storage_name}, #{store_id}, #{substorage_ref},
+		(#{storage_name}, #{store_id},
 		#{storage_theme},
 		#{media_id})
 	</insert>
 
 	<insert id="AddStorageItem" parameterType="com.portale.model.ItemObject" useGeneratedKeys="true" keyProperty="product.product_id">
 		insert into
-		storage_items(storage_ref,
+		storage_items(item_storage_ref,
 		item_name,
 		item_description,
-		item_category,
-		unit_price,
-		storaged,
-		shipment_included,
-		quality,
-		quantity,
-		pubblication_date,
-		type)
+		item_tags,
+		item_unit_price,
+		item_storaged,
+		item_shipment_included,
+		item_quality,
+		item_quantity,
+		item_creation_timestamp,
+		item_type)
 		values
 		(#{storage_id},
 		#{item_name},
@@ -759,21 +768,14 @@ t.* , it.item_type_desc,
 		<set>
 			<if test="item_name != null">item_name = #{item_name},</if>
 			<if test="item_description != null">item_description = #{item_description},</if>
-			<if test="item_category != null">item_category = #{item_category},</if>
-			<if test="unit_price != null">unit_price = #{unit_price},</if>
-			<if test="storaged != null">storaged = #{storaged},</if>
-			<if test="shipment_included != null">shipment_included = #{shipment_included},</if>
-			<if test="quality != null">quality = #{quality},</if>
-			<if test="quantity != null">quantity = #{quantity},</if>
-			<if test="preview_media != 0">
-				<if test="preview_media == null">
-					preview_media = null,
-				</if>
-				<if test="preview_media != null">
-					preview_media = #{preview_media},
-				</if>
-			</if>
-			<if test="pubblication_date != null">pubblication_date = #{pubblication_date},</if>
+			<if test="item_category != null">item_tags = #{item_category},</if>
+			<if test="unit_price != null">item_unit_price = #{unit_price},</if>
+			<if test="storaged != null">item_storaged = #{storaged},</if>
+			<if test="shipment_included != null">item_shipment_included = #{shipment_included},</if>
+			<if test="quality != null">item_quality = #{quality},</if>
+			<if test="quantity != null">item_quantity = #{quantity},</if>
+			<if test="pubblication_date != null">item_creation_timestamp = #{pubblication_date},</if>
+			item_preview_media = #{preview_media}
 		</set>
 		where item_id = #{product_id}
 	</update>
@@ -782,7 +784,6 @@ t.* , it.item_type_desc,
 		update storage
 		<set>
 			<if test="storageName != null">storage_name = #{storageName},</if>
-			<if test="subStorage != null">substorage_ref = #{subStorage},</if>
 			<if test="storage_media != 0">
 				<if test="storage_media != null">storage_media = #{storage_media},</if>
 				<if test="storage_media == null">storage_media = null,</if>
@@ -793,7 +794,7 @@ t.* , it.item_type_desc,
 	</update>
 
 	<update id="UpdateStore">
-		update stores
+		update store
 		<set>
 			<if test="store_name != null">store_name = #{store_name},</if>
 			<if test="store_owner != 0">store_owner = #{store_owner},</if>
@@ -801,12 +802,12 @@ t.* , it.item_type_desc,
 				<if test="media_id != null">store_media = #{media_id},</if>
 				<if test="media_id == null">store_media = null,</if>
 			</if>
-			<if test="open != null">open = #{open},</if>
-			<if test="category != null">category = #{category},</if>
-			<if test="creation != null">creation = #{creation},</if>
-			valid_until = #{valid_until},
-			<if test="themeId != 0">theme = #{themeId}</if>
-			<if test="confirmed != null">confirmed = #{confirmed},</if>
+			<if test="open != null">store_open = #{open},</if>
+			<if test="category != null">store_tags = #{category},</if>
+			<if test="creation != null">store_creation_date = #{creation},</if>
+			store_valid_until = #{valid_until},
+			<if test="themeId != 0">store_theme = #{themeId}</if>
+			<if test="confirmed != null">store_confirmed = #{confirmed},</if>
 		</set>
 		where store_id = #{storeId}
 	</update>
@@ -818,7 +819,7 @@ t.* , it.item_type_desc,
 		and link_reference = #{item_id}
 	</delete>
 	<delete id="DeleteStore">
-		delete from stores where stores.store_id =
+		delete from store where store.store_id =
 		#{storeId};
 	</delete>
 	<delete id="DeleteStorage">
@@ -832,7 +833,6 @@ t.* , it.item_type_desc,
 	<resultMap id="StoreObjectResultMap" type="StoreObject">
 		<id property="store_id" column="store_id" />
 		<result property="store_name" column="store_name" />
-		<result property="banner_link" column="banner_link" />
 		<result property="category" column="category" />
 		<result property="store_place" column="store_place" />
 		<result property="place_expire" column="place_expire" />
@@ -854,10 +854,10 @@ t.* , it.item_type_desc,
 
 	<resultMap id="StorageItemsResultMap" type="StorageObject">
 		<id property="storage_id" column="storage_id" />
-		<result property="store_ref" column="store_ref" />
+		<result property="store_ref" column="storage_store_ref" />
 		<result property="storage_name" column="storage_name" />
 		<result property="ref_store_name" column="store_name" />
-		<result property="store_items_type" column="items_type" />
+		<result property="store_items_type" column="store_items_type" />
 		<result property="store_items_type_desc" column="item_type_desc" />		
 		<association property="theme" javaType="ThemeObject">
 		<id property="themeId" column="storage_theme" />
@@ -874,19 +874,19 @@ t.* , it.item_type_desc,
 
 	<resultMap type="ItemObject" id="ItemsResultMap">
 		<id property="product_id" column="item_id" />
-		<result property="storage_ref" column="storage_ref" />
+		<result property="storage_ref" column="item_storage_ref" />
 		<result property="storage_name" column="storage_name" />
 		<result property="item_name" column="item_name" />
 		<result property="item_description" column="item_description" />
-		<result property="item_category" column="item_category" />
+		<result property="item_category" column="item_tags" />
 		<result property="unit_price" column="unit_price" />
-		<result property="storaged" column="storaged" />
-		<result property="shipment_included" column="shipment_included" />
-		<result property="quality" column="quality" />
-		<result property="quantity" column="quantity" />
-		<result property="pubblication_date" column="pubblication_date" />
-		<result property="preview_media" column="preview_media" />
-		<result property="type" column="type" />
+		<result property="storaged" column="item_storaged" />
+		<result property="shipment_included" column="item_shipment_included" />
+		<result property="quality" column="item_quality" />
+		<result property="quantity" column="item_quantity" />
+		<result property="pubblication_date" column="item_pubblication_date" />
+		<result property="preview_media" column="item_preview_media" />
+		<result property="type" column="item_type" />
 		<collection property="item_media" resultMap="ItemImageResultMap" />
 	</resultMap>
 
@@ -901,13 +901,12 @@ t.* , it.item_type_desc,
 	<resultMap type="StoreObject" id="StoreWithProductsResultMap">
 		<id property="store_id" column="store_id" />
 		<result property="store_name" column="store_name" />
-		<result property="banner_link" column="banner_link" />
 		<result property="store_depth" column="store_depth" />
-		<result property="category" column="category" />
-		<result property="items_type" column="items_type" />
+		<result property="category" column="store_tags" />
+		<result property="items_type" column="store_items_type" />
 		<result property="items_type_desc" column="item_type_desc" />
 		<association property="theme" javaType="ThemeObject">
-			<id property="themeId" column="theme" />
+			<id property="themeId" column="store_theme" />
 		</association>
 		<association property="media" javaType="MediaObject">
 			<id property="media_id" column="media_id" />
@@ -942,16 +941,16 @@ t.* , it.item_type_desc,
 	<resultMap id="StoreManagerObjectResultMap" type="StoreObject">
 		<id property="store_id" column="store_id" />
 		<result property="store_name" column="store_name" />
-		<result property="category" column="category" />
-		<result property="items_type" column="items_type" />
+		<result property="category" column="store_tags" />
+		<result property="items_type" column="store_items_type" />
 		<result property="items_type_desc" column="item_type_desc" />
-		<result property="open" column="open" />
-		<result property="confirmed" column="confirmed" />
-		<result property="creation" column="creation" />
-		<result property="valid_until" column="valid_until" />
+		<result property="open" column="store_open" />
+		<result property="confirmed" column="store_confirmed" />
+		<result property="creation" column="store_creation_date" />
+		<result property="valid_until" column="store_valid_until" />
 		<result property="store_owner" column="store_owner" />
-		<result property="owner_name" column="nome" />
-		<result property="owner_surname" column="cognome" />
+		<result property="owner_name" column="ud_nome" />
+		<result property="owner_surname" column="ud_cognome" />
 		<association property="media" javaType="MediaObject">
 			<id property="media_id" column="media_id" />
 			<result property="media_name" column="media_name" />
@@ -965,22 +964,23 @@ t.* , it.item_type_desc,
 		<id property="store_id" column="store_id" />
 		<result property="store_name" column="store_name" />
 		<result property="store_owner" column="store_owner" />
-		<result property="owner_name" column="nome" />
-		<result property="owner_surname" column="cognome" />
-		<result property="banner_link" column="banner_link" />
-		<result property="open" column="open" />
-		<result property="category" column="category" />
-		<result property="creation" column="creation" />
-		<result property="valid_until" column="valid_until" />
-		<result property="confirmed" column="confirmed" />
+		<result property="owner_name" column="ud_nome" />
+		<result property="owner_surname" column="ud_cognome" />
+		<result property="open" column="store_open" />
+		<result property="category" column="store_tags" />
+		<result property="creation" column="store_creation_date" />
+		<result property="valid_until" column="store_valid_until" />
+		<result property="confirmed" column="store_confirmed" />
 		<result property="store_depth" column="store_depth" />
 		<result property="items_type" column="items_type" />
 		<result property="items_type_desc" column="item_type_desc" />
+		<result property="store_place" column="store_place" />
+		<result property="place_expire" column="store_place_expire" />
 		<association property="theme" javaType="ThemeObject">
 			<id property="themeId" column="theme_id" />
-			<result property="themeName" column="display_name" />
-			<result property="themePreviewImage" column="thumbnail_path" />
-			<result property="depth" column="depth" />
+			<result property="themeName" column="theme_display_name" />
+			<result property="themePreviewImage" column="theme_thumbnail_path" />
+			<result property="depth" column="theme_depth" />
 		</association>
 		<association property="media" javaType="MediaObject">
 			<id property="media_id" column="media_id" />
@@ -1014,9 +1014,9 @@ t.* , it.item_type_desc,
 
 	<resultMap id="StoreThemesResultMap" type="ThemeObject">
 		<id property="themeId" column="theme_id" />
-		<result property="themeName" column="display_name" />
-		<result property="themePreviewImage" column="thumbnail_path" />
-		<result property="depth" column="depth" />
+		<result property="themeName" column="theme_display_name" />
+		<result property="themePreviewImage" column="theme_thumbnail_path" />
+		<result property="depth" column="theme_depth" />
 	</resultMap>
 </mapper>
    

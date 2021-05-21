@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class UserLoginDetails {
 
-	private Long userId;
+	private int userId;
 	private String idToken;
 	private String userName;
 	private String userRole;
 
-	public UserLoginDetails(Long userId, String idToken, String userName, String userRole) {
+	public UserLoginDetails(int userId, String idToken, String userName, String userRole) {
 		this.userId = userId;
 		this.idToken = idToken;
 		this.userName = userName;
@@ -43,11 +43,11 @@ public class UserLoginDetails {
 		this.userRole = userRole;
 	}
 	@JsonProperty("id")
-	public Long getUserId() {
+	public int getUserId() {
 		return userId;
 	}
 
-	public void setUserId(Long userId) {
+	public void setUserId(int userId) {
 		this.userId = userId;
 	}
 }

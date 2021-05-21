@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.portale.mapper.ErrorHandlerMapper">
+	<select id="getErrorList" resultType="string">
+		select concat(eh.errorhandler, '|', min(eh.eh_id) over()) as errorhandler from (select eh_id, concat(eh_id, '|', eh_statuscode, '|', eh_method, '|', eh_message, '|', eh_stacktrace,
+		'|', eh_datetime, '|', r.concat, '|', 
+		CASE WHEN eh_querystring is not null then concat(eh_url, '?', eh_querystring)
+		ELSE  eh_url
+		END) as errorhandler from error_handler
+		inner join (select ud_user_ref, concat(ud_cognome, ' ', ud_nome) from users_details) r on r.ud_user_ref = eh_entity
+		<if test="lastResultId != -1">
+		where eh_id &lt; #{lastResultId}
+		</if>
+		<if test="lastResultId == -1">
+		where eh_id &gt; #{lastResultId}
+		</if>
+		<if test="search != null">
+			and (eh_message ilike CONCAT('%',#{search},'%'))
+			and (eh_stacktrace ilike CONCAT('%',#{search},'%'))
+			and (r.concat ilike CONCAT('%',#{search},'%'))
+		</if>
+		order by eh_id desc
+		limit #{limit}) eh
+	</select>
+	<insert id="submitError">
+		insert into error_handler (eh_statuscode, eh_message, eh_stacktrace, eh_entity, eh_url, eh_querystring, eh_method)
+		values (#{statuscode},#{message},#{stacktrace},#{entity}, #{url}, #{querystring}, #{method})
+	</insert>
+</mapper>

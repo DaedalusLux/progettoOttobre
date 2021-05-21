@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.portale.mapper.MediaMapper">
+	
+	<resultMap type="MediaFolderObj" id="UserMediaFolderListResultMap">
+		<id property="media_folder_id" column="mf_id"/>
+		<result property="media_folder_reference" column="mf_ref"/>
+		<result property="media_folder_name" column="mf_name"/>
+		<result property="media_folder_owner" column="mf_owner"/>
+		<result property="media_folder_color" column="mf_color"/>
+		<result property="media_folder_path" column="mf_path"/>
+	</resultMap>
+	
+	<!-- TODELETE
+	<resultMap type="MediaFolderObj" id="UserFolderMediaListResultMap">
+		<id property="media_folder_id" column="mf_id"/>
+		<result property="media_folder_reference" column="mf_ref"/>
+		<result property="media_folder_name" column="mf_name"/>
+		<result property="media_folder_owner" column="mf_owner"/>
+		<result property="media_folder_color" column="mf_color"/>
+		<collection property="media_folder_media" resultMap="UserMediaListResultMap"/>
+	</resultMap>
+	 -->
+	<resultMap id="UserMediaListResultMap" type="MediaObject">
+		<id property="media_id" column="media_id" />
+		<result property="media_name" column="media_name" />
+		<result property="media_path" column="media_path" />
+		<result property="media_owner" column="media_owner" />
+		<result property="media_pubblication_date" column="media_pubblication_date" />
+		<result property="media_size" column="media_size" />
+	</resultMap>
+	
+	
+	<select id="GetUserMediaFolderList" resultMap="UserMediaFolderListResultMap">
+		select media_folder.* from media_folder
+		where media_folder.mf_owner = #{id}
+		<choose>
+		<when test="media_folder_ref != -1">
+			and media_folder.mf_ref = #{media_folder_ref}
+		</when>
+		<otherwise>
+			and media_folder.mf_ref = (select mf_id from media_folder where mf_owner = #{id} and mf_ref is null)
+		</otherwise>
+		</choose>
+		order by mf_name
+		desc
+	</select>
+	
+	<select id="GetUserMediaList" resultMap="UserMediaListResultMap">
+		select media_id, media_name,
+		(CASE
+		WHEN media_hasthumbnail = true THEN
+		CONCAT(media_path,'_thumb',media_extension)
+		ELSE
+		CONCAT(media_path,media_extension)
+		END) as media_path,
+		media_owner, media_pubblication_date
+		from media
+		where media_owner = #{id}
+		<choose>
+		<when test="media_folder_ref != -1">
+			and media_folder_ref = #{media_folder_ref}
+		</when>
+		<otherwise>
+			and media_folder_ref = (select mf_id from media_folder where mf_owner = #{id} and mf_ref is null)
+		</otherwise>
+		</choose>
+		order by media_name
+		desc
+	</select>
+	<!-- TODELETE
+	<select id="GetUserMediaList2" resultMap="UserFolderMediaListResultMap">
+		select media_folder.*, m.media_id, m.media_name,
+		(CASE
+		WHEN m.media_hasthumbnail = true THEN
+		CONCAT(m.media_path,'_thumb',m.media_extension)
+		ELSE
+		CONCAT(m.media_path,m.media_extension)
+		END) as media_path,
+		m.media_owner, m.media_pubblication_date
+		from media_folder
+		left join media as m on m.media_folder_ref = mf_id
+		where mf_owner = #{id}
+		<choose>
+		<when test="media_folder_ref != -1">
+			and mf_ref = #{media_folder_ref}
+		</when>
+		<otherwise>
+			and mf_ref is null or mf_ref = (select mf_id from media_folder where mf_owner = #{id} and mf_ref is null)
+		</otherwise>
+		</choose>
+		order by mf_name, mf_id, m.media_id
+		desc
+	</select>
+	 -->
+	<!-- Verifica se il file gia esiste -->
+	<select id="CheckIfMediaExist" resultType="java.lang.Boolean">
+		SELECT
+		CASE WHEN EXISTS
+		(SELECT media_id FROM media WHERE media.media_owner = #{media_owner}
+		and
+		media.media_path = #{media_path})
+		THEN true
+		ELSE false
+		END AS exist
+	</select>
+
+	<select id="GetPathIfMediaExistById" resultMap="UserMediaListResultMap">
+		SELECT * FROM media WHERE media.media_owner =
+		#{media_owner}
+		and
+		media.media_id =
+		#{media_id}
+	</select>
+
+	<delete id="DeleteMediaById">
+		delete from media where
+		media.media_id =
+		#{media_id}
+	</delete>
+
+	<insert id="PostUsersMedia" parameterType="MediaObject" useGeneratedKeys="true" keyProperty="media.media_id" keyColumn="media_id">
+		insert into
+		media(media_name,
+		media_path, media_owner,
+		media_pubblication_date, media_hasthumbnail, media_extension, media_size_byte, media_folder_ref)
+		values
+		(#{media_name},#{media_path},#{media_owner},#{media_pubblication_date},#{media_hasthumbnail}, #{media_extension}, #{media_size},
+		<choose>
+			<when test="media_folder_ref == -1">
+			(select mf_id from media_folder where mf_owner = #{media_owner} and mf_ref is null)
+			</when>
+			<otherwise>#{media_folder_ref}</otherwise>
+		</choose>);
+	</insert>
+	
+	<insert id="CreateMediaFolder">
+		insert into media_folder (mf_ref, mf_name, mf_owner, mf_path)
+		values (
+		<choose>
+			<when test="folder_ref == -1">
+			(select mf_id from media_folder where mf_owner = #{folder_owner} and mf_ref is null)
+			</when>
+			<otherwise>#{folder_ref}</otherwise>
+		</choose>
+		,#{folder_name},#{folder_owner},#{folderRealname}) 
+	</insert>
+	
+	<sql id="renameFolder">
+		UPDATE media_folder
+		set mf_name = #{elementName}
+		where mf_owner = #{ownerId}
+		and mf_id = CAST(#{elementId} AS INTEGER)
+	</sql>
+	<sql id="renameMedia">
+		UPDATE media
+		set media_name = #{elementName}
+		where media_owner = #{ownerId}
+		and media_id = CAST(#{elementId} AS INTEGER)
+	</sql>
+	<update id="RenameElement">
+		<if test="elementType == 1"><include refid="renameFolder"/></if>
+		<if test="elementType == 0"><include refid="renameMedia"/></if>
+	</update>
+	
+	
+	<sql id="deleteFolder">
+		DELETE FROM media_folder
+		where mf_owner = #{ownerId}
+		and mf_id = CAST(#{elementId} AS INTEGER)
+	</sql>
+	
+	<sql id="deleteMedia">
+		DELETE FROM media
+		where media_owner = #{ownerId}
+		and media_id = CAST(#{elementId} AS INTEGER)
+	</sql>
+	
+	<delete id="DeleteElement">
+		<if test="elementType == 1"><include refid="deleteFolder"/></if>
+		<if test="elementType == 0"><include refid="deleteMedia"/></if>
+	</delete>
+	
+</mapper>

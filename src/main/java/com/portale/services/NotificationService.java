@@ -21,15 +21,15 @@ public class NotificationService {
 		return result == null ? 0 : result;
 	}
 
-	public void CreateNotification(NotificationObject notification, String title, String message, Long importancyLevel, Long from_user, int type) {
+	public void CreateNotification(NotificationObject notification, String title, String message, int importancyLevel, int from_user, int type) {
 		mapper.CreateNotification(notification, new Date().getTime(), title, message, importancyLevel, from_user, type);
 	}
 	
-	public void AppendNotificationToUser(Long ref_to, Long notification_ref) {
+	public void AppendNotificationToUser(int ref_to, int notification_ref) {
 		mapper.AppendNotificationToUser(ref_to, notification_ref);
 	}
 	
-	public Boolean isNotificationForUser(Long user_id, Long notificationId)
+	public Boolean isNotificationForUser(int user_id, int notificationId)
 	{
 		Integer ref_to = mapper.isNotificationForUser(user_id, notificationId);
 		if(ref_to != null)
@@ -39,11 +39,11 @@ public class NotificationService {
 		return false;
 	}
 	
-	public void SetNotificationAsSeen(Long user_id, Long notificationId) {
+	public void SetNotificationAsSeen(int user_id, int notificationId) {
 		mapper.SetNotificationAsSeen(user_id, notificationId);
 	}
 	
-	public NotificationObject GetNotificationById(Long user_id, Long notificationId)
+	public NotificationObject GetNotificationById(int user_id, int notificationId)
 	{
 		return mapper.GetNotificationById(user_id, notificationId);
 	}
@@ -52,7 +52,7 @@ public class NotificationService {
 		return mapper.GetAllNotifications(userId, limit, offset);
 	}
 	
-	public Boolean AnyUnseenNotifications(Long userRequestLogin) {
+	public Boolean AnyUnseenNotifications(int userRequestLogin) {
 		Boolean any = false;
 		try {
 			any = mapper.AnyUnseenNotifications(userRequestLogin);

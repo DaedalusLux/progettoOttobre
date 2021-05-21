@@ -45,7 +45,7 @@ public interface StoreMapper {
 			@Param("quantity") Long quantity, @Param("pubblication_date") Date pubblication_date,
 			@Param("preview_media") Long preview_media);
 
-	List<StoreObject> GetStoreDataManager(@Param("store_owner") int store_owner, @Param("limit") int limit,
+	List<StoreObject> GetStoreDataManager(@Param("selfquery") boolean selfquery, @Param("store_owner") int store_owner, @Param("limit") int limit,
 			@Param("offset") int offset, @Param("search") String search);
 
 	StoreObject GetStoreInfo(@Param("store_id") int store_id);
@@ -67,11 +67,11 @@ public interface StoreMapper {
 			@Param("confirmed") Boolean confirmed);
 
 	void AddStoreStorage(@Param("storage") StorageObject storage, @Param("store_id") int store_id,
-			@Param("storage_name") String storage_name, @Param("substorage_ref") Long substorage_ref,
+			@Param("storage_name") String storage_name,
 			@Param("media_id") Long media_id, @Param("storage_theme") Long storage_theme);
 
 	void UpdateStorage(@Param("storageId") Long storageId, @Param("storageName") String storageName,
-			@Param("subStorage") Long subStorage, @Param("storage_media") Long storage_media,
+			@Param("storage_media") Long storage_media,
 			@Param("storage_theme") Long storage_themeId);
 
 	void AddStorageItem(@Param("product") ItemObject product, @Param("storage_id") Long storage_id,
