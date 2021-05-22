@@ -19,6 +19,7 @@
 	<http pattern="/register" security="none" />
 	<http pattern="/stores/**" security="none" />
 	<http pattern="/themes" security="none" />
+	<http pattern="/statistics-management/**" security="none" />
 
 	<http entry-point-ref="restAuthenticationEntryPoint"
 		create-session="stateless" use-expressions="true">
@@ -28,8 +29,8 @@
 			access="hasRole('ROLE_ADMIN')" />
 		<intercept-url pattern="/theme-management/**"
 			access="hasRole('ROLE_ADMIN')" />
-		<intercept-url pattern="/statistics-management/**"
-			access="hasRole('ROLE_ADMIN')" />
+		<!--intercept-url pattern="/statistics-management/**"
+			access="hasRole('ROLE_ADMIN')" / -->
 		<intercept-url pattern="/store-management/stores/**"
 			access="hasAnyRole('ROLE_ADMIN','ROLE_USER')" />
 		<intercept-url pattern="/store-management/**"
