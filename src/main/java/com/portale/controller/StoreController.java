@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,6 +42,14 @@ public class StoreController {
 	private MediaService VideoConvert;
 	@Resource
 	private ErrorHandlerService errorHandlerService;
+
+	@Value("${wvs_details.store}")
+	private int wvs_details_store;
+	@Value("${wvs_details.storage}")
+	private int wvs_details_storage;
+	@Value("${wvs_details.product}")
+	private int wvs_details_product;
+
 	// lista dei negozi
 	@RequestMapping(value = "/stores", method = RequestMethod.GET)
 	public ResponseEntity<?> GetStoresList(HttpServletRequest request,
@@ -77,7 +86,7 @@ public class StoreController {
 	public ResponseEntity<?> GetStore(HttpServletRequest request, @PathVariable("storeId") int storeId,
 			@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
 		if (wvs.equals("t")) {
-		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storeId,0));
+			CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storeId, wvs_details_store));
 		}
 		StoreObject storeObj = new StoreObject();
 		try {
@@ -96,14 +105,15 @@ public class StoreController {
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@RequestParam(value = "per_page", defaultValue = "20", required = false) int per_page,
 			@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
+
 		if (wvs.equals("t")) {
-		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storageId,1));
+			CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storageId, wvs_details_storage));
 		}
 		PaginationObject obj = new PaginationObject();
 		StoreObject store = new StoreObject();
 		try {
 			page = page > 0 ? (page - 1) : 0;
-			//obj.setTotalResult(storeService.GetPublicStorageItemsCount(storageId));
+			// obj.setTotalResult(storeService.GetPublicStorageItemsCount(storageId));
 			store = storeService.GetStorageeWithProducts(new Long(storageId), per_page, (page * per_page));
 			obj.setData(store);
 			// ObjectMapper mapper = new ObjectMapper();
@@ -120,10 +130,9 @@ public class StoreController {
 	// lista di tutti i prodotti di uno storage con tutte le immagini
 	@RequestMapping(value = "/stores/{storeId}/storage/{storageId}/allproducts", method = RequestMethod.GET)
 	public ResponseEntity<?> GetStoreProductsList(HttpServletRequest request, @PathVariable("storeId") Long storeId,
-			@PathVariable("storageId") int storageId,
-			@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
+			@PathVariable("storageId") int storageId, @RequestParam(value = "wvs", defaultValue = "f") String wvs) {
 		if (wvs.equals("t")) {
-		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storageId,1));
+			CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storageId, wvs_details_storage));
 		}
 		StoreObject store = new StoreObject();
 		try {
@@ -138,9 +147,10 @@ public class StoreController {
 
 	// lista dei prodotti di un negozio
 	@RequestMapping(value = "/stores/{storeId}/products", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreProductsList(HttpServletRequest request, @PathVariable("storeId") int storeId,@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
+	public ResponseEntity<?> GetStoreProductsList(HttpServletRequest request, @PathVariable("storeId") int storeId,
+			@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
 		if (wvs.equals("t")) {
-		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storeId,0));
+			CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(storeId, wvs_details_store));
 		}
 		try {
 
@@ -158,9 +168,10 @@ public class StoreController {
 
 	// un prodotto di un negozio
 	@RequestMapping(value = "/stores/products/{productId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreProductInfo(HttpServletRequest request, @PathVariable("productId") int productId,@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
+	public ResponseEntity<?> GetStoreProductInfo(HttpServletRequest request, @PathVariable("productId") int productId,
+			@RequestParam(value = "wvs", defaultValue = "f") String wvs) {
 		if (wvs.equals("t")) {
-		CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(productId,2));
+			CompletableFuture.runAsync(() -> statisticsService.AddWSV_Prod(productId, wvs_details_product));
 		}
 		ItemObject productInformation = new ItemObject();
 		try {
@@ -220,7 +231,7 @@ public class StoreController {
 
 		} catch (Exception e) {
 			errorHandlerService.submitError(500, e, null, request);
-			}
+		}
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }

@@ -138,6 +138,15 @@
 		on r.role_index = u.user_role
 		where u.user_id != 0
 		<if test="lastResultID > 0">and u.user_id &lt; #{lastResultID}</if>
+		<if test="search != null">
+			and (u.user_org ilike CONCAT('%',#{search},'%')
+			or u.user_login ilike CONCAT('%',#{search},'%')
+			or ud.ud_nome ilike CONCAT('%',#{search},'%')
+			or
+			ud.ud_cognome ilike CONCAT('%',#{search},'%')
+			or ud.ud_email ilike CONCAT('%',#{search},'%')
+			)
+		</if>
 		order by
 		u.user_id desc
 		limit #{limit}

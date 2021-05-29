@@ -8,7 +8,7 @@
 		select s.store_name as el_name, wvs_today, wvs_all, wvs_obj_id as el_id from webstatistics_visits_short
 inner join (
 select store_id, store_name 
-from stores
+from store
 )s on s.store_id = wvs_obj_id
 order by wvs_all desc, wvs_today desc, store_name asc
 limit 10
@@ -29,7 +29,7 @@ limit 10
 inner join (
 select storage_id, storage_name 
 from storage
-inner join (select store_id from stores where store_depth != 0)x on x.store_id = store_ref
+inner join (select store_id from store where store_depth != 0)x on x.store_id = store_ref
 )s on s.storage_id = wvs_obj_id
 order by wvs_all desc, wvs_today desc, storage_name asc
 limit 10

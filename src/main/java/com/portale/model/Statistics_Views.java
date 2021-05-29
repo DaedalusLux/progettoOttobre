@@ -1,6 +1,7 @@
 package com.portale.model;
 
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.List;
 
 //webstatistics_visits
@@ -10,6 +11,16 @@ public class Statistics_Views {
 	private Date datetime;
 	private Long msdatetime;
 	private List<StatisticDetailsObj> sdo;
+	
+	private enum WSV_TYPE {
+			BA(0);
+
+			WSV_TYPE(int i) {
+				// TODO Auto-generated constructor stub
+			}
+	}
+	
+	EnumMap<WSV_TYPE, String> enumMap = new EnumMap<WSV_TYPE, String>(WSV_TYPE.class);
 	
 	public Long getStatistic_id() {
 		return statistic_id;

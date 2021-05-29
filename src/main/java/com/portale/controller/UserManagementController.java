@@ -83,7 +83,9 @@ public class UserManagementController {
 		List<UserObject> UsersDetails = new ArrayList<UserObject>();
 		try {
 			UsersDetails = userService.GetUsersDetailsData((per_page > 0 ? per_page : 20), abstractN, ((page > 0 ? (page - 1) : 0) * per_page), lastResultID, search);
-			obj.setPSO(UsersDetails.get(0).getPSO());
+			if(UsersDetails.size()>0) {
+				obj.setPSO(UsersDetails.get(0).getPSO());
+			}
 			obj.setData(UsersDetails);
 			return new ResponseEntity<>(obj, HttpStatus.OK);
 		} catch (Exception e) {
