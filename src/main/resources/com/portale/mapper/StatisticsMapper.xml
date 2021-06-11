@@ -55,7 +55,6 @@ limit 10
 	<insert id="AddWebSiteVisit">
 		insert into webstatistics_visits(ipaddress, datetime, wv_obj_id, wv_details)
 		values (#{host},#{datetime}, #{wv_obj_id}, #{wv_details})
-		
 	</insert>
 	
 	<resultMap id="wvs_prod" type="StatisticDetailsObj">
@@ -64,7 +63,9 @@ limit 10
 	</resultMap>
 	
 	<select id="GetWSV_Prod" resultMap="wvs_prod">
-		SELECT wvs_today as today, wvs_all as all
+		SELECT (CASE WHEN (wvs_date != current_date) THEN 0
+				ELSE wvs_today
+			   END) as today, wvs_all as all
 		FROM webstatistics_visits_short
 		WHERE wvs_obj_id = #{wvs_obj_id} AND wvs_details = #{wvs_details}
 	</select>

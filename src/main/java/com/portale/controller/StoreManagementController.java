@@ -225,13 +225,13 @@ public class StoreManagementController {
 			// If it's confirmed store must have a storage
 			// By default if user request a store, no storage is added before store is
 			// confirmed
-			/*if (request.isUserInRole("ROLE_ADMIN")) {
+			if (request.isUserInRole("ROLE_ADMIN") && _store.getStore_depth() == 0) {
 				StorageObject storageObj = new StorageObject();
 				storeService.AddStoreStorage(storageObj, _store.getStore_id().intValue(), "Prodotti", null,
 						_store.getStore_depth() == 0 ? _store.getTheme().getThemeId() : new Long(1));
 				CompletableFuture
 						.runAsync(() -> statisticsService.CreateWSV_Prod(storageObj.getStorage_id().intValue(), 1));
-			}*/
+			}
 
 			NotificationObject notification = new NotificationObject();
 

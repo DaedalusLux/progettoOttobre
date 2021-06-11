@@ -187,10 +187,12 @@ public class StoreController {
 	}
 
 	@RequestMapping(value = "/stores/categories", method = RequestMethod.GET)
-	public ResponseEntity<?> GetStoreCategories(HttpServletRequest request) {
+	public ResponseEntity<?> GetStoreCategories(HttpServletRequest request,
+			@RequestParam(value = "dett") int dett
+			) {
 		try {
-			List<String> storeCategories = storeService.GetStoreCategories();
-			return new ResponseEntity<>(storeCategories, HttpStatus.OK);
+			List<String> lstCategories = storeService.GetStoreCategories(dett);
+			return new ResponseEntity<>(lstCategories, HttpStatus.OK);
 		} catch (Exception e) {
 			errorHandlerService.submitError(500, e, null, request);
 		}

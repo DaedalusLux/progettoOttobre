@@ -66,6 +66,16 @@
 		select distinct
 		s.store_tags from store s where store_tags is not NULL
 	</select>
+	
+	<select id="GetCategoryCategoriesList" resultType="string">
+		select distinct
+		s.store_tags from store s where store_tags is not NULL
+	</select>
+	
+	<select id="GetProductCategoriesList" resultType="string">
+		select distinct
+		i.item_tags from storage_items i where item_tags is not NULL
+	</select>
 
 	<!-- Seleziona ogni tema -->
 	<select id="GetThemesData" resultMap="StoreThemesResultMap">
@@ -925,9 +935,9 @@ t.* , it.item_type_desc,
 		<result property="store_items_type" column="items_type" />
 		<result property="store_items_type_desc" column="item_type_desc" />
 		<association property="theme" javaType="ThemeObject">
-			<id property="themeId" column="storage_theme" />
-			<result property="themeName" column="display_name" />
-			<result property="themePreviewImage" column="thumbnail_path" />
+			<id property="themeId" column="theme_id" />
+			<result property="themeName" column="theme_display_name" />
+			<result property="themePreviewImage" column="theme_thumbnail_path" />
 		</association>
 		<association property="storage_media" javaType="MediaObject">
 			<id property="media_id" column="media_id" />

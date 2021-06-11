@@ -83,10 +83,20 @@ public class StoreService {
 				shipment_included, quality, quantity, pubblication_date, preview_media);
 	}
 
-	public List<String> GetStoreCategories() {
-		List<String> storeCategories = new ArrayList<String>();
-		storeCategories = (List<String>) mapper.GetStoreCategoriesList();
-		return storeCategories;
+	public List<String> GetStoreCategories(int dett) {
+		List<String> lstCategories = new ArrayList<String>();
+		switch (dett) {
+		case 0:
+			lstCategories = (List<String>) mapper.GetStoreCategoriesList();
+			break;
+		case 1:
+			lstCategories = (List<String>) mapper.GetCategoryCategoriesList();
+			break;
+		case 2:
+			lstCategories = (List<String>) mapper.GetProductCategoriesList();
+			break;
+		}
+		return lstCategories;
 	}
 
 	public List<StoreObject> GetStoreData() {

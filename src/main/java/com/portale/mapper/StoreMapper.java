@@ -24,7 +24,11 @@ public interface StoreMapper {
 	StorageObject GetStorageInfo(@Param("storageId") Long storageId);
 
 	List<String> GetStoreCategoriesList();
-
+	
+	List<String> GetCategoryCategoriesList();
+	
+	List<String> GetProductCategoriesList();
+	
 	List<StoreObject> GetStoreData();
 
 	List<StorageObject> GetStoreProductsManager(@Param("storeId") Long storeId);
