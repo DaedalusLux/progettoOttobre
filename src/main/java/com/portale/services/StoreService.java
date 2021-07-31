@@ -108,6 +108,9 @@ public class StoreService {
 	public List<StoreObject> GetStoreData(boolean selfquery, int userId, int limit, int offset, String search) {
 		return mapper.GetStoreDataManager(selfquery, userId, limit, offset, search);
 	}
+	public int GetStoreData_Count(boolean selfquery, int userId, String search) {
+		return mapper.GetStoreDataManager_Count(selfquery, userId, search);
+	}
 
 	public StoreObject GetStoreInfo(int store_id, HttpServletRequest request) {
 		StoreObject storeInfo = new StoreObject();

@@ -44,7 +44,7 @@
 			and media_folder.mf_ref = (select mf_id from media_folder where mf_owner = #{id} and mf_ref is null)
 		</otherwise>
 		</choose>
-		order by mf_name
+		order by mf_id
 		desc
 	</select>
 	
@@ -67,7 +67,7 @@
 			and media_folder_ref = (select mf_id from media_folder where mf_owner = #{id} and mf_ref is null)
 		</otherwise>
 		</choose>
-		order by media_name
+		order by media_id
 		desc
 	</select>
 	<!-- TODELETE

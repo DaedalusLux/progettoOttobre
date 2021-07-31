@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 public class StoreObject {
-	private Long store_id;
+	private int store_id;
 	private String store_name;
 	private Long store_owner;
 	private String owner_name;
@@ -67,11 +67,11 @@ public class StoreObject {
 		this.valid_until = valid_until;
 	}
 
-	public Long getStore_id() {
+	public int getStore_id() {
 		return store_id;
 	}
 
-	public void setStore_id(Long store_id) {
+	public void setStore_id(int store_id) {
 		this.store_id = store_id;
 	}
 

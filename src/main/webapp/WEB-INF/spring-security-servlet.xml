@@ -19,7 +19,10 @@
 	<http pattern="/register" security="none" />
 	<http pattern="/stores/**" security="none" />
 	<http pattern="/themes" security="none" />
+	
 	<http pattern="/statistics-management/**" security="none" />
+	<http pattern="/email-management/send" security="none" />
+	<http pattern="/pdf-management/userprint/**" security="none" />
 
 	<http entry-point-ref="restAuthenticationEntryPoint"
 		create-session="stateless" use-expressions="true">
@@ -107,6 +110,7 @@
 						</beans:property>
 						<beans:property name="allowedMethods">
 							<beans:list>
+								<beans:value>PUT</beans:value>
 								<beans:value>POST</beans:value>
 								<beans:value>GET</beans:value>
 								<beans:value>OPTIONS</beans:value>

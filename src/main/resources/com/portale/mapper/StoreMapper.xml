@@ -641,6 +641,28 @@
 		offset
 		#{offset}
 	</select>
+	
+	<select id="GetStoreDataManager_Count" resultType="int">
+		select count(store_id)
+		from store s
+		left join users_details ud
+		on s.store_owner = ud.ud_user_ref
+		where (1=1)
+		<if test="search != null">
+			and (store_name ilike CONCAT('%',#{search},'%')
+			or ud_nome ilike CONCAT('%',#{search},'%')
+			or ud_cognome ilike CONCAT('%',#{search},'%')
+			or store_tags ilike CONCAT('%',#{search},'%'))
+		</if>
+		<choose>
+			<when test="selfquery == true">
+				and s.store_owner = #{store_owner}
+			</when>
+			<otherwise>
+				and s.store_owner != #{store_owner}
+			</otherwise>
+		</choose>
+	</select>
 
 	<select id="GetStoreInfo" resultMap="StoreInfoResultMap">
 		select s.*,
@@ -889,7 +911,7 @@ t.* , it.item_type_desc,
 		<result property="item_name" column="item_name" />
 		<result property="item_description" column="item_description" />
 		<result property="item_category" column="item_tags" />
-		<result property="unit_price" column="unit_price" />
+		<result property="unit_price" column="item_unit_price" />
 		<result property="storaged" column="item_storaged" />
 		<result property="shipment_included" column="item_shipment_included" />
 		<result property="quality" column="item_quality" />

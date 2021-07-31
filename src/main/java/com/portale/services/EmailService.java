@@ -1,6 +1,7 @@
 package com.portale.services;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 
@@ -22,6 +23,14 @@ public class EmailService {
 	List<String> recipients = new ArrayList<String>();
 	String from = "materialeinvendita@yahoo.com";
 	String host = "smtp.mail.yahoo.com";
+	
+	public boolean CheckForSpam(String text_toCheck, String BASE64) {
+		String text_toAvoid = new String(Base64.getDecoder().decode(BASE64));
+		if(text_toCheck.contains(text_toAvoid))
+			return true;
+		else return false;
+	}
+	
 	
 	public void Send(String messageTitle, String messageContent, List<String> emailAdress) {
 		Properties properties = System.getProperties();

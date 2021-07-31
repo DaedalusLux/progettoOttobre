@@ -285,12 +285,26 @@ public class UserManagementController {
 			} else if (fileType.toLowerCase().equals("jpg") || fileType.toLowerCase().equals("jpeg") || fileType.toLowerCase().equals("jfif") || fileType.toLowerCase().equals("pjpeg")
 					|| fileType.toLowerCase().equals("pjp") || fileType.toLowerCase().equals("png") || fileType.toLowerCase().equals("gif") || fileType.toLowerCase().equals("bmp")
 					|| fileType.toLowerCase().equals("tiff") || fileType.toLowerCase().equals("tif") || fileType.toLowerCase().equals("webp")) {
-								
-				media.setMedia_path(mediaService.CompressIMGSCALR(file.getInputStream(), filePath, media.getMedia_path(),fileType.toLowerCase()));
-				media.setMedia_extension("."+fileType.toLowerCase());
-				media.setMedia_hasthumbnail(true);
-				
-				
+				if (fileType.toLowerCase().equals("gif")) {
+					media.setMedia_path(media.getMedia_path());
+					media.setMedia_extension("." + fileType.toLowerCase());
+					media.setMedia_hasthumbnail(false);
+					Files.copy(file.getInputStream(),
+							Paths.get(filePath + File.separator + media.getMedia_path() + "." + fileType.toLowerCase()),
+							StandardCopyOption.REPLACE_EXISTING);
+					try {
+						Files.setPosixFilePermissions(Paths.get(directory + File.separator + media.getMedia_path() + media.getMedia_extension()),
+								PosixFilePermissions.fromString("rw-rw-r--"));
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+					}
+				} else {
+					media.setMedia_path(mediaService.CompressIMGSCALR(file.getInputStream(), filePath,
+							media.getMedia_path(), fileType.toLowerCase()));
+					media.setMedia_extension("." + fileType.toLowerCase());
+					media.setMedia_hasthumbnail(true);
+				}
+
 			} else {
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
@@ -306,7 +320,7 @@ public class UserManagementController {
 		return new ResponseEntity<>(media.getMedia_id(), HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/user-management/users/media", method = RequestMethod.POST)
+	@RequestMapping(value = "/user-management/users/renamemedia", method = RequestMethod.PUT)
 	public ResponseEntity<?> RenameMediaElement(HttpServletRequest request, Authentication authentication, @RequestBody Map<String, String> r) {
 
 		MediaObject media = new MediaObject();
@@ -335,7 +349,7 @@ public class UserManagementController {
 	
 	
 	@RequestMapping(value = "/user-management/users/media", method = RequestMethod.DELETE)
-	public ResponseEntity<?> PostUsersMedia(HttpServletRequest request, Authentication authentication,
+	public ResponseEntity<?> DeleteUsersMedia(HttpServletRequest request, Authentication authentication,
 			@RequestBody Map<String, String> d) {
 
 		MediaObject media = new MediaObject();

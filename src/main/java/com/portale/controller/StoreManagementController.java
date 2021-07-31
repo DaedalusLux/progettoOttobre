@@ -23,6 +23,7 @@ import com.portale.model.HomeSettingsObj;
 import com.portale.model.ItemObject;
 import com.portale.model.NotificationObject;
 import com.portale.model.PaginationObject;
+import com.portale.model.PaginationSupportObject;
 import com.portale.model.StorageObject;
 import com.portale.model.StoreObject;
 import com.portale.security.model.AuthenticatedUser;
@@ -63,16 +64,21 @@ public class StoreManagementController {
 
 		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 		try {
+			PaginationSupportObject pso = new PaginationSupportObject();
 			page = page > 0 ? (page - 1) : 0;
 			if (request.isUserInRole("ROLE_ADMIN")) {
 				// obj.setTotalResult(2);
 				storesList = storeService.GetStoreData((tp.equals("main") ? true : false), u.getUsr_id(), per_page,
 						(page * per_page), search);
+				pso.setTotalResults(storeService.GetStoreData_Count((tp.equals("main") ? true : false), u.getUsr_id(), search));
 			} else {
 				// obj.setTotalResult(storeService.GetStoresCount((int) u.getUsr_id(), search));
 				storesList = storeService.GetStoreData(true, u.getUsr_id(), per_page, (page * per_page), search);
+				pso.setTotalResults(storeService.GetStoreData_Count(true, u.getUsr_id(), search));
 			}
 			obj.setData(storesList);
+			pso.setLastResultID(storesList.size() > 0 ? storesList.get(storesList.size()-1).getStore_id() : 0);
+			obj.setPSO(pso);
 
 			return new ResponseEntity<>(obj, HttpStatus.OK);
 		} catch (Exception e) {
@@ -227,7 +233,7 @@ public class StoreManagementController {
 			// confirmed
 			if (request.isUserInRole("ROLE_ADMIN") && _store.getStore_depth() == 0) {
 				StorageObject storageObj = new StorageObject();
-				storeService.AddStoreStorage(storageObj, _store.getStore_id().intValue(), "Prodotti", null,
+				storeService.AddStoreStorage(storageObj, _store.getStore_id(), _store.getItems_type() == 2 ? "Servizi" : "Prodotti", null,
 						_store.getStore_depth() == 0 ? _store.getTheme().getThemeId() : new Long(1));
 				CompletableFuture
 						.runAsync(() -> statisticsService.CreateWSV_Prod(storageObj.getStorage_id().intValue(), 1));
@@ -266,7 +272,7 @@ public class StoreManagementController {
 				int currentU = U.get(a);
 				notificationService.AppendNotificationToUser(currentU, notification.getNotification_id());
 			}
-			CompletableFuture.runAsync(() -> statisticsService.CreateWSV_Prod(_store.getStore_id().intValue(), 0));
+			CompletableFuture.runAsync(() -> statisticsService.CreateWSV_Prod(_store.getStore_id(), 0));
 			return new ResponseEntity<>(_store, HttpStatus.OK);
 		} catch (DataIntegrityViolationException e) {
 			errorHandlerService.submitError(409, e, authentication, request);

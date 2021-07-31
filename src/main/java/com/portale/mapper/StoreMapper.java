@@ -51,7 +51,8 @@ public interface StoreMapper {
 
 	List<StoreObject> GetStoreDataManager(@Param("selfquery") boolean selfquery, @Param("store_owner") int store_owner, @Param("limit") int limit,
 			@Param("offset") int offset, @Param("search") String search);
-
+	int GetStoreDataManager_Count(@Param("selfquery") boolean selfquery, @Param("store_owner") int store_owner, @Param("search") String search);
+	
 	StoreObject GetStoreInfo(@Param("store_id") int store_id);
 
 	StoreObject GetStoreInfo(@Param("store_id") int store_id, @Param("userName") String userName);
