@@ -8,7 +8,6 @@ public class MediaFolderObj {
 	private String media_folder_name;
 	private int media_folder_owner;
 	private String media_folder_color;
-	private String media_folder_path;
 	
 	private List<MediaFolderObj> media_folder_subfolder;
 	private List<MediaObject> media_folder_media;
@@ -54,11 +53,5 @@ public class MediaFolderObj {
 	}
 	public void setMedia_folder_subfolder(List<MediaFolderObj> media_folder_subfolder) {
 		this.media_folder_subfolder = media_folder_subfolder;
-	}
-	public String getMedia_folder_path() {
-		return media_folder_path;
-	}
-	public void setMedia_folder_path(String media_folder_path) {
-		this.media_folder_path = media_folder_path;
 	}
 }

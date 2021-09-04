@@ -33,12 +33,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.portale.model.MediaFolderObj;
 import com.portale.model.MediaObject;
 import com.portale.model.PaginationObject;
+import com.portale.model.UsedMediaStructureObj;
 import com.portale.model.UserObject;
 import com.portale.security.model.AuthenticatedUser;
 import com.portale.services.UserService;
 import com.portale.services.ErrorHandlerService;
 import com.portale.services.FilesStorageService;
 import com.portale.services.MediaService;
+
+import com.portale.config.Globals;
 
 @RestController
 public class UserManagementController {
@@ -58,7 +61,7 @@ public class UserManagementController {
 	private MediaService mediaService;
 	@Resource
 	private ErrorHandlerService errorHandlerService;
-	
+
 	// GET self user data
 	@RequestMapping(value = "/user-management/user", method = RequestMethod.GET)
 	public ResponseEntity<?> GetUser(HttpServletRequest request, Authentication authentication) {
@@ -73,17 +76,19 @@ public class UserManagementController {
 
 	// GET list of users data
 	@RequestMapping(value = "/user-management/users", method = RequestMethod.GET)
-	public ResponseEntity<?> GetUsersList(HttpServletRequest request, Authentication authentication, @RequestParam(value = "page", defaultValue = "1", required = false) int page,
+	public ResponseEntity<?> GetUsersList(HttpServletRequest request, Authentication authentication,
+			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@RequestParam(value = "per_page", defaultValue = "10", required = false) int per_page,
 			@RequestParam(value = "lastResultID", defaultValue = "-1", required = false) int lastResultID,
-			@RequestParam(value = "abstractN", defaultValue = "false", required = false) boolean abstractN,			
+			@RequestParam(value = "abstractN", defaultValue = "false", required = false) boolean abstractN,
 			@RequestParam(value = "search", required = false) String search) {
 
 		PaginationObject obj = new PaginationObject();
 		List<UserObject> UsersDetails = new ArrayList<UserObject>();
 		try {
-			UsersDetails = userService.GetUsersDetailsData((per_page > 0 ? per_page : 20), abstractN, ((page > 0 ? (page - 1) : 0) * per_page), lastResultID, search);
-			if(UsersDetails.size()>0) {
+			UsersDetails = userService.GetUsersDetailsData((per_page > 0 ? per_page : 20), abstractN,
+					((page > 0 ? (page - 1) : 0) * per_page), lastResultID, search);
+			if (UsersDetails.size() > 0) {
 				obj.setPSO(UsersDetails.get(0).getPSO());
 			}
 			obj.setData(UsersDetails);
@@ -96,8 +101,8 @@ public class UserManagementController {
 
 	// GET user data from id
 	@RequestMapping(value = "/user-management/users/{id}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetUserInfo(HttpServletRequest request,
-			Authentication authentication, @PathVariable("id") int usr_id) {
+	public ResponseEntity<?> GetUserInfo(HttpServletRequest request, Authentication authentication,
+			@PathVariable("id") int usr_id) {
 
 		UserObject UserInfo = new UserObject();
 		try {
@@ -136,13 +141,17 @@ public class UserManagementController {
 				}
 			}
 
-			/*!userService.updateUserData(u.getUsr_id(), _userdetails.getUsr_organization(),
-					isUserAdmin ? _userdetails.getUsr_username() : null,
-					updatePassword ? _userdetails.getUsr_password() : null,
-					isUserAdmin ? _userdetails.getLocked() : null, isUserAdmin ? _userdetails.getRole_id() : null,
-					_userdetails.getNome(), _userdetails.getCognome(), _userdetails.getEmail(),
-					_userdetails.getTelefono(), _userdetails.getIndirizzo(), _userdetails.getCitta(),
-					_userdetails.getProvincia(), _userdetails.getCodicePostale());*/
+			/*
+			 * !userService.updateUserData(u.getUsr_id(),
+			 * _userdetails.getUsr_organization(), isUserAdmin ?
+			 * _userdetails.getUsr_username() : null, updatePassword ?
+			 * _userdetails.getUsr_password() : null, isUserAdmin ? _userdetails.getLocked()
+			 * : null, isUserAdmin ? _userdetails.getRole_id() : null,
+			 * _userdetails.getNome(), _userdetails.getCognome(), _userdetails.getEmail(),
+			 * _userdetails.getTelefono(), _userdetails.getIndirizzo(),
+			 * _userdetails.getCitta(), _userdetails.getProvincia(),
+			 * _userdetails.getCodicePostale());
+			 */
 
 			return new ResponseEntity<>(HttpStatus.OK);
 
@@ -161,11 +170,11 @@ public class UserManagementController {
 				BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 				_userdetails.setUsr_password(passwordEncoder.encode(_userdetails.getUsr_password()));
 			}
-			userService.updateUserData(usr_id, _userdetails.getUsr_organization(), null,
-					_userdetails.getUsr_password(), _userdetails.getLocked(), _userdetails.getRole_id(),
-					_userdetails.getNome(), _userdetails.getCognome(), _userdetails.getEmail(),
-					_userdetails.getTelefono(), _userdetails.getIndirizzo(), _userdetails.getCitta(),
-					_userdetails.getProvincia(), _userdetails.getCodicePostale());
+			userService.updateUserData(usr_id, _userdetails.getUsr_organization(), null, _userdetails.getUsr_password(),
+					_userdetails.getLocked(), _userdetails.getRole_id(), _userdetails.getNome(),
+					_userdetails.getCognome(), _userdetails.getEmail(), _userdetails.getTelefono(),
+					_userdetails.getIndirizzo(), _userdetails.getCitta(), _userdetails.getProvincia(),
+					_userdetails.getCodicePostale());
 			return new ResponseEntity<>(HttpStatus.OK);
 
 		} catch (Exception e) {
@@ -188,12 +197,13 @@ public class UserManagementController {
 	}
 
 	@RequestMapping(value = "/user-management/users/media/{parentFolderId}", method = RequestMethod.GET)
-	public ResponseEntity<?> GetUsersMediaList(HttpServletRequest request, Authentication authentication, @PathVariable("parentFolderId") int parentFolderId) {
+	public ResponseEntity<?> GetUsersMediaList(HttpServletRequest request, Authentication authentication,
+			@PathVariable("parentFolderId") int parentFolderId) {
 
 		MediaFolderObj mediaFolders = new MediaFolderObj();
 		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 		try {
-			mediaFolders = mediaService.GetUserMediaList(parentFolderId, u.getUsr_id());
+			mediaFolders = mediaService.GetUserFolderList(parentFolderId, u.getUsr_id());
 		} catch (Exception e) {
 			errorHandlerService.submitError(500, e, authentication, request);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -215,19 +225,18 @@ public class UserManagementController {
 			"multipart/form-data" })
 	public ResponseEntity<?> PostUsersMedia(HttpServletRequest request, Authentication authentication,
 			@RequestParam(value = "fileUpload[]", required = true) MultipartFile file,
-			@RequestParam(value = "pid", defaultValue = "-1", required = false) int parentId,
-			@RequestParam(value = "path", defaultValue = "", required = false) String parentPath) {
+			@RequestParam(value = "pid", defaultValue = "-1", required = false) int parentId) {
 
 		MediaObject media = new MediaObject();
 		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 
 		try {
 			media.setMedia_name(file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.')));
-			media.setMedia_path((parentPath != "" ? (parentPath+"//") : "")+randomString(24));
+			media.setMedia_path(randomString(64));
 			media.setMedia_owner(u.getUsr_id());
 			media.setMedia_pubblication_date(new Date());
 			media.setMedia_size(file.getSize());
-			
+
 			String filePath = String.format("%s//%s", archive, u.getUsr_id());
 			File directory = new File(filePath);
 			Path path = Paths.get(filePath);
@@ -243,10 +252,11 @@ public class UserManagementController {
 			String fileType = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1,
 					file.getOriginalFilename().length());
 
-			if (fileType.toLowerCase().equals("mp4") || fileType.toLowerCase().equals("webm") || fileType.toLowerCase().equals("mkv") || fileType.toLowerCase().equals("3gpp")
-					|| fileType.toLowerCase().equals("ogg") || fileType.toLowerCase().equals("avi") || fileType.toLowerCase().equals("wmv")) {
-				
-				
+			if (fileType.toLowerCase().equals("mp4") || fileType.toLowerCase().equals("webm")
+					|| fileType.toLowerCase().equals("mkv") || fileType.toLowerCase().equals("3gpp")
+					|| fileType.toLowerCase().equals("ogg") || fileType.toLowerCase().equals("avi")
+					|| fileType.toLowerCase().equals("wmv")) {
+
 				Files.copy(file.getInputStream(),
 						Paths.get(tempDirectory + File.separator + file.getOriginalFilename()),
 						StandardCopyOption.REPLACE_EXISTING);
@@ -259,14 +269,15 @@ public class UserManagementController {
 				}
 
 				String donePath = String.format("%s//%s", tempDirectory, file.getOriginalFilename() + ".done");
-				
+
 				Path videoOutputPath = Paths.get(donePath);
 
-				mediaService.convert(media.getMedia_owner(), file.getOriginalFilename(), media.getMedia_path() + ".webm");
-				
-				
+				mediaService.convert(media.getMedia_owner(), file.getOriginalFilename(),
+						media.getMedia_path() + ".webm");
+
 				try {
-					Files.setPosixFilePermissions(Paths.get(directory + File.separator + media.getMedia_path() + ".webm"),
+					Files.setPosixFilePermissions(
+							Paths.get(directory + File.separator + media.getMedia_path() + ".webm"),
 							PosixFilePermissions.fromString("rw-rw-r--"));
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
@@ -277,14 +288,17 @@ public class UserManagementController {
 
 				File originalVideoFile = new File(String.format("%s//%s", tempDirectory, file.getOriginalFilename()));
 				originalVideoFile.delete();
-				
+
 				media.setMedia_path(media.getMedia_path());
 				media.setMedia_extension(".webm");
 				media.setMedia_hasthumbnail(false);
 
-			} else if (fileType.toLowerCase().equals("jpg") || fileType.toLowerCase().equals("jpeg") || fileType.toLowerCase().equals("jfif") || fileType.toLowerCase().equals("pjpeg")
-					|| fileType.toLowerCase().equals("pjp") || fileType.toLowerCase().equals("png") || fileType.toLowerCase().equals("gif") || fileType.toLowerCase().equals("bmp")
-					|| fileType.toLowerCase().equals("tiff") || fileType.toLowerCase().equals("tif") || fileType.toLowerCase().equals("webp")) {
+			} else if (fileType.toLowerCase().equals("jpg") || fileType.toLowerCase().equals("jpeg")
+					|| fileType.toLowerCase().equals("jfif") || fileType.toLowerCase().equals("pjpeg")
+					|| fileType.toLowerCase().equals("pjp") || fileType.toLowerCase().equals("png")
+					|| fileType.toLowerCase().equals("gif") || fileType.toLowerCase().equals("bmp")
+					|| fileType.toLowerCase().equals("tiff") || fileType.toLowerCase().equals("tif")
+					|| fileType.toLowerCase().equals("webp")) {
 				if (fileType.toLowerCase().equals("gif")) {
 					media.setMedia_path(media.getMedia_path());
 					media.setMedia_extension("." + fileType.toLowerCase());
@@ -293,7 +307,8 @@ public class UserManagementController {
 							Paths.get(filePath + File.separator + media.getMedia_path() + "." + fileType.toLowerCase()),
 							StandardCopyOption.REPLACE_EXISTING);
 					try {
-						Files.setPosixFilePermissions(Paths.get(directory + File.separator + media.getMedia_path() + media.getMedia_extension()),
+						Files.setPosixFilePermissions(Paths
+								.get(directory + File.separator + media.getMedia_path() + media.getMedia_extension()),
 								PosixFilePermissions.fromString("rw-rw-r--"));
 					} catch (Exception e) {
 						System.out.println(e.getMessage());
@@ -310,18 +325,20 @@ public class UserManagementController {
 			}
 
 			mediaService.PostUsersMedia(media, media.getMedia_name(), media.getMedia_path(), media.getMedia_owner(),
-					media.getMedia_pubblication_date(), media.isMedia_hasthumbnail(), media.getMedia_extension(), parentId, media.getMedia_size());
+					media.getMedia_pubblication_date(), media.isMedia_hasthumbnail(), media.getMedia_extension(),
+					parentId, media.getMedia_size());
 
 		} catch (Exception e) {
 			errorHandlerService.submitError(500, e, authentication, request);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		
+
 		return new ResponseEntity<>(media.getMedia_id(), HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/user-management/users/renamemedia", method = RequestMethod.PUT)
-	public ResponseEntity<?> RenameMediaElement(HttpServletRequest request, Authentication authentication, @RequestBody Map<String, String> r) {
+	public ResponseEntity<?> RenameMediaElement(HttpServletRequest request, Authentication authentication,
+			@RequestBody Map<String, String> r) {
 
 		MediaObject media = new MediaObject();
 		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
@@ -333,7 +350,7 @@ public class UserManagementController {
 			elId = r.get("itemID");
 			elName = r.get("itemName");
 			if (elId != null) {
-				if (mediaService.renameElement(elType, elId,elName,u.getUsr_id())) {
+				if (mediaService.renameElement(elType, elId, elName, u.getUsr_id())) {
 					return new ResponseEntity<>(HttpStatus.OK);
 				} else {
 					throw new Exception("Can't rename element");
@@ -346,52 +363,54 @@ public class UserManagementController {
 		}
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-	
-	
-	@RequestMapping(value = "/user-management/users/media", method = RequestMethod.DELETE)
-	public ResponseEntity<?> DeleteUsersMedia(HttpServletRequest request, Authentication authentication,
-			@RequestBody Map<String, String> d) {
 
-		MediaObject media = new MediaObject();
+	@RequestMapping(value = "/user-management/users/media", method = RequestMethod.DELETE, consumes = "application/json")
+	public ResponseEntity<?> DeleteUsersMedias(HttpServletRequest request, Authentication authentication,
+			@RequestBody List<String> elementsToDelete,
+			@RequestParam(value = "mode", required = false, defaultValue = "0") int mode) {
+
 		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
-		String elType = null;
-		String elId = null;
-		String elName = null;
 		try {
-			elType = d.get("itemType");
-			elId = d.get("itemID");
-			elName = d.get("itemName");
-			if (mediaService.deleteElement(elType, elId,elName,u.getUsr_id())) {
+			List<UsedMediaStructureObj> checkMediaUsage = new ArrayList<UsedMediaStructureObj>();
+			switch (Globals.getDeleteMode(mode)) {
+			case ALL:
+				mediaService.deleteElements(elementsToDelete, u.getUsr_id());
 				return new ResponseEntity<>(HttpStatus.OK);
-			} else {
-				throw new Exception("Can't rename element");
+			case ONLY_NOTUSED:
+				checkMediaUsage = mediaService.checkDeleteElements(elementsToDelete, u.getUsr_id());
+				if (checkMediaUsage.size() == 0) {
+					mediaService.deleteElements(elementsToDelete, u.getUsr_id());
+				} else {
+					return new ResponseEntity<>(checkMediaUsage, HttpStatus.ACCEPTED);
+				}
+				return new ResponseEntity<>(HttpStatus.OK);
+			case CUSTOM:
+				mediaService.deleteElements(elementsToDelete, u.getUsr_id());
+			case SAFE:
+			default:
+				checkMediaUsage = mediaService.checkDeleteElements(elementsToDelete, u.getUsr_id());
+				if (checkMediaUsage.size() == 0) {
+					mediaService.deleteElements(elementsToDelete, u.getUsr_id());
+				} else {
+					return new ResponseEntity<>(checkMediaUsage, HttpStatus.ACCEPTED);
+				}
+				return new ResponseEntity<>(HttpStatus.OK);
 			}
-			/*for (int m = 0; m < deleteMedia.length; m++) {
-				MediaObject mediaExist = mediaService.GetPathIfMediaExistById(deleteMedia[m], u.getUsr_id());
-				if (mediaExist.getMedia_id() != null) {
-					mediaService.DeleteMediaById(deleteMedia[m]);
-				}
-				String filePath = String.format("%s//%s", archive, u.getUsr_id());
-				File directory = new File(filePath);
-				Files.deleteIfExists(Paths.get(directory + File.separator + mediaExist.getMedia_path() + mediaExist.getMedia_extension()));
-				if(mediaExist.isMedia_hasthumbnail()) {
-					Files.deleteIfExists(Paths.get(directory + File.separator + mediaExist.getMedia_path() + "_thumb" + mediaExist.getMedia_extension()));		
-				}
-			}*/
-
 		} catch (Exception e) {
 			errorHandlerService.submitError(500, e, authentication, request);
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@RequestMapping(value = "/user-management/users/create", method = RequestMethod.POST, headers = "Accept=application/json")
-	public ResponseEntity<?> addNewUser(HttpServletRequest request, Authentication authentication,@RequestBody UserObject _userdetails) {
+	public ResponseEntity<?> addNewUser(HttpServletRequest request, Authentication authentication,
+			@RequestBody UserObject _userdetails) {
 
 		try {
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-			if(_userdetails.getUsr_username() == null && _userdetails.getUsr_password() == null) {
-				_userdetails.setUsr_username(_userdetails.getNome().toLowerCase()+_userdetails.getCodiceFiscale().substring(14,16).toLowerCase());
+			if (_userdetails.getUsr_username() == null && _userdetails.getUsr_password() == null) {
+				_userdetails.setUsr_username(_userdetails.getNome().toLowerCase()
+						+ _userdetails.getCodiceFiscale().substring(14, 16).toLowerCase());
 				_userdetails.setUsr_password("123456789");
 			}
 			String hashedPassword = passwordEncoder.encode(_userdetails.getUsr_password());
@@ -399,7 +418,8 @@ public class UserManagementController {
 			userService.addNewUser(_userdetails, _userdetails.getUsr_organization(), _userdetails.getUsr_username(),
 					hashedPassword, false, _userdetails.getNome(), _userdetails.getCognome(), _userdetails.getEmail(),
 					_userdetails.getTelefono(), _userdetails.getIndirizzo(), _userdetails.getCitta(),
-					_userdetails.getProvincia(), _userdetails.getCodicePostale(), _userdetails.getData_registrazione(), _userdetails.getCodiceFiscale());
+					_userdetails.getProvincia(), _userdetails.getCodicePostale(), _userdetails.getData_registrazione(),
+					_userdetails.getCodiceFiscale());
 
 			String userMediaDirPath = String.format("%s//%s", archive, _userdetails.getUsr_id());
 			File defaultImagedirectory = new File(userMediaDirPath);
@@ -423,25 +443,28 @@ public class UserManagementController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@RequestMapping(value = "/user-management/users/media/addfolder", method = RequestMethod.POST, headers = "Accept=application/json")
 	public ResponseEntity<?> PostUsersFolder(HttpServletRequest request, Authentication authentication,
 			@RequestBody Map<String, String> fp) {
 		int folderParent = -1;
 		try {
 			folderParent = Integer.parseInt(fp.get("parent"));
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 		String folderName = null;
-		String folderPath = null;
+		// String folderPath = null;
 		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 		try {
 			folderName = fp.get("name");
-			folderPath = fp.get("path");
+			// folderPath = fp.get("path");
 			if (folderName != null) {
-				if (mediaService.createFolder(folderParent,folderPath,folderName,u.getUsr_id())) {
+				if (mediaService.createFolder(folderParent, folderName, u.getUsr_id())) {
 					return new ResponseEntity<>(HttpStatus.OK);
 				} else {
-					throw new Exception("Can't create folder with params (folderParent:" + folderParent + ", folderPath:" + folderPath + ", folderName:" + folderName + ", uid:" + u.getUsr_id() + ")");
+					throw new Exception(
+							"Can't create folder with params (folderParent:" + folderParent + ", folderPath:"
+									+ "folderPath" + ", folderName:" + folderName + ", uid:" + u.getUsr_id() + ")");
 				}
 			} else {
 				throw new Exception("No folder path specified");

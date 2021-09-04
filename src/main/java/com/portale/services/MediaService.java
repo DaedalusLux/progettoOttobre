@@ -13,10 +13,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.RecursiveAction;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -34,6 +41,7 @@ import com.portale.mapper.MediaMapper;
 import com.portale.mapper.UserMapper;
 import com.portale.model.MediaFolderObj;
 import com.portale.model.MediaObject;
+import com.portale.model.UsedMediaStructureObj;
 
 @Service
 @Repository
@@ -126,7 +134,7 @@ public class MediaService {
 				Scalr.OP_ANTIALIAS);
 	}
 
-	public MediaFolderObj GetUserMediaList(int media_folder_ref, int id) {
+	public MediaFolderObj GetUserFolderList(int media_folder_ref, int id) {
 		MediaFolderObj mediaFolderObj = new MediaFolderObj();
 		List<MediaFolderObj> sub_mediaFolderObj = mediaMapper.GetUserMediaFolderList(media_folder_ref, id);
 		if(media_folder_ref == -1) {
@@ -160,33 +168,20 @@ public class MediaService {
 		return false;
 	}
 
-	public MediaObject GetPathIfMediaExistById(int media_id, int ownerId) {
+	public MediaObject GetPathIfMediaExistById(String media_id, int ownerId) {
 		return mediaMapper.GetPathIfMediaExistById(media_id, ownerId);
 	}
 
-	public void DeleteMediaById(int media_id) {
-		mediaMapper.DeleteMediaById(media_id);
+	public void DeleteMediaById(String media_id, int ownerId) {
+		mediaMapper.DeleteMediaById(media_id, ownerId);
 	}
 	
-	public boolean createFolder(int folder_ref, String path_to_parent, String folder_name, int ownerId) {
-		if(path_to_parent == null) {
-			path_to_parent = Integer.toString(ownerId);
-		}
-		String folderRealname = randomString(32);
-		 Path path = Paths.get(archive,Integer.toString(ownerId),path_to_parent,folderRealname);
-		 try {
-			Files.createDirectories(path);
-			mediaMapper.CreateMediaFolder(folder_ref, folder_name, ownerId, folderRealname);
-			try {
-				Files.setPosixFilePermissions(path,
-						PosixFilePermissions.fromString("rwxrwxrwx"));
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		} catch (IOException e2) {
-			e2.printStackTrace();
-			return false;
-		}
+	public void DeleteFolderById(String folder_id, int ownerId) {
+		mediaMapper.DeleteFolderById(folder_id, ownerId);
+	}
+	
+	public boolean createFolder(int folder_ref, String folder_name, int ownerId) {
+		mediaMapper.CreateMediaFolder(folder_ref, folder_name, ownerId);
 		return true;
 	}
 	
@@ -212,4 +207,216 @@ public class MediaService {
 		}
 		return res;
 	}
+	
+	//Restituisce la lista delle cartelle in quali si trovano le media assegnati ad un (negozio || storage || item)
+	public List<UsedMediaStructureObj> checkDeleteElements (List<String> s, int ownerID){
+		List<UsedMediaStructureObj> usedMediaStructureObj = new ArrayList<UsedMediaStructureObj>();
+		try {
+			//Dividiamo l'id del input delle media in cartelle e immagini
+			List<String> media = new ArrayList<String>();			
+			media = s.stream().filter(x -> x.contains("media")).collect(Collectors.toList());
+			List<String> folders = new ArrayList<String>();
+			folders = s.stream().filter(x -> x.contains("folder")).collect(Collectors.toList());
+			if(folders.size() > 0) {
+				for (int f = 0; f < folders.size(); f++) {
+					String fid = folders.get(f).substring(7);
+					List<MediaFolderObj> mfo = mediaMapper.GetAllSubFoldersByParentId(Integer.parseInt(fid), ownerID);
+
+					List<MediaObject> mo_tocheck = new ArrayList<MediaObject>();
+					mo_tocheck = Stream.concat(mo_tocheck.stream(), mediaMapper.GetUserMediaList(Integer.parseInt(fid), ownerID).stream()).collect(Collectors.toList());
+				 	for(int y = 0; y < mfo.size(); y++) {
+						mo_tocheck = Stream.concat(mo_tocheck.stream(), mediaMapper.GetUserMediaList(mfo.get(y).getMedia_folder_id(), ownerID).stream()).collect(Collectors.toList());
+					}
+					
+					for(int motd = 0; motd < mo_tocheck.size(); motd++) {
+						try {
+							UsedMediaStructureObj _usedMediaStructureObj = mediaMapper.CheckForUsedMediaById(String.valueOf(mo_tocheck.get(motd).getMedia_id()));
+							if(_usedMediaStructureObj.isAnyUsed()) {
+								usedMediaStructureObj.add(_usedMediaStructureObj);
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+							//TODO Aggiungere al log dei errroi
+						}
+					}
+				}
+			}
+			if (media.size() > 0) {
+				for (int m = 0; m < media.size(); m++) {
+					try {
+						String mid = media.get(m).substring(6);
+						UsedMediaStructureObj _usedMediaStructureObj = mediaMapper.CheckForUsedMediaById(mid);
+						if (_usedMediaStructureObj.isAnyUsed()) {
+							usedMediaStructureObj.add(_usedMediaStructureObj);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						// TODO Aggiungere al log dei errroi
+					}
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return usedMediaStructureObj;
+	}
+	
+	public void deleteElements(List<String> s, int ownerID) {
+		try {
+			List<String> media = new ArrayList<String>();			
+			media = s.stream().filter(x -> x.contains("media")).collect(Collectors.toList());
+			List<String> folders = new ArrayList<String>();
+			folders = s.stream().filter(x -> x.contains("folder")).collect(Collectors.toList());
+			if(folders.size() > 0) {
+				for (int f = 0; f < folders.size(); f++) {
+					String fid = folders.get(f).substring(7);
+					List<MediaFolderObj> mfo = mediaMapper.GetAllSubFoldersByParentId(Integer.parseInt(fid), ownerID);
+					List<MediaObject> mo_todelete = new ArrayList<MediaObject>();
+					mo_todelete = Stream.concat(mo_todelete.stream(), mediaMapper.GetUserMediaList(Integer.parseInt(fid), ownerID).stream()).collect(Collectors.toList());
+					for(int y = 0; y < mfo.size(); y++) {
+						mo_todelete = Stream.concat(mo_todelete.stream(), mediaMapper.GetUserMediaList(mfo.get(y).getMedia_folder_id(), ownerID).stream()).collect(Collectors.toList());
+					}
+					
+					for(int motd = 0; motd < mo_todelete.size(); motd++) {
+						try {
+						String filePath = String.format("%s//%s", archive, ownerID);
+						File directory = new File(filePath);
+						Files.deleteIfExists(Paths.get(directory + File.separator + mo_todelete.get(motd).getMedia_path() + mo_todelete.get(motd).getMedia_extension()));
+						if(mo_todelete.get(motd).isMedia_hasthumbnail()) {
+							Files.deleteIfExists(Paths.get(directory + File.separator + mo_todelete.get(motd).getMedia_path() + "_thumb" + mo_todelete.get(motd).getMedia_extension()));		
+						}
+						} catch (Exception e) {
+							e.printStackTrace();
+							//TODO Aggiungere al log dei errroi
+						}
+					}
+					List<String> mo_todelete_id = new ArrayList<String>();
+					for (MediaObject mObject : mo_todelete) {
+						mo_todelete_id.add(mObject.getMedia_id().toString());
+					}
+					mediaMapper.DeleteElement(String.valueOf(1), fid, "", ownerID);
+					
+					}
+			}
+			if (media.size() > 0) {
+				for (int m = 0; m < media.size(); m++) {
+					String mid = media.get(m).substring(6);
+					MediaObject mediaExist = GetPathIfMediaExistById(mid, ownerID);
+					if (mediaExist.getMedia_id() != null) {
+						DeleteMediaById(mid, ownerID);
+					}
+					try {
+						String filePath = String.format("%s//%s", archive, ownerID);
+						File directory = new File(filePath);
+						Files.deleteIfExists(Paths.get(directory + File.separator + mediaExist.getMedia_path() + mediaExist.getMedia_extension()));
+						if (mediaExist.isMedia_hasthumbnail()) {
+							Files.deleteIfExists(Paths.get(directory + File.separator + mediaExist.getMedia_path() + "_thumb" + mediaExist.getMedia_extension()));
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						// TODO Aggiungere al log dei errroi
+					}
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	public void deleteElements(List<String> s, int ownerID, List<UsedMediaStructureObj> usedMediaStructureObj) {
+		try {
+			List<String> media = new ArrayList<String>();
+			media = s.stream().filter(x -> x.contains("media")).collect(Collectors.toList());
+			List<String> folders = new ArrayList<String>();
+			folders = s.stream().filter(x -> x.contains("folder")).collect(Collectors.toList());
+			Set<String> RecursiveFolders = new HashSet<String>();
+			
+			if(folders.size() > 0) {
+				for (int f = 0; f < folders.size(); f++) {
+					String fid = folders.get(f).substring(7);
+					List<MediaFolderObj> mfo = mediaMapper.GetAllSubFoldersByParentId(Integer.parseInt(fid), ownerID);				
+					List<MediaObject> mo_todelete = new ArrayList<MediaObject>();
+					mo_todelete = Stream.concat(mo_todelete.stream(), mediaMapper.GetUserMediaList(Integer.parseInt(fid), ownerID).stream()).collect(Collectors.toList());
+					for(int y = 0; y < mfo.size(); y++) {
+						mo_todelete = Stream.concat(mo_todelete.stream(), mediaMapper.GetUserMediaList(mfo.get(y).getMedia_folder_id(), ownerID).stream()).collect(Collectors.toList());
+					}
+					
+					Iterator<MediaObject> imo = mo_todelete.iterator();
+					
+					while(imo.hasNext()) {
+						MediaObject mo = imo.next();
+						UsedMediaStructureObj _usedMediaStructureObj = usedMediaStructureObj.stream().filter(x -> x.getMedia_id() == mo.getMedia_id()).findFirst().get();
+						
+						if(_usedMediaStructureObj != null) {
+							//RecursiveFolders.add(_usedMediaStructureObj.getFolder_tree());
+	
+							imo.remove();
+						}
+					 }
+					
+					for (int j = 0; j < mo_todelete.size(); j++) {
+						
+					}
+					
+					
+					for(int motd = 0; motd < mo_todelete.size(); motd++) {
+						try {
+						String filePath = String.format("%s//%s", archive, ownerID);
+						File directory = new File(filePath);
+						Files.deleteIfExists(Paths.get(directory + File.separator + mo_todelete.get(motd).getMedia_path() + mo_todelete.get(motd).getMedia_extension()));
+						if(mo_todelete.get(motd).isMedia_hasthumbnail()) {
+							Files.deleteIfExists(Paths.get(directory + File.separator + mo_todelete.get(motd).getMedia_path() + "_thumb" + mo_todelete.get(motd).getMedia_extension()));		
+						}
+						} catch (Exception e) {
+							e.printStackTrace();
+							//TODO Aggiungere al log dei errroi
+						}
+					}
+					List<String> mo_todelete_id = new ArrayList<String>();
+					for (MediaObject mObject : mo_todelete) {
+						mo_todelete_id.add(mObject.getMedia_id().toString());
+					}
+					
+					//DELETE MEDIAS IN
+					
+					if(false) {
+						
+						mediaMapper.DeleteElement(String.valueOf(1), fid, "", ownerID);	
+					}
+					
+					}
+			}
+			if (media.size() > 0) {
+				for (int m = 0; m < media.size(); m++) {
+					String mid = media.get(m).substring(6);
+					MediaObject mediaExist = GetPathIfMediaExistById(mid, ownerID);
+					if (mediaExist.getMedia_id() != null) {
+						DeleteMediaById(mid, ownerID);
+					}
+					try {
+						String filePath = String.format("%s//%s", archive, ownerID);
+						File directory = new File(filePath);
+						Files.deleteIfExists(Paths.get(directory + File.separator + mediaExist.getMedia_path() + mediaExist.getMedia_extension()));
+						if (mediaExist.isMedia_hasthumbnail()) {
+							Files.deleteIfExists(Paths.get(directory + File.separator + mediaExist.getMedia_path() + "_thumb" + mediaExist.getMedia_extension()));
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						// TODO Aggiungere al log dei errroi
+					}
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+
+	
+
 }
