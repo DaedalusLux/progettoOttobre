@@ -15,38 +15,14 @@
 	<global-method-security
 		pre-post-annotations="enabled" />
 
-	<http pattern="/login" security="none" />
-	<http pattern="/register" security="none" />
-	<http pattern="/stores/**" security="none" />
-	<http pattern="/themes" security="none" />
-	
-	<http pattern="/statistics-management/**" security="none" />
-	<http pattern="/email-management/send" security="none" />
-	<http pattern="/pdf-management/userprint/**" security="none" />
+	<http pattern="/test" security="none" />
 
 	<http entry-point-ref="restAuthenticationEntryPoint"
 		create-session="stateless" use-expressions="true">
 		<csrf disabled="true" />
-		
-		<intercept-url pattern="/management/errorhandler/**"
-			access="hasRole('ROLE_ADMIN')" />
-		<intercept-url pattern="/theme-management/**"
-			access="hasRole('ROLE_ADMIN')" />
-		<!--intercept-url pattern="/statistics-management/**"
-			access="hasRole('ROLE_ADMIN')" / -->
-		<intercept-url pattern="/store-management/stores/**"
-			access="hasAnyRole('ROLE_ADMIN','ROLE_USER')" />
-		<intercept-url pattern="/store-management/**"
-			access="hasRole('ROLE_ADMIN')" />
-			
-			<intercept-url pattern="/user-management/user"
-			access="hasAnyRole('ROLE_ADMIN','ROLE_USER')" />
-		<intercept-url pattern="/user-management/**"
-			access="hasRole('ROLE_ADMIN')" />
 
-
-		
-
+		<!-- intercept-url pattern="/management/errorhandler/**" access="hasRole('ROLE_ADMIN')" 
+			/> -->
 
 		<custom-filter before="FORM_LOGIN_FILTER"
 			ref="jwtAuthenticationFilter" />

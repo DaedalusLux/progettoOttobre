@@ -68,6 +68,17 @@ public class MainController {
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
-	
+	@RequestMapping(value = "/test", method = RequestMethod.GET, headers = "Accept=application/json")
+	@ResponseBody
+	public ResponseEntity<?> Test(HttpServletRequest request) {
+		try {
+			
+			return new ResponseEntity<>("Ciao", HttpStatus.OK);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	
 }
