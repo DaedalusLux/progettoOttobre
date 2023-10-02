@@ -1,8 +1,5 @@
 package com.portale.model;
 
-import java.util.Date;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class UserObject {
@@ -11,26 +8,18 @@ public class UserObject {
 	private String usr_username;
 	private String usr_password;
 	private String usr_oldpassword;
-	private String usr_organization;
 	//authorities = ROLE_...
 	private String authorities;
-	//role_name Utente/Admin
+	//Nome ruolo
 	private String role_name;
 	private int role_id;
 	private Boolean locked;
 	
-	private List<String> usr_store;
 	private String nome;
 	private String cognome;
 	private String email;
-	private String indirizzo;
-	private String citta;
-	private String provincia;
-	private String codicePostale;
 	private String telefono;
-	private String codiceFiscale;
-	private Date data_registrazione;
-	private PaginationSupportObject PSO;
+	private String wallet_address;
 	
 	public String getNome() {
 		return nome;
@@ -49,24 +38,6 @@ public class UserObject {
 	}
 	public void setEmail(String email) {
 		this.email = email;
-	}
-	public String getIndirizzo() {
-		return indirizzo;
-	}
-	public void setIndirizzo(String indirizzo) {
-		this.indirizzo = indirizzo;
-	}
-	public String getCitta() {
-		return citta;
-	}
-	public void setCitta(String citta) {
-		this.citta = citta;
-	}
-	public String getProvincia() {
-		return provincia;
-	}
-	public void setProvincia(String provincia) {
-		this.provincia = provincia;
 	}
 
 	public String getTelefono() {
@@ -100,29 +71,11 @@ public class UserObject {
 	public void setAuthorities(String authorities) {
 		this.authorities = authorities;
 	}
-	public String getUsr_organization() {
-		return usr_organization;
-	}
-	public void setUsr_organization(String usr_organization) {
-		this.usr_organization = usr_organization;
-	}
 	public Boolean getLocked() {
 		return locked;
 	}
 	public void setLocked(Boolean locked) {
 		this.locked = locked;
-	}
-	public List<String> getUsr_store() {
-		return usr_store;
-	}
-	public void setUsr_store(List<String> usr_store) {
-		this.usr_store = usr_store;
-	}
-	public Date getData_registrazione() {
-		return data_registrazione;
-	}
-	public void setData_registrazione(Date data_registrazione) {
-		this.data_registrazione = data_registrazione;
 	}
 	public String getRole_name() {
 		return role_name;
@@ -143,24 +96,10 @@ public class UserObject {
 	public void setUsr_oldpassword(String usr_oldpassword) {
 		this.usr_oldpassword = usr_oldpassword;
 	}
-	public String getCodiceFiscale() {
-		return codiceFiscale;
+	public String getWallet_address() {
+		return wallet_address;
 	}
-	public void setCodiceFiscale(String codiceFiscale) {
-		this.codiceFiscale = codiceFiscale;
+	public void setWallet_address(String wallet_address) {
+		this.wallet_address = wallet_address;
 	}
-	@JsonIgnore
-	public PaginationSupportObject getPSO() {
-		return PSO;
-	}
-	public void setPSO(PaginationSupportObject pSO) {
-		PSO = pSO;
-	}
-	public String getCodicePostale() {
-		return codicePostale;
-	}
-	public void setCodicePostale(String codicePostale) {
-		this.codicePostale = codicePostale;
-	}
-
 }
