@@ -15,7 +15,7 @@
 	<global-method-security
 		pre-post-annotations="enabled" />
 
-	<http pattern="/test" security="none" />
+	<http pattern="/login" security="none" />
 
 	<http entry-point-ref="restAuthenticationEntryPoint"
 		create-session="stateless" use-expressions="true">

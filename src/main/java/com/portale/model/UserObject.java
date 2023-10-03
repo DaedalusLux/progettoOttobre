@@ -1,41 +1,62 @@
 package com.portale.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class UserObject {
 
 	private int usr_id;
 	private String usr_username;
-	private String usr_password;
-	private String usr_oldpassword;
-	//authorities = ROLE_...
+	//ROLE_ADMIN nel caso isAdmin TRUE dal DB
 	private String authorities;
-	//Nome ruolo
-	private String role_name;
-	private int role_id;
+	// TODO Da impostare il locked
 	private Boolean locked;
-	
-	private String nome;
-	private String cognome;
+
+	private String nomecognome;
 	private String email;
 	private String telefono;
 	private String wallet_address;
+
+	private int room_id;
+	private int room_level;
+	private int rank_level;
+	private String rank_name;
 	
-	public String getNome() {
-		return nome;
+	private Boolean isAdmin;
+
+	public int getRoom_id() {
+		return room_id;
 	}
-	public void setNome(String nome) {
-		this.nome = nome;
+
+	public void setRoom_id(int room_id) {
+		this.room_id = room_id;
 	}
-	public String getCognome() {
-		return cognome;
+
+	public int getRoom_level() {
+		return room_level;
 	}
-	public void setCognome(String cognome) {
-		this.cognome = cognome;
+
+	public void setRoom_level(int room_level) {
+		this.room_level = room_level;
 	}
+
+	public int getRank_level() {
+		return rank_level;
+	}
+
+	public void setRank_level(int rank_level) {
+		this.rank_level = rank_level;
+	}
+
+	public String getRank_name() {
+		return rank_name;
+	}
+
+	public void setRank_name(String rank_name) {
+		this.rank_name = rank_name;
+	}
+
 	public String getEmail() {
 		return email;
 	}
+
 	public void setEmail(String email) {
 		this.email = email;
 	}
@@ -43,63 +64,64 @@ public class UserObject {
 	public String getTelefono() {
 		return telefono;
 	}
+
 	public void setTelefono(String telefono) {
 		this.telefono = telefono;
 	}
-	
+
 	public int getUsr_id() {
 		return usr_id;
 	}
+
 	public void setUsr_id(int usr_id) {
 		this.usr_id = usr_id;
 	}
+
 	public String getUsr_username() {
 		return usr_username;
 	}
+
 	public void setUsr_username(String usr_username) {
 		this.usr_username = usr_username;
 	}
-	public String getUsr_password() {
-		return usr_password;
-	}
-	public void setUsr_password(String usr_password) {
-		this.usr_password = usr_password;
-	}
+
 	public String getAuthorities() {
 		return authorities;
 	}
-	public void setAuthorities(String authorities) {
-		this.authorities = authorities;
-	}
+
 	public Boolean getLocked() {
 		return locked;
 	}
+
 	public void setLocked(Boolean locked) {
 		this.locked = locked;
 	}
-	public String getRole_name() {
-		return role_name;
-	}
-	public void setRole_name(String role_name) {
-		this.role_name = role_name;
-	}
-	public int getRole_id() {
-		return role_id;
-	}
-	public void setRole_id(int role_id) {
-		this.role_id = role_id;
-	}
-	@JsonIgnore
-	public String getUsr_oldpassword() {
-		return usr_oldpassword;
-	}
-	public void setUsr_oldpassword(String usr_oldpassword) {
-		this.usr_oldpassword = usr_oldpassword;
-	}
+
 	public String getWallet_address() {
 		return wallet_address;
 	}
+
 	public void setWallet_address(String wallet_address) {
 		this.wallet_address = wallet_address;
 	}
+
+	public String getNomecognome() {
+		return nomecognome;
+	}
+
+	public void setNomecognome(String nomecognome) {
+		this.nomecognome = nomecognome;
+	}
+
+	public Boolean getIsAdmin() {
+		return isAdmin;
+	}
+
+	public void setIsAdmin(Boolean isAdmin) {
+		this.isAdmin = isAdmin;
+		if(this.isAdmin) {
+			this.authorities = "ROLE_ADMIN";
+		}
+	}
+
 }

@@ -3,6 +3,35 @@
    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.portale.mapper.UserMapper">
-	
-	
+
+	<resultMap type="UserCredentials"
+		id="UserCredentialsResultMap">
+		<result property="usr_username" column="usr_username" />
+		<result property="usr_password" column="usr_password" />
+	</resultMap>
+
+	<resultMap type="UserObject" id="UserRoomResultMap">
+		<id property="usr_id" column="usr_id" />
+		<result property="usr_username" column="usr_username" />
+		<result property="nomecognome" column="usr_name" />
+		<result property="wallet_address" column="usr_wallet_address" />
+		<result property="telefono" column="usr_phone" />
+		<result property="room_id" column="room_id" />
+		<result property="room_level" column="room_level" />
+		<result property="rank_level" column="rank_id" />
+		<result property="rank_name" column="rank_name" />
+		<result property="isAdmin" column="isAdmin" />
+		<result property="locked" column="isLocked" />
+	</resultMap>
+
+	<select id="CheckUserForLogin" resultMap="UserCredentialsResultMap">
+		SELECT usr_username, usr_password FROM Users WHERE usr_username = #{username};
+	</select>
+
+	<select id="getUserData" resultMap="UserRoomResultMap">
+		SELECT * FROM users u
+		INNER JOIN rooms ro ON ro.room_id = u.usr_room
+		INNER JOIN ranks ra ON ra.rank_id = u.usr_rank
+		WHERE u.usr_username = #{username};
+	</select>
 </mapper>
