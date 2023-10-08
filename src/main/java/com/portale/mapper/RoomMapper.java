@@ -1,0 +1,16 @@
+package com.portale.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.portale.model.Board;
+import com.portale.model.Room;
+
+public interface RoomMapper {
+
+	Room getRoom(@Param("room_id") int room_id);
+
+	List<Board> getBoardsByUser(@Param("user_id") int user_id);
+
+}

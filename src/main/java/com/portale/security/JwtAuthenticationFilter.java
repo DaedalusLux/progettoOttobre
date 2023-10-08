@@ -16,7 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
-import com.portale.model.UserObject;
+import com.portale.model.User;
+import com.portale.model.UserAuth;
 import com.portale.security.exceptions.JwtTokenMissingException;
 import com.portale.security.model.JwtAuthenticationToken;
 import com.portale.security.services.JwtTokenGenerator;
@@ -49,7 +50,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		JwtAuthenticationToken authRequest = new JwtAuthenticationToken(authToken);
 
 		Authentication Auth = getAuthenticationManager().authenticate(authRequest);
-		UserObject user = JwtTokenValidator.parseToken(authToken);
+		UserAuth user = JwtTokenValidator.parseToken(authToken);
 		response.addHeader("id_token", JwtTokenGenerator.generateToken(user));
 		response.setHeader("Access-Control-Expose-Headers", "id_token");
 		return Auth;

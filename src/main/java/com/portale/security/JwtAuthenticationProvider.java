@@ -14,7 +14,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.portale.model.UserObject;
+import com.portale.model.User;
+import com.portale.model.UserAuth;
 import com.portale.security.exceptions.JwtTokenMalformedException;
 import com.portale.security.model.AuthenticatedUser;
 import com.portale.security.model.JwtAuthenticationToken;
@@ -41,7 +42,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
 		JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) authentication;
 		String token = jwtAuthenticationToken.getToken();
 
-		UserObject parsedUser = jwtTokenValidator.parseToken(token);
+		UserAuth parsedUser = jwtTokenValidator.parseToken(token);
 		
 		if (parsedUser == null) {
 			throw new JwtTokenMalformedException("JWT token non valido");
@@ -52,6 +53,6 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
 		List<GrantedAuthority> authorityList =
 				AuthorityUtils.commaSeparatedStringToAuthorityList(parsedUser.getAuthorities());
 		
-		return new AuthenticatedUser(parsedUser.getUsr_id(), parsedUser.getUsr_username(), token, authorityList);
+		return new AuthenticatedUser(parsedUser.getUser_id(), parsedUser.getUsername(), token, authorityList);
 	}
 }

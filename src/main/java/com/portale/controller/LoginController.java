@@ -12,21 +12,21 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.portale.model.UserCredentials;
-import com.portale.model.UserObject;
+import com.portale.model.UserAuth;
+import com.portale.model.User;
 import com.portale.security.services.JwtTokenGenerator;
-import com.portale.services.UserService;
+import com.portale.services.LoginService;
 
 @RestController
-public class MainController {
+public class LoginController {
 
 	@Resource
-	private UserService loginService;
-
+	private LoginService loginService;
+/*
 	@RequestMapping(value = "/login", method = RequestMethod.POST, headers = "Accept=application/json")
 	@ResponseBody
 	public ResponseEntity<?> Login(@RequestBody UserCredentials userCredentials) {
-		UserObject User = new UserObject();
+		User User = new User();
 		String token = null;
 		HttpHeaders httpHeaders = new HttpHeaders();
 		try {
@@ -51,11 +51,13 @@ public class MainController {
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
+	*/
+	
 	@RequestMapping(value = "/register", method = RequestMethod.POST, headers = "Accept=application/json")
 	@ResponseBody
-	public ResponseEntity<?> RegisterUser(HttpServletRequest request, @RequestBody UserObject _userauth) {
+	public ResponseEntity<?> RegisterUser(HttpServletRequest request, @RequestBody UserAuth _userauth) {
 		try {
-
+			loginService.setRegistration(_userauth);
 			return new ResponseEntity<>(HttpStatus.OK);
 
 		} catch (Exception e) {

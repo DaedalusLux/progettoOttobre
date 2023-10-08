@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.portale.mapper.RoomMapper">
+
+	<resultMap type="Board" id="BoardListResultMap">
+		<id property="room_id" column="room_id"/>
+		<result property="board_level" column="board_id" />
+		<result property="board_name" column="board_name" />
+	</resultMap>
+	
+	<select id="getBoardsByUser" resultMap="BoardListResultMap">
+		SELECT rm.*, brd.* FROM rooms rm
+		INNER JOIN boards brd ON brd.board_id = rm.room_board
+		INNER JOIN user_rank_room urr ON urr.room_id = rm.room_id
+		INNER JOIN users usr ON usr.usr_id = urr.user_id
+		WHERE usr.usr_id = #{user_id};
+	</select>
+	
+	<resultMap type="Room" id="RoomResultMap">
+		<id property="room_id" column="room_id"/>
+		<id property="board_level" column="board_id"/>
+		<result property="board_name" column="board_name" />
+		
+		<association property="users" resultMap="UserResultMap" ></association>
+	</resultMap>
+	
+	<resultMap type="User" id="UserResultMap">
+		<id property="id" column="usr_id"/>
+		<result property="username" column="usr_username" />
+		
+		<result property="name" column="usr_name" />
+		<result property="email" column="usr_email" />
+		<result property="phone" column="usr_phone" />
+		<result property="wallet_address" column="usr_wallet_address" />
+		
+		<result property="isAdmin" column="isAdmin" />
+		<result property="isLocked" column="isLocked" />
+		
+		<association property="rank" resultMap="RankResultMap"></association>
+	</resultMap>
+	
+	<resultMap type="Rank" id="RankResultMap">
+		<id property="rank_id" column="rank_id"/>
+		<result property="rank_name" column="rank_name" />
+	</resultMap>
+	
+	<select id="getRoom" resultMap="RoomResultMap">
+		SELECT rm.*, brd.*, usr.*, rnks.*
+		FROM rooms rm
+		INNER JOIN user_rank_room urr ON urr.room_id = rm.room_id
+		
+		INNER JOIN users usr ON usr.usr_id = urr.user_id
+		INNER JOIN ranks rnks ON rnks.rank_id = urr.rank_id
+		
+		INNER JOIN boards brd ON brd.board_id = rm.room_board
+		
+		WHERE rm.room_id = #{room_id}
+	</select>
+</mapper>

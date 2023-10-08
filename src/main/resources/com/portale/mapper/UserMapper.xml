@@ -4,24 +4,20 @@
 
 <mapper namespace="com.portale.mapper.UserMapper">
 
-	<resultMap type="UserCredentials"
+	<resultMap type="UserAuth"
 		id="UserCredentialsResultMap">
-		<result property="usr_username" column="usr_username" />
-		<result property="usr_password" column="usr_password" />
+		<result property="username" column="usr_username" />
+		<result property="password" column="usr_password" />
 	</resultMap>
 
-	<resultMap type="UserObject" id="UserRoomResultMap">
-		<id property="usr_id" column="usr_id" />
-		<result property="usr_username" column="usr_username" />
-		<result property="nomecognome" column="usr_name" />
+	<resultMap type="User" id="UserRoomResultMap">
+		<id property="id" column="usr_id" />
+		<result property="name" column="usr_username" />
 		<result property="wallet_address" column="usr_wallet_address" />
-		<result property="telefono" column="usr_phone" />
-		<result property="room_id" column="room_id" />
-		<result property="room_level" column="room_level" />
-		<result property="rank_level" column="rank_id" />
-		<result property="rank_name" column="rank_name" />
+		<result property="phone" column="usr_phone" />
+		<!-- result property="rank_name" column="rank_name" / -->
 		<result property="isAdmin" column="isAdmin" />
-		<result property="locked" column="isLocked" />
+		<result property="isLocked" column="isLocked" />
 	</resultMap>
 
 	<select id="CheckUserForLogin" resultMap="UserCredentialsResultMap">

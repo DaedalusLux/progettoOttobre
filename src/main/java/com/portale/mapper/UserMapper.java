@@ -1,16 +1,17 @@
 package com.portale.mapper;
 
+import java.sql.Date;
+import java.util.UUID;
+
 import org.apache.ibatis.annotations.Param;
 
-import com.portale.model.UserCredentials;
-import com.portale.model.UserObject;
+import com.portale.model.UserAuth;
+import com.portale.model.User;
 
 public interface UserMapper {
 
-	UserCredentials CheckUserForLogin(@Param("username") String username);
+	UserAuth CheckUserForLogin(@Param("username") String username);
 
-	UserObject getUserData(@Param("username") String username);
-
-	
+	User getUserData(@Param("username") String username);	
 
 }

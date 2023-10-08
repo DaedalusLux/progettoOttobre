@@ -4,7 +4,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
-import com.portale.model.UserObject;
+import com.portale.model.User;
+import com.portale.model.UserAuth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -15,12 +16,12 @@ public class JwtTokenGenerator {
     private static String JSK_STATIC = "DC48D2700FB7EEE8B6658DBD97429BD7C340082587F645F70C1B9A560F65B5E8";
  
 	
-	public static String generateToken(UserObject u) {
+	public static String generateToken(UserAuth u) {
 		//System.out.println(u.getUsr_username() + " - " + JSK_STATIC);
 		
 		Claims claims = Jwts.claims()
-				.setSubject(u.getUsr_username());
-		claims.put("user_index", u.getUsr_id() + "");
+				.setSubject(u.getUsername());
+		claims.put("user_index", u.getUser_id() + "");
 		claims.put("role_authority", u.getAuthorities());
 
 		Instant issuedAt = Instant.now().truncatedTo(ChronoUnit.SECONDS);

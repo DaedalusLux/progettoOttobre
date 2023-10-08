@@ -45,7 +45,7 @@
 			value="org.postgresql.Driver" />
 		<property name="url"
 			value="jdbc:postgresql://206.54.170.72:5432/ottobre" />
-		<property name="username" value="root" />
+		<property name="username" value="postgres" />
 		<property name="password" value="0DubmY9lRH2*SW>bWURZ5jH%?4RcBzp=[w" />
 	</bean>
 	
