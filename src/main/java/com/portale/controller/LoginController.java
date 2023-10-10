@@ -53,6 +53,7 @@ public class LoginController {
 
 	*/
 	
+	
 	@RequestMapping(value = "/register", method = RequestMethod.POST, headers = "Accept=application/json")
 	@ResponseBody
 	public ResponseEntity<?> RegisterUser(HttpServletRequest request, @RequestBody UserAuth _userauth) {
