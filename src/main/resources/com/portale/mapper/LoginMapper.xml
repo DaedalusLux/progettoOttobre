@@ -9,4 +9,64 @@
 		#{_userauth.username}, #{_userauth.password}, #{_userauth.email},
 		#{secret_code}, #{expiration});
 	</insert>
+
+	<update id="setConfirmRegistrationTrue">
+		UPDATE confirm_registration SET secret_code = 'OK' WHERE guid = #{guid};
+	</update>
+
+	<insert id="addNewUser">
+		INSERT INTO users (usr_username, usr_password,
+		usr_name, usr_wallet_address, usr_phone, usr_email)
+		VALUES
+		(#{user_basis.username}, #{user_basis.password}, #{user_details.name}, #{user_details.wallet_address},
+		#{user_details.phone}, #{user_basis.email});
+	</insert>
+
+	<select id="getConfirmRegistration" resultType="String">
+		SELECT
+		secret_code FROM confirm_registration WHERE guid = #{guid} AND
+		expiration &lt; NOW() + INTERVAL '1 hour';
+	</select>
+	
+	<resultMap type="UserAuth" id="UserAuthResultMap">
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="email" column="email" />
+	</resultMap>
+	
+	<select id="getUserAuthByUsername" resultMap="UserAuthResultMap">
+		SELECT * FROM confirm_registration
+		WHERE username = #{username}
+		AND secret_code = 'OK';
+	</select>
+
+	<resultMap type="User" id="UserResultMap">
+		<id property="id" column="usr_id" />
+		<result property="username" column="usr_username" />
+		<result property="name" column="usr_name" />
+		<result property="email" column="usr_email" />
+		<result property="phone" column="usr_phone" />
+		<result property="wallet_address" column="usr_wallet_address" />
+	</resultMap>
+
+	<select id="getUserByUsername" resultMap="UserResultMap">
+		SELECT * FROM users
+		WHERE usr_username = #{username};
+	</select>
+
+	<select id="getUserByEmail" resultType="String">
+		SELECT usr_username FROM users
+		WHERE usr_email = #{email};
+	</select>
+	
+	<resultMap type="UserAuth" id="UserLoginResultMap">
+		<result property="username" column="usr_username" />
+		<result property="password" column="usr_password" />
+		<result property="isAdmin" column="isAdmin" />
+	</resultMap>
+	
+	<select id="getUserForLogin" resultMap="UserLoginResultMap">
+		SELECT * FROM users
+		WHERE usr_username = #{username};
+	</select>
 </mapper>

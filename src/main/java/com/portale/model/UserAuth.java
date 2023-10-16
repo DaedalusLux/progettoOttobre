@@ -8,6 +8,7 @@ public class UserAuth {
 	private String password;
 	private String email;
 	private String authorities;
+	private Boolean isAdmin;
 	
 	private Date issuedAt;
 	private Date expiration;
@@ -66,6 +67,14 @@ public class UserAuth {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Boolean getIsAdmin() {
+		return isAdmin;
+	}
+
+	public void setIsAdmin(Boolean isAdmin) {
+		this.isAdmin = isAdmin;
 	}
 
 }
