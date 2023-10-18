@@ -10,10 +10,8 @@ public class User {
 	private String name;
 	private String email;
 	private String phone;
+	private String telegram;
 	private String wallet_address;
-
-	//Il suo rank (Gifter, ...)
-	private Rank rank;
 	
 	private Boolean isAdmin;
 	private Boolean isLocked;
@@ -51,14 +49,6 @@ public class User {
 		if(this.isAdmin) {
 			this.authorities = "ROLE_ADMIN";
 		}
-	}
-
-	public Rank getRank() {
-		return rank;
-	}
-
-	public void setRank(Rank rank) {
-		this.rank = rank;
 	}
 
 	public Boolean getIsLocked() {
@@ -99,6 +89,14 @@ public class User {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public String getTelegram() {
+		return telegram;
+	}
+
+	public void setTelegram(String telegram) {
+		this.telegram = telegram;
 	}
 
 }

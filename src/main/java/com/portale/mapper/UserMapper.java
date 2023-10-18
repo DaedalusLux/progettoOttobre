@@ -1,12 +1,9 @@
 package com.portale.mapper;
 
-import java.sql.Date;
-import java.util.UUID;
-
 import org.apache.ibatis.annotations.Param;
 
-import com.portale.model.UserAuth;
 import com.portale.model.User;
+import com.portale.model.UserAuth;
 
 public interface UserMapper {
 

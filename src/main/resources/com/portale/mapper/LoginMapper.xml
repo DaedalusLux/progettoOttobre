@@ -14,12 +14,12 @@
 		UPDATE confirm_registration SET secret_code = 'OK' WHERE guid = #{guid};
 	</update>
 
-	<insert id="addNewUser">
+	<insert id="addNewUser" parameterType="User" useGeneratedKeys="true" keyProperty="user_details.id" keyColumn="usr_id">
 		INSERT INTO users (usr_username, usr_password,
-		usr_name, usr_wallet_address, usr_phone, usr_email)
+		usr_name, usr_wallet_address, usr_phone, usr_email, usr_telegram)
 		VALUES
 		(#{user_basis.username}, #{user_basis.password}, #{user_details.name}, #{user_details.wallet_address},
-		#{user_details.phone}, #{user_basis.email});
+		#{user_details.phone}, #{user_basis.email}, #{user_details.telegram});
 	</insert>
 
 	<select id="getConfirmRegistration" resultType="String">
@@ -46,12 +46,14 @@
 		<result property="name" column="usr_name" />
 		<result property="email" column="usr_email" />
 		<result property="phone" column="usr_phone" />
+		<result property="telegram" column="usr_telegram" />
 		<result property="wallet_address" column="usr_wallet_address" />
 	</resultMap>
 
 	<select id="getUserByUsername" resultMap="UserResultMap">
 		SELECT * FROM users
-		WHERE usr_username = #{username};
+		WHERE usr_username = #{username}
+		LIMIT 1;
 	</select>
 
 	<select id="getUserByEmail" resultType="String">
@@ -69,4 +71,12 @@
 		SELECT * FROM users
 		WHERE usr_username = #{username};
 	</select>
+	
+	<delete id="dleteOldRequests">
+		DELETE FROM confirm_registration WHERE expiration &gt; NOW();
+	</delete>
+	
+	<delete id="dleteOldRequestsByUsername">
+		DELETE FROM confirm_registration WHERE username = #{username};
+	</delete>
 </mapper>

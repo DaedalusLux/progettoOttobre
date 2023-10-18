@@ -8,22 +8,22 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class AuthenticatedUser implements UserDetails {
 
 	private static final long serialVersionUID = 7625214493651744560L;
-	private final int Usr_id;
+	private final int id;
 	private final String username;
     private final String token;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public AuthenticatedUser(int Usr_id, String username, String token, Collection<? extends GrantedAuthority> authorities) {
-    	this.Usr_id = Usr_id;
+    public AuthenticatedUser(int id, String username, String token, Collection<? extends GrantedAuthority> authorities) {
+    	this.id = id;
     	this.username = username;
         this.token = token;
         this.authorities = authorities;
     }
 
-    public int getUsr_id() {
-        return Usr_id;
-    }
-    
+	public int getId() {
+		return id;
+	}
+	
     @Override
     public String getUsername() {
         return username;

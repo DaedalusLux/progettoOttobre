@@ -15,7 +15,7 @@ public interface LoginMapper {
 	
 	void setConfirmRegistrationTrue(@Param("guid") String guid);
 	
-	void addNewUser(@Param("user_details") User user_details, @Param("user_basis") UserAuth user_basis);
+	int addNewUser(@Param("user_details") User user_details, @Param("user_basis") UserAuth user_basis);
 
 	UserAuth getUserAuthByUsername(@Param("username") String username);
 
@@ -24,5 +24,11 @@ public interface LoginMapper {
 	String getUserByEmail(@Param("email") String email);
 
 	UserAuth getUserForLogin(@Param("username") String username);
+
+	void dleteOldRequests();
+	
+	void dleteOldRequestsByUsername(@Param("username") String username);
+
+	void assignUserToPlatform(@Param("user") User user_details);
 
 }

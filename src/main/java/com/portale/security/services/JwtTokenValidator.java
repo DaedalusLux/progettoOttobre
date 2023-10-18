@@ -2,7 +2,6 @@ package com.portale.security.services;
 
 import org.springframework.stereotype.Component;
 
-import com.portale.model.User;
 import com.portale.model.UserAuth;
 
 import io.jsonwebtoken.Claims;
@@ -21,7 +20,7 @@ public class JwtTokenValidator {
 			UserAuth u = new UserAuth();
 			
 			u.setUsername(body.getSubject());
-			u.setUser_id(Integer.parseInt((String) body.get("user_index")));
+			u.setId(Integer.parseInt((String) body.get("id")));
 			u.setAuthorities((String) body.get("role_authority"));
 			u.setIssuedAt(body.getIssuedAt());
 			u.setExpiration(body.getExpiration());

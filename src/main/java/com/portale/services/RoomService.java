@@ -16,8 +16,8 @@ public class RoomService {
 	@Autowired
 	private RoomMapper mapper;
 
-	public Room getRoom(int room_id) {
-		return mapper.getRoom(room_id);
+	public Room getRoom(int room_id, int user_id) {
+		return mapper.getRoom(room_id, user_id);
 	}
 
 	public List<Board> getBoardsByUser(int user_id) {

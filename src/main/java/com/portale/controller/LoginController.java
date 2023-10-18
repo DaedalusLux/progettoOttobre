@@ -1,10 +1,13 @@
 package com.portale.controller;
 
+import java.util.UUID;
+
 import javax.annotation.Resource;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +19,7 @@ import com.portale.model.ManagedException;
 import com.portale.model.SecretCode;
 import com.portale.model.User;
 import com.portale.model.UserAuth;
+import com.portale.security.model.AuthenticatedUser;
 import com.portale.security.services.JwtTokenGenerator;
 import com.portale.services.LoginService;
 
@@ -28,16 +32,19 @@ public class LoginController {
 	@RequestMapping(value = "/login", method = RequestMethod.POST, headers = "Accept=application/json")
 	@ResponseBody
 	public ResponseEntity<?> Login(@RequestBody UserAuth userLoginRequest) {
-		String token = null;
 		HttpHeaders httpHeaders = new HttpHeaders();
 		try {
 			UserAuth uauth = loginService.CheckUserForLogin(userLoginRequest);
-			new JwtTokenGenerator();
-			token = JwtTokenGenerator.generateToken(uauth);
-			httpHeaders.add("Authorization", "Bearer " + token);
 			User user_data = loginService.getUserData(uauth);
+			uauth.setId(user_data.getId());
+			httpHeaders.add("Authorization", "Bearer " + JwtTokenGenerator.generateToken(uauth));
 			return new ResponseEntity<>(user_data, httpHeaders, HttpStatus.OK);
 		} catch (ManagedException e) {
+			if(e.getMessage().equals("user.not.complete")) {
+				userLoginRequest.setAuthorities("SEND_DETAILS");
+				httpHeaders.add("Authorization", "Bearer " + JwtTokenGenerator.generateToken(userLoginRequest));
+				return new ResponseEntity<>(e.getMessage(), httpHeaders, HttpStatus.ACCEPTED);
+			}
 			e.printStackTrace();
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (Exception e) {
@@ -46,16 +53,14 @@ public class LoginController {
 		}
 	}
 
-	@RequestMapping(value = "/register/sendDetails", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/login/sendUserDetails", method = RequestMethod.POST, headers = "Accept=application/json")
 	@ResponseBody
-	public ResponseEntity<?> RegisterUser(@RequestBody User user_details) {
-		String token = null;
+	public ResponseEntity<?> RegisterUser(Authentication authentication, @RequestBody User user_details) {
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 		HttpHeaders httpHeaders = new HttpHeaders();
 		try {
-			UserAuth newUserAuthentication = loginService.addNewUser(user_details);
-			new JwtTokenGenerator();
-			token = JwtTokenGenerator.generateToken(newUserAuthentication);
-			httpHeaders.add("Authorization", "Bearer " + token);
+			UserAuth newUserAuthentication = loginService.addNewUser(user_details, u.getUsername());
+			httpHeaders.add("Authorization", "Bearer " + JwtTokenGenerator.generateToken(newUserAuthentication));
 			User userDetails = loginService.getUser(newUserAuthentication.getUsername());
 			return new ResponseEntity<>(userDetails, httpHeaders, HttpStatus.OK);
 		} catch (ManagedException e) {
@@ -90,8 +95,8 @@ public class LoginController {
 	@ResponseBody
 	public ResponseEntity<?> RegisterUser(@RequestBody UserAuth _userauth) {
 		try {
-			loginService.setRegistration(_userauth);
-			return new ResponseEntity<>(HttpStatus.OK);
+			UUID guid = loginService.setRegistration(_userauth);
+			return new ResponseEntity<>(guid, HttpStatus.OK);
 		} catch (ManagedException e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
