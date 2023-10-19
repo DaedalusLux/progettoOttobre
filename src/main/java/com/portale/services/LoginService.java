@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.portale.mapper.LoginMapper;
 import com.portale.mapper.RoomMapper;
@@ -47,6 +48,7 @@ public class LoginService {
 	@Value("#{AppProperties.mailPassword}")
 	private String mailPassword;
 
+	@Transactional
 	public UUID setRegistration(UserAuth _userauth) throws Exception {
 		String dublicate_mail = mapper.getUserByEmail(_userauth.getEmail());
 		User dublicate_username = mapper.getUserByUsername(_userauth.getUsername());
@@ -86,6 +88,7 @@ public class LoginService {
 		}
 	}
 
+	@Transactional
 	public UserAuth addNewUser(User user_details, String username) {
 		UserAuth user_basis = mapper.getUserAuthByUsername(username);
 		if (user_basis == null) {
@@ -95,6 +98,7 @@ public class LoginService {
 		mapper.dleteOldRequestsByUsername(username);
 		user_basis.setAuthorities("COSTUMER");
 		room_mapper.setUserToRandomAvaibleGifterRoom(user_details.getId());
+		user_basis.setId(user_details.getId());
 		return user_basis;
 	}
 

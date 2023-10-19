@@ -45,7 +45,7 @@ public class LoginController {
 				httpHeaders.add("Authorization", "Bearer " + JwtTokenGenerator.generateToken(userLoginRequest));
 				return new ResponseEntity<>(e.getMessage(), httpHeaders, HttpStatus.ACCEPTED);
 			}
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -64,7 +64,7 @@ public class LoginController {
 			User userDetails = loginService.getUser(newUserAuthentication.getUsername());
 			return new ResponseEntity<>(userDetails, httpHeaders, HttpStatus.OK);
 		} catch (ManagedException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -83,7 +83,7 @@ public class LoginController {
 				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 			}
 		} catch (ManagedException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -98,7 +98,7 @@ public class LoginController {
 			UUID guid = loginService.setRegistration(_userauth);
 			return new ResponseEntity<>(guid, HttpStatus.OK);
 		} catch (ManagedException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (Exception e) {
 			e.printStackTrace();
