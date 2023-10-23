@@ -72,6 +72,10 @@
 			GROUP BY rm.room_id
 		)
 	</select>
+	
+		<select id="checkUsernameExistence" resultType="java.lang.Integer">
+    SELECT COUNT(*) FROM users WHERE usr_username = #{username};
+   </select>
 
 	<select id="setUserToRandomAvaibleGifterRoom">
 		CALL public.assignUserToRandomRoom(#{user_id});
