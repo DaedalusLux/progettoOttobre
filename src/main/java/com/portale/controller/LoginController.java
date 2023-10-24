@@ -29,6 +29,17 @@ public class LoginController {
 	@Resource
 	private LoginService loginService;
 
+	@RequestMapping(value = "/checkUsernameExistence/{username}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@ResponseBody
+	public ResponseEntity<?> checkUsernameExistence(@PathVariable("username") String username) {
+	    try {
+	        boolean usernameExists = loginService.checkUsernameExistence(username);
+	        return new ResponseEntity<>(usernameExists, HttpStatus.OK);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
 	@RequestMapping(value = "/login", method = RequestMethod.POST, headers = "Accept=application/json")
 	@ResponseBody
 	public ResponseEntity<?> Login(@RequestBody UserAuth userLoginRequest) {

@@ -8,6 +8,8 @@ import com.portale.model.User;
 import com.portale.model.UserAuth;
 
 public interface LoginMapper {
+	
+	Integer checkUsernameExistence(@Param("username") String username);
 
 	void setRegistration(@Param("guid") String guid, @Param("secret_code")  String secret_code, @Param("expiration") Date expiration, @Param("_userauth") UserAuth _userauth);
 

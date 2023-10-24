@@ -23,10 +23,8 @@ public class RoomService {
 	public List<Board> getBoardsByUser(int user_id) {
 		return mapper.getBoardsByUser(user_id);
 	}
-	
-	 public boolean checkUsernameExistence(String username) {
-	        Integer count = mapper.checkUsernameExistence(username);
-	        return count != null && count > 0;
-	    }
 
+	public void setEndUserPaymentSuccess(int room_id, int end_user_id, int request_user_id) {
+		mapper.setEndUserPaymentSuccess(room_id, end_user_id, request_user_id);
+	}
 }

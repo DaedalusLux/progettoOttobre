@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.portale.model.Board;
+import com.portale.model.ManagedException;
 import com.portale.model.Room;
 import com.portale.security.model.AuthenticatedUser;
 import com.portale.services.RoomService;
@@ -40,28 +41,32 @@ public class RoomController {
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
-	
-	@RequestMapping(value = "/checkUsernameExistence/{username}", method = RequestMethod.GET, headers = "Accept=application/json")
-	@ResponseBody
-	public ResponseEntity<?> checkUsernameExistence(@PathVariable("username") String username) {
-	    try {
-	        boolean usernameExists = roomService.checkUsernameExistence(username);
-	        return new ResponseEntity<>(usernameExists, HttpStatus.OK);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	}
-	
 	@RequestMapping(value = "/{room_id}", method = RequestMethod.GET, headers = "Accept=application/json")
 	@ResponseBody
-	public ResponseEntity<?> getRoom(Authentication authentication, @PathVariable("room_id") int room_id) {
+	public ResponseEntity<?> getRoomById(Authentication authentication, @PathVariable("room_id") int room_id) {
 		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
 		try {
-			Room room = roomService.getRoom(room_id, u.getId());
+			Room room= roomService.getRoom(room_id, u.getId());
 			return new ResponseEntity<>(room, HttpStatus.OK);
 
 		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@RequestMapping(value = "/setEndUserPaymentSuccess/{room_id}/{end_user_id}", method = RequestMethod.POST, headers = "Accept=application/json")
+	@ResponseBody
+	public ResponseEntity<?> setEndUserPaymentSuccess(Authentication authentication, @PathVariable("room_id") int room_id, @PathVariable("end_user_id") int end_user_id) {
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
+		try {
+			roomService.setEndUserPaymentSuccess(room_id, end_user_id, u.getId());
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (ManagedException e) {
+			System.out.println(e.getMessage());
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+		 catch (Exception e) {
 			e.printStackTrace();
 		}
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

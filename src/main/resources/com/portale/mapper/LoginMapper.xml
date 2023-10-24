@@ -4,6 +4,11 @@
 
 <mapper namespace="com.portale.mapper.LoginMapper">
 
+	<select id="checkUsernameExistence"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM users WHERE usr_username = #{username};
+	</select>
+
 	<insert id="setRegistration">
 		INSERT INTO confirm_registration VALUES (#{guid},
 		#{_userauth.username}, #{_userauth.password}, #{_userauth.email},
@@ -11,15 +16,21 @@
 	</insert>
 
 	<update id="setConfirmRegistrationTrue">
-		UPDATE confirm_registration SET secret_code = 'OK' WHERE guid = #{guid};
+		UPDATE confirm_registration SET secret_code = 'OK'
+		WHERE guid = #{guid};
 	</update>
 
-	<insert id="addNewUser" parameterType="User" useGeneratedKeys="true" keyProperty="user_details.id" keyColumn="usr_id">
+	<insert id="addNewUser" parameterType="User"
+		useGeneratedKeys="true" keyProperty="user_details.id"
+		keyColumn="usr_id">
 		INSERT INTO users (usr_username, usr_password,
-		usr_name, usr_wallet_address, usr_phone, usr_email, usr_telegram)
+		usr_name,
+		usr_wallet_address, usr_phone, usr_email, usr_telegram)
 		VALUES
-		(#{user_basis.username}, #{user_basis.password}, #{user_details.name}, #{user_details.wallet_address},
-		#{user_details.phone}, #{user_basis.email}, #{user_details.telegram});
+		(#{user_basis.username}, #{user_basis.password}, #{user_details.name},
+		#{user_details.wallet_address},
+		#{user_details.phone},
+		#{user_basis.email}, #{user_details.telegram});
 	</insert>
 
 	<select id="getConfirmRegistration" resultType="String">
@@ -27,17 +38,19 @@
 		secret_code FROM confirm_registration WHERE guid = #{guid} AND
 		expiration &lt; NOW() + INTERVAL '1 hour';
 	</select>
-	
+
 	<resultMap type="UserAuth" id="UserAuthResultMap">
 		<result property="username" column="username" />
 		<result property="password" column="password" />
 		<result property="email" column="email" />
 	</resultMap>
-	
+
 	<select id="getUserAuthByUsername" resultMap="UserAuthResultMap">
-		SELECT * FROM confirm_registration
+		SELECT * FROM
+		confirm_registration
 		WHERE username = #{username}
-		AND secret_code = 'OK';
+		AND secret_code =
+		'OK';
 	</select>
 
 	<resultMap type="User" id="UserResultMap">
@@ -57,26 +70,30 @@
 	</select>
 
 	<select id="getUserByEmail" resultType="String">
-		SELECT usr_username FROM users
+		SELECT usr_username FROM
+		users
 		WHERE usr_email = #{email};
 	</select>
-	
+
 	<resultMap type="UserAuth" id="UserLoginResultMap">
 		<result property="username" column="usr_username" />
 		<result property="password" column="usr_password" />
 		<result property="isAdmin" column="isAdmin" />
 	</resultMap>
-	
+
 	<select id="getUserForLogin" resultMap="UserLoginResultMap">
 		SELECT * FROM users
-		WHERE usr_username = #{username};
+		WHERE
+		usr_username = #{username};
 	</select>
-	
+
 	<delete id="dleteOldRequests">
-		DELETE FROM confirm_registration WHERE expiration &gt; NOW();
+		DELETE FROM confirm_registration WHERE expiration
+		&gt; NOW();
 	</delete>
-	
+
 	<delete id="dleteOldRequestsByUsername">
-		DELETE FROM confirm_registration WHERE username = #{username};
+		DELETE FROM confirm_registration WHERE username =
+		#{username};
 	</delete>
 </mapper>
