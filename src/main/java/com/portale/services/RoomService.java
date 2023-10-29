@@ -24,4 +24,7 @@ public class RoomService {
 		return mapper.getBoardsByUser(user_id);
 	}
 
+	public void setEndUserPaymentSuccess(int room_id, int end_user_id, int request_user_id) {
+		mapper.setEndUserPaymentSuccess(room_id, end_user_id, request_user_id);
+	}
 }

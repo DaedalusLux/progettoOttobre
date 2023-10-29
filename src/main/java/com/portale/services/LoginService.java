@@ -47,7 +47,11 @@ public class LoginService {
 
 	@Value("#{AppProperties.mailPassword}")
 	private String mailPassword;
-
+	
+	public boolean checkUsernameExistence(String username) {
+		Integer count = mapper.checkUsernameExistence(username);
+		return count != null && count > 0;
+	}
 	@Transactional
 	public UUID setRegistration(UserAuth _userauth) throws Exception {
 		String dublicate_mail = mapper.getUserByEmail(_userauth.getEmail());
