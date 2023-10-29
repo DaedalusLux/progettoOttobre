@@ -9,6 +9,6 @@ public interface UserMapper {
 
 	UserAuth CheckUserForLogin(@Param("username") String username);
 
-	User getUserData(@Param("username") String username);	
+	User getUserData(@Param("username") String username);
 
 }

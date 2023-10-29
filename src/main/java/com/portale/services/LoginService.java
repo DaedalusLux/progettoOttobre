@@ -177,5 +177,10 @@ public class LoginService {
 		}
 		return false;
 	}
+	
+	 public boolean checkUsernameExistence(String username) {
+	        Integer count = mapper.checkUsernameExistence(username);
+	        return count != null && count > 0;
+	    }
 
 }

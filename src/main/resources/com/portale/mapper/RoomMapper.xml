@@ -58,24 +58,22 @@
 		INNER JOIN ranks rnks
 		ON rnks.rank_id = urr.rank_id
 
-		INNER JOIN boards brd ON brd.board_id = rm.room_board
+		INNER JOIN boards brd ON brd.board_id =
+		rm.room_board
 
 		WHERE rm.room_id IN (
-			SELECT rm.room_id
-			FROM rooms rm
-			INNER JOIN user_rank_room urr ON urr.room_id = rm.room_id
-			INNER JOIN users usr ON usr.usr_id = urr.user_id
-			INNER JOIN ranks rnks
-			ON rnks.rank_id = urr.rank_id
-			WHERE usr.usr_id = #{user_id}
-			AND rm.room_id =  #{room_id}
-			GROUP BY rm.room_id
+		SELECT rm.room_id
+		FROM rooms rm
+		INNER JOIN user_rank_room urr ON urr.room_id = rm.room_id
+		INNER JOIN users usr ON usr.usr_id = urr.user_id
+		INNER JOIN ranks rnks
+		ON rnks.rank_id = urr.rank_id
+		WHERE usr.usr_id = #{user_id}
+		AND rm.room_id = #{room_id}
+		GROUP BY rm.room_id
 		)
 	</select>
-	
-		<select id="checkUsernameExistence" resultType="java.lang.Integer">
-    SELECT COUNT(*) FROM users WHERE usr_username = #{username};
-   </select>
+
 
 	<select id="setUserToRandomAvaibleGifterRoom">
 		CALL public.assignUserToRandomRoom(#{user_id});

@@ -40,13 +40,13 @@ public class LoginController {
 			httpHeaders.add("Authorization", "Bearer " + JwtTokenGenerator.generateToken(uauth));
 			return new ResponseEntity<>(user_data, httpHeaders, HttpStatus.OK);
 		} catch (ManagedException e) {
-			if(e.getMessage().equals("user.not.complete")) {
+			if (e.getMessage().equals("user.not.complete")) {
 				userLoginRequest.setAuthorities("SEND_DETAILS");
 				httpHeaders.add("Authorization", "Bearer " + JwtTokenGenerator.generateToken(userLoginRequest));
 				return new ResponseEntity<>(e.getMessage(), httpHeaders, HttpStatus.ACCEPTED);
 			}
 			System.out.println(e.getMessage());
-500 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -100,6 +100,18 @@ public class LoginController {
 		} catch (ManagedException e) {
 			System.out.println(e.getMessage());
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@RequestMapping(value = "/checkUsernameExistence/{username}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@ResponseBody
+	public ResponseEntity<?> checkUsernameExistence(@PathVariable("username") String username) {
+		try {
+			boolean usernameExists = loginService.checkUsernameExistence(username);
+			return new ResponseEntity<>(usernameExists, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

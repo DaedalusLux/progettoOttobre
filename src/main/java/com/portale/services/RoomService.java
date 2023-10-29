@@ -23,10 +23,5 @@ public class RoomService {
 	public List<Board> getBoardsByUser(int user_id) {
 		return mapper.getBoardsByUser(user_id);
 	}
-	
-	 public boolean checkUsernameExistence(String username) {
-	        Integer count = mapper.checkUsernameExistence(username);
-	        return count != null && count > 0;
-	    }
 
 }

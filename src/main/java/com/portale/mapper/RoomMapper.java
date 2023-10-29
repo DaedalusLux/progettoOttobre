@@ -15,6 +15,5 @@ public interface RoomMapper {
 	
 	void setUserToRandomAvaibleGifterRoom(@Param("user_id") int user_id);
 	
-    Integer checkUsernameExistence(@Param("username") String username);
 
 }

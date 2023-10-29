@@ -31,4 +31,6 @@ public interface LoginMapper {
 
 	void assignUserToPlatform(@Param("user") User user_details);
 
+    Integer checkUsernameExistence(@Param("username") String username);
+
 }

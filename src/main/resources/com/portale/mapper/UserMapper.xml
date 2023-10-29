@@ -4,8 +4,7 @@
 
 <mapper namespace="com.portale.mapper.UserMapper">
 
-	<resultMap type="UserAuth"
-		id="UserCredentialsResultMap">
+	<resultMap type="UserAuth" id="UserCredentialsResultMap">
 		<result property="username" column="usr_username" />
 		<result property="password" column="usr_password" />
 	</resultMap>
@@ -20,14 +19,18 @@
 		<result property="isLocked" column="isLocked" />
 	</resultMap>
 
-	<select id="CheckUserForLogin" resultMap="UserCredentialsResultMap">
-		SELECT usr_username, usr_password FROM Users WHERE usr_username = #{username};
+	<select id="CheckUserForLogin"
+		resultMap="UserCredentialsResultMap">
+		SELECT usr_username, usr_password FROM Users WHERE
+		usr_username = #{username};
 	</select>
 
 	<select id="getUserData" resultMap="UserRoomResultMap">
 		SELECT * FROM users u
-		INNER JOIN rooms ro ON ro.room_id = u.usr_room
-		INNER JOIN ranks ra ON ra.rank_id = u.usr_rank
+		INNER
+		JOIN rooms ro ON ro.room_id = u.usr_room
+		INNER JOIN ranks ra ON
+		ra.rank_id = u.usr_rank
 		WHERE u.usr_username = #{username};
 	</select>
 </mapper>

@@ -25,7 +25,7 @@ import com.portale.services.RoomService;
 public class RoomController {
 	@Resource
 	private RoomService roomService;
-	
+
 	@RequestMapping(value = "", method = RequestMethod.GET, headers = "Accept=application/json")
 	@ResponseBody
 	public ResponseEntity<?> getBoardsByUser(Authentication authentication) {
@@ -39,20 +39,7 @@ public class RoomController {
 		}
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-	
-	
-	@RequestMapping(value = "/checkUsernameExistence/{username}", method = RequestMethod.GET, headers = "Accept=application/json")
-	@ResponseBody
-	public ResponseEntity<?> checkUsernameExistence(@PathVariable("username") String username) {
-	    try {
-	        boolean usernameExists = roomService.checkUsernameExistence(username);
-	        return new ResponseEntity<>(usernameExists, HttpStatus.OK);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	}
-	
+
 	@RequestMapping(value = "/{room_id}", method = RequestMethod.GET, headers = "Accept=application/json")
 	@ResponseBody
 	public ResponseEntity<?> getRoom(Authentication authentication, @PathVariable("room_id") int room_id) {
@@ -66,5 +53,5 @@ public class RoomController {
 		}
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-	
+
 }
