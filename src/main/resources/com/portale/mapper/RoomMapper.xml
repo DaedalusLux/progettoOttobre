@@ -64,29 +64,15 @@
 		WHERE rm.room_id IN (
 		SELECT rm.room_id
 		FROM rooms rm
-<<<<<<< HEAD
 		INNER JOIN user_rank_room urr ON urr.room_id = rm.room_id
 		INNER JOIN users usr ON usr.usr_id = urr.user_id
 		INNER JOIN ranks rnks
 		ON rnks.rank_id = urr.rank_id
-=======
-		INNER
-		JOIN user_rank_room urr ON urr.room_id = rm.room_id
-		INNER JOIN users
-		usr ON usr.usr_id = urr.user_id
-		INNER JOIN ranks rnks
-		ON rnks.rank_id =
-		urr.rank_id
->>>>>>> branch 'master' of https://github.com/DaedalusLux/progettoOttobre
 		WHERE usr.usr_id = #{user_id}
 		AND rm.room_id = #{room_id}
 		GROUP BY rm.room_id
 		)
 	</select>
-<<<<<<< HEAD
-
-=======
->>>>>>> branch 'master' of https://github.com/DaedalusLux/progettoOttobre
 
 	<select id="setUserToRandomAvaibleGifterRoom">
 		CALL public.assignUserToRandomRoom(#{user_id});

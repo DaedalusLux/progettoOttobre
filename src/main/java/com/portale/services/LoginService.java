@@ -52,6 +52,7 @@ public class LoginService {
 		Integer count = mapper.checkUsernameExistence(username);
 		return count != null && count > 0;
 	}
+	
 	@Transactional
 	public UUID setRegistration(UserAuth _userauth) throws Exception {
 		String dublicate_mail = mapper.getUserByEmail(_userauth.getEmail());
@@ -182,9 +183,4 @@ public class LoginService {
 		return false;
 	}
 	
-	 public boolean checkUsernameExistence(String username) {
-	        Integer count = mapper.checkUsernameExistence(username);
-	        return count != null && count > 0;
-	    }
-
 }

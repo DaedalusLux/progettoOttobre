@@ -4,13 +4,10 @@
 
 <mapper namespace="com.portale.mapper.LoginMapper">
 
-<<<<<<< HEAD
-
-=======
->>>>>>> branch 'master' of https://github.com/DaedalusLux/progettoOttobre
 	<select id="checkUsernameExistence"
 		resultType="java.lang.Integer">
-		SELECT COUNT(*) FROM users WHERE usr_username = #{username};
+		SELECT COUNT(*) FROM users WHERE usr_username =
+		#{username};
 	</select>
 
 	<insert id="setRegistration">

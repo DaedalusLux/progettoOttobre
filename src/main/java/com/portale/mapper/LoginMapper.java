@@ -32,7 +32,4 @@ public interface LoginMapper {
 	void dleteOldRequestsByUsername(@Param("username") String username);
 
 	void assignUserToPlatform(@Param("user") User user_details);
-
-    Integer checkUsernameExistence(@Param("username") String username);
-
 }
