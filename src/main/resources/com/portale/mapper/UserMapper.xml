@@ -15,8 +15,8 @@
 		<result property="wallet_address" column="usr_wallet_address" />
 		<result property="phone" column="usr_phone" />
 		<!-- result property="rank_name" column="rank_name" / -->
-		<result property="isAdmin" column="isAdmin" />
-		<result property="isLocked" column="isLocked" />
+		<result property="isAdmin" column="isadmin" />
+		<result property="isLocked" column="islocked" />
 	</resultMap>
 
 	<select id="CheckUserForLogin"

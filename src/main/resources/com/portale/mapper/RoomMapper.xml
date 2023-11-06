@@ -38,8 +38,8 @@
 		<result property="phone" column="usr_phone" />
 		<result property="wallet_address" column="usr_wallet_address" />
 
-		<result property="isAdmin" column="isAdmin" />
-		<result property="isLocked" column="isLocked" />
+		<result property="isAdmin" column="isadmin" />
+		<result property="isLocked" column="islocked" />
 
 		<!-- TODO association property="rank" resultMap="RankResultMap"></association -->
 	</resultMap>

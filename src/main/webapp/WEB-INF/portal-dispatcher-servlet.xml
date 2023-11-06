@@ -31,9 +31,9 @@
 
 		<mvc:mapping path="/**" allowed-origins="*"
 
-			allowed-headers="Content-Type, content-type, x-requested-with, Access-Control-Allow-Origin, Access-Control-Allow-Headers, x-auth-token, x-app-id, Origin,Accept, X-Requested-With, Access-Control-Request-Method, Access-Control-Request-Headers"
+			allowed-headers="Content-Type, content-type, x-requested-with, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Authorization, Origin,Accept, X-Requested-With, Access-Control-Request-Method, Access-Control-Request-Headers"
 
-			allowed-methods="GET,POST,PUT,OPTIONS" allow-credentials="false" exposed-headers="x-auth-token, Access-Control-Allow-Origin" />
+			allowed-methods="GET,POST,PUT,OPTIONS" allow-credentials="false" exposed-headers="Authorization, Access-Control-Allow-Origin" />
 
 	</mvc:cors>
 

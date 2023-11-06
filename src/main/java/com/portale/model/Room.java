@@ -2,11 +2,14 @@ package com.portale.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 public class Room {
 	private int room_id;
 	private int board_level; //ID Tavola = Livello Tavola
 	private String board_name; //Nome tavola
 	
+    @JsonInclude(JsonInclude.Include.NON_NULL) 
 	private List<User> users; //Lista giocatori presenti nella tavola
 
 	public String getBoard_name() {

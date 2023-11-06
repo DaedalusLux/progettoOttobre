@@ -47,13 +47,9 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 		String authToken = header.substring(7);
 
-		JwtAuthenticationToken authRequest = new JwtAuthenticationToken(authToken);
+        JwtAuthenticationToken authRequest = new JwtAuthenticationToken(authToken);
 
-		Authentication Auth = getAuthenticationManager().authenticate(authRequest);
-		UserAuth user = JwtTokenValidator.parseToken(authToken);
-		response.addHeader("id_token", JwtTokenGenerator.generateToken(user));
-		response.setHeader("Access-Control-Expose-Headers", "id_token");
-		return Auth;
+        return getAuthenticationManager().authenticate(authRequest);
 	}
 
 	@Override

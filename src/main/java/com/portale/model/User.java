@@ -1,6 +1,9 @@
 package com.portale.model;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 public class User {
 
@@ -20,6 +23,13 @@ public class User {
 	@JsonIgnore
 	private String authorities;
 	
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+    private String rank_name;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<Room> room;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String payment_status;
+    
 	public String getEmail() {
 		return email;
 	}
@@ -97,6 +107,30 @@ public class User {
 
 	public void setTelegram(String telegram) {
 		this.telegram = telegram;
+	}
+
+	public List<Room> getRoom() {
+		return room;
+	}
+
+	public void setRoom(List<Room> room) {
+		this.room = room;
+	}
+
+	public String getPayment_status() {
+		return payment_status;
+	}
+
+	public void setPayment_status(String payment_status) {
+		this.payment_status = payment_status;
+	}
+
+	public String getRank_name() {
+		return rank_name;
+	}
+
+	public void setRank_name(String rank_name) {
+		this.rank_name = rank_name;
 	}
 
 }

@@ -62,6 +62,8 @@
 		<result property="phone" column="usr_phone" />
 		<result property="telegram" column="usr_telegram" />
 		<result property="wallet_address" column="usr_wallet_address" />
+		<result property="isAdmin" column="isadmin" />
+		<result property="isLocked" column="islocked" />
 	</resultMap>
 
 	<select id="getUserByUsername" resultMap="UserResultMap">
@@ -79,7 +81,7 @@
 	<resultMap type="UserAuth" id="UserLoginResultMap">
 		<result property="username" column="usr_username" />
 		<result property="password" column="usr_password" />
-		<result property="isAdmin" column="isAdmin" />
+		<result property="isAdmin" column="isadmin" />
 	</resultMap>
 
 	<select id="getUserForLogin" resultMap="UserLoginResultMap">

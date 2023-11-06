@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.portale.mapper.AdminMapper">
+	<select id="getUsers"
+		resultMap="com.portale.mapper.LoginMapper.UserResultMap">
+		SELECT * FROM public.users
+		<if test="query==2">
+			WHERE islocked = true
+		</if>
+		<if test="query==3">
+			WHERE isadmin = true
+		</if>
+		ORDER BY usr_id DESC
+		LIMIT #{limit}
+		OFFSET #{offset}
+	</select>
+	<select id="getUsers_Totals" resultType="Integer">
+		SELECT count(*) FROM
+		public.users
+		<if test="query==2">
+			WHERE islocked = true
+		</if>
+		<if test="query==3">
+			WHERE isadmin = true
+		</if>
+	</select>
+
+	<resultMap type="User" id="UserRoloesResultMap">
+		<id property="id" column="usr_id" />
+		<result property="username" column="usr_username" />
+		<result property="name" column="usr_name" />
+		<result property="email" column="usr_email" />
+		<result property="phone" column="usr_phone" />
+		<result property="telegram" column="usr_telegram" />
+		<result property="wallet_address" column="usr_wallet_address" />
+		<result property="isAdmin" column="isadmin" />
+		<result property="isLocked" column="islocked" />
+		<result property="rank_name" column="rank_name" />
+		<result property="payment_status" column="payment_status" />
+		
+	</resultMap>
+	
+	<select id="getUsersRoles"
+		resultMap="com.portale.mapper.LoginMapper.UserResultMap">
+		SELECT * FROM public.users
+		INNER JOIN user_rank_room urr ON user_id = usr_id
+		INNER JOIN ranks rnk ON rnk.rank_id = urr.rank_id
+		ORDER BY usr_id DESC
+		LIMIT #{limit}
+		OFFSET #{offset}
+	</select>
+	<select id="getUsersRoles_Totals" resultType="Integer">
+		SELECT count(*) FROM
+		public.users
+		INNER JOIN user_rank_room urr ON user_id = usr_id
+		INNER JOIN ranks rnk ON rnk.rank_id = urr.rank_id
+	</select>
+</mapper>
