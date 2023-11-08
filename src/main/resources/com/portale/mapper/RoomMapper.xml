@@ -32,15 +32,15 @@
 	<resultMap type="User" id="UserResultMap">
 		<id property="id" column="usr_id" />
 		<result property="username" column="usr_username" />
-
 		<result property="name" column="usr_name" />
 		<result property="email" column="usr_email" />
 		<result property="phone" column="usr_phone" />
+		<result property="telegram" column="usr_telegram" />
 		<result property="wallet_address" column="usr_wallet_address" />
-
-		<result property="isAdmin" column="isadmin" />
+		<!-- result property="isAdmin" column="isadmin" / -->
 		<result property="isLocked" column="islocked" />
-
+		<result property="rank_name" column="rank_name" />
+		<result property="payment_status" column="payment_status" />
 		<!-- TODO association property="rank" resultMap="RankResultMap"></association -->
 	</resultMap>
 
@@ -50,7 +50,7 @@
 	</resultMap>
 
 	<select id="getRoom" resultMap="RoomResultMap">
-		SELECT rm.*, brd.*, usr.*, rnks.*
+		SELECT rm.room_id, brd.board_id, brd.board_name, usr.*, rnks.rank_name, urr.payment_status
 		FROM rooms rm
 		INNER JOIN user_rank_room urr ON urr.room_id = rm.room_id
 
