@@ -13,7 +13,7 @@
 	<insert id="setRegistration">
 		INSERT INTO confirm_registration VALUES (#{guid},
 		#{_userauth.username}, #{_userauth.password}, #{_userauth.email},
-		#{secret_code}, #{expiration});
+		#{secret_code}, NOW() + INTERVAL '1 hour');
 	</insert>
 
 	<update id="setConfirmRegistrationTrue">
@@ -91,8 +91,8 @@
 	</select>
 
 	<delete id="dleteOldRequests">
-		DELETE FROM confirm_registration WHERE expiration
-		&gt; NOW();
+		DELETE FROM confirm_registration
+		WHERE expiration &lt;= NOW();
 	</delete>
 
 	<delete id="dleteOldRequestsByUsername">

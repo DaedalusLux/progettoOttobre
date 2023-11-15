@@ -17,6 +17,7 @@
 
 	<http pattern="/login" security="none" />
 	<http pattern="/register/**" security="none" />
+	<http pattern="/checkUsernameExistence/**" security="none" />
 
 	<http entry-point-ref="restAuthenticationEntryPoint"
 		create-session="stateless" use-expressions="true">

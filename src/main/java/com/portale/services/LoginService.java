@@ -1,6 +1,5 @@
 package com.portale.services;
 
-import java.sql.Date;
 import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
@@ -59,17 +58,15 @@ public class LoginService {
 		UUID guid = UUID.randomUUID();
 		String secret_code = String.valueOf(new Random().nextInt(900000) + 100000);
 
-		long millis = System.currentTimeMillis() + 3600000; // Un'ora di tempo per la conferma account
-		Date expiration = new Date(millis);
-
-		if (sendRegistrationEmail(secret_code, _userauth.getEmail())) {
-			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-			_userauth.setPassword(passwordEncoder.encode(_userauth.getPassword()));
-			mapper.setRegistration(guid.toString(), secret_code, expiration, _userauth);
-			mapper.dleteOldRequests();
+		mapper.dleteOldRequests();
+		
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		_userauth.setPassword(passwordEncoder.encode(_userauth.getPassword()));
+		if(mapper.setRegistration(guid.toString(), secret_code, _userauth) == 1) {
+			sendRegistrationEmail(secret_code, _userauth.getEmail());
 			return guid;
-		} 
-		throw new ManagedException("Mail exception, something wrong with configuration...");
+		}
+		throw new ManagedException("Something went wrong while I was trying to figure out how it suppose to work o_0");
 	}
 
 	public boolean setRegistrationConfirmation(String guid, SecretCode sc) throws Exception {

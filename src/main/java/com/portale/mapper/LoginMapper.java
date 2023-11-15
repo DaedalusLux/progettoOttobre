@@ -1,7 +1,5 @@
 package com.portale.mapper;
 
-import java.sql.Date;
-
 import org.apache.ibatis.annotations.Param;
 
 import com.portale.model.User;
@@ -11,7 +9,7 @@ public interface LoginMapper {
 	
 	Integer checkUsernameExistence(@Param("username") String username);
 
-	void setRegistration(@Param("guid") String guid, @Param("secret_code")  String secret_code, @Param("expiration") Date expiration, @Param("_userauth") UserAuth _userauth);
+	int setRegistration(@Param("guid") String guid, @Param("secret_code")  String secret_code, @Param("_userauth") UserAuth _userauth);
 
 	String getConfirmRegistration(@Param("guid") String guid);
 	
