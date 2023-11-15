@@ -30,6 +30,15 @@ public class AdminService {
 		data.setTotal_results(mapper.getUsersRoles_Totals());
 		return data;
 	}
+
+	public Data getRooms(int page, int items_per_page) {
+		Data data = new Data();
+		data.setCurrent_page(page);
+		data.setResults_per_page(items_per_page);
+		data.setData(mapper.getRooms(items_per_page, page * items_per_page));
+		data.setTotal_results(mapper.getRooms_Totals());
+		return data;
+	}
 	
 	
 }
