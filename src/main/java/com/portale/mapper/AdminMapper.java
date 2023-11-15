@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.portale.model.RoomStatistics;
 import com.portale.model.User;
 
 public interface AdminMapper {
@@ -13,6 +14,9 @@ public interface AdminMapper {
 	
 	List<User> getUsersRoles(@Param("limit") int limit, @Param("offset") int offset);
 	int getUsersRoles_Totals();
+	
+	List<RoomStatistics> getRooms(@Param("limit") int limit, @Param("offset") int offset);
+	int getRooms_Totals();
 	
 
 }
