@@ -65,7 +65,6 @@
 		<id property="room_id" column="room_id" />
 		<result property="room_level" column="board_id" />
 		<result property="board_name" column="board_name" />
-<<<<<<< HEAD
 		<result property="total_users_count" column="total_user_count" />
 		<result property="last_room_update" column="last_update" />
 		<association property="room_users_statistics"
@@ -112,25 +111,8 @@
 		WHERE row_num
 		BETWEEN
 		#{offset} + 1 AND #{offset} + #{limit}
-=======
-		<result property="users_count" column="count" />
-		<result property="last_room_update" column="last_update" />
-	</resultMap>
-
-	<select id="getRooms" resultMap="RoomStatisticsResultMap">
-		SELECT r.room_id, b.*,
-		upr.count, upr.max as last_update FROM rooms r
-		INNER JOIN public.boards
-		b ON b.board_id = r.room_board
-		LEFT JOIN (SELECT room_id,
-		MAX(last_update), count(user_id) FROM public.user_rank_room GROUP BY
-		room_id) upr ON upr.room_id = r.room_id
-		ORDER BY r.room_id DESC
-		LIMIT
-		#{limit}
-		OFFSET #{offset}
->>>>>>> branch 'master' of https://github.com/DaedalusLux/progettoOttobre
 	</select>
+	
 	<select id="getRooms_Totals" resultType="Integer">
 		SELECT count(room_id)
 		FROM rooms
