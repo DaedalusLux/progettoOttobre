@@ -75,10 +75,10 @@
 	</select>
 
 	<select id="setUserToRandomAvaibleGifterRoom">
-		CALL public.assignUserToRandomRoom(#{user_id});
+		CALL public.assignusertorandomroom(#{user_id});
 	</select>
 
-	<update id="setEndUserPaymentSuccess">
-		CALL public.setEndUserPaymentSuccess(#{room_id}, #{request_user_id}, #{request_user_id});
-	</update>
+	<select id="setEndUserPaymentSuccess">
+		CALL public.setenduserpaymentsuccess(#{room_id}, #{end_user_id}, #{request_user_id});
+	</select>
 </mapper>

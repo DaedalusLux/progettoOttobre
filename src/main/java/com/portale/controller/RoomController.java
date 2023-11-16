@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.portale.model.Board;
+import com.portale.model.ManagedException;
 import com.portale.model.Room;
 import com.portale.security.model.AuthenticatedUser;
 import com.portale.services.RoomService;
@@ -52,6 +53,23 @@ public class RoomController {
 			e.printStackTrace();
 		}
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@RequestMapping(value = "/setPayment/{room_id}/{user_id}", method = RequestMethod.PUT, headers = "Accept=application/json")
+	@ResponseBody
+	public ResponseEntity<?> setPayment(Authentication authentication, @PathVariable("room_id") int room_id, @PathVariable("user_id") int user_id) {
+		AuthenticatedUser u = (AuthenticatedUser) authentication.getPrincipal();
+		try {
+			roomService.setEndUserPaymentSuccess(room_id, user_id, u.getId());
+			return new ResponseEntity<>(HttpStatus.OK);
+
+		} catch (ManagedException e) {
+			System.out.println(e.getMessage());
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 }
